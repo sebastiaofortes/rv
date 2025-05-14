@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Jogo: Invasão dos Drones - Realidade aumentada</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <!--
+    O look-at é um componente que faz entidades "olharem" para outras, atualmente não estou usando
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+
+    <!-- Importação da fonte Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <script type='text/javascript'
+        src='https://raw.githack.com/AR-js-org/AR.js/3.4.5/three.js/build/ar-threex-location-only.js'></script>
+    <script type='text/javascript'
+        src='https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js'></script>
+</head>
+
+<body>
+    <div id="startScreen"
+        style="position: absolute; top: 0; left: 0; 
+    width: 100%; height: 100%; background: rgba(0,0,0,0.8); 
+    display: flex; flex-direction: column; justify-content: center; 
+    align-items: center; color: white; font-size: 5vw; z-index: 10; text-align: center; font-family: 'Orbitron', sans-serif;">
+
+        <p>Instruções: Clique nos drones para os destruir e ganhar pontos!</p>
+        <button id="playButton"
+            style="padding: 2vw 4vw; font-size: 5vw; font-family: 'Orbitron', sans-serif;">Jogar</button>
+    </div>
+    <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false'
+        renderer='antialias: true; alpha: true'>
+        <a-entity light="type: ambient; color: #ffffff; intensity: 4"></a-entity>
+        <a-camera cursor="rayOrigin: mouse" raycaster="far: 1000; objects: .clickable">
+            <a-entity id="loadingStatus" position="0 0 -1"
+                text="value: Carregando...; color: white; align: center; width: 2">
+            </a-entity>
+
+            <!-- HUD do contador -->
+            <!-- A fonte Orbitron utulizada nesse componente foi gerada por uma ferramenta online -->
+            <a-text id="scoreText" value="Pontos: 0" negate="false" color="yellow" width="2" align="left"
+                font="./Orbitron-font/Orbitron-SemiBold-BF66babf323d53a-msdf.json""
+                position=" -0.2 0.7 -1">
+            </a-text>
+        </a-camera>
+        <a-assets>
+            <audio id="laserAudio" src="raio-laser.mp3"></audio>
+            <a-asset-item id="avatarModel" src="mech_drone.glb"></a-asset-item>
+        </a-assets>
+        <a-gltf-model src="#avatarModel" animation-mixer scale="3 3 3" position="0 1 -2" id="gophermodel" visible="true"
+            class="clickable">
+        </a-gltf-model>
+    </a-scene>
+    <script>
+        let score=0;gophermodel.addEventListener("click",o=>{const l=document.querySelector("a-camera").object3D.getWorldPosition(new THREE.Vector3),e=gophermodel.object3D.getWorldPosition(new THREE.Vector3);fireLaserAnimated(l,e,80),score+=1,document.getElementById("scoreText").setAttribute("value",`Pontos: ${score}`);const n=getRandomPositionConfig();position=`${n.x} ${n.y} ${n.z}`;let t=gophermodel.getAttribute("scale"),c=setInterval(()=>{t.x<=.01?(clearInterval(c),gophermodel.setAttribute("scale","3 3 3"),gophermodel.setAttribute("position",position)):(t.x*=.9,t.y*=.9,t.z*=.9,gophermodel.setAttribute("scale",`${t.x} ${t.y} ${t.z}`))},25)});const positionConfigs=[{x:2,y:1,z:-2,cor:"gray"},{x:0,y:1,z:-2,cor:"red"},{x:-2,y:1,z:-2,cor:"yellow"},{x:2,y:1,z:2,cor:"black"},{x:0,y:1,z:2,cor:"blue"},{x:-2,y:1,z:2,cor:"pink"},{x:0,y:2,z:-2,cor:"red"},{x:0,y:2,z:2,cor:"red"}];window.onload=()=>{let o=!1;o||document.getElementById("loadingStatus").setAttribute("visible","false"),o=!0,document.getElementById("playButton").addEventListener("click",()=>{document.getElementById("startScreen").style.display="none"})};function getRandomPositionConfig(){const o=Math.floor(Math.random()*positionConfigs.length);return positionConfigs[o]}function fireLaserAnimated(o,i,l=250){document.getElementById("laserAudio").currentTime=0,document.getElementById("laserAudio").play();const e=document.createElement("a-entity"),n=new THREE.Vector3(o.x,o.y,o.z),t=new THREE.Vector3(i.x,i.y,i.z),c=new THREE.Vector3().subVectors(t,n).normalize(),y=n.distanceTo(t);let r=.01;const d=.02;e.setAttribute("geometry",`primitive: cylinder; height: ${r}; radius: ${d};`),e.setAttribute("material","color: red; opacity: 0.8;");let s=new THREE.Vector3().copy(n).add(c.clone().multiplyScalar(r/2));e.setAttribute("position",`${s.x} ${s.y} ${s.z}`),document.querySelector("a-scene").appendChild(e),e.object3D.lookAt(t);const p=performance.now();function m(g){let E=g-p,u=Math.min(1,E/l);r=u*y,e.setAttribute("geometry",`primitive: cylinder; height: ${r}; radius: ${d};`);let a=new THREE.Vector3().copy(n).add(c.clone().multiplyScalar(r/2));e.setAttribute("position",`${a.x} ${a.y} ${a.z}`),e.object3D.lookAt(t),u<1?requestAnimationFrame(m):setTimeout(()=>{e.parentNode&&e.parentNode.removeChild(e)},150)}requestAnimationFrame(m)}
+    </script>
+</body>
+
+</html>
