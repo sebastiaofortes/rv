@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <style>
+      #loader, #errorMsg {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.7);
+        color: #fff; padding: 25px 35px; border-radius: 15px;
+        font-size: 1.3em; z-index: 20; text-align: center;
+      }
+      #errorMsg { background: #7f2222; }
+      #playBtn, #audioBtn {
+        position: absolute;
+        top: 20px; left: 20px;
+        z-index: 10;
+        padding: 15px 30px;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      #audioBtn {
+        left: 180px; /* deixa ao lado do botão play */
+        background-color: #0A86DA;
+        display: none;
+      }
+      #instructions {
+        position: absolute;
+        bottom: 20px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.5); color: #fff; padding: 8px 18px;
+        border-radius: 10px;
+        font-size: 1em; z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loader">Carregando vídeo, por favor aguarde...</div>
+    <div id="errorMsg" style="display:none;">Não foi possível carregar o vídeo 360°. Tente novamente mais tarde ou verifique sua conexão.</div>
+    <div id="instructions" style="display:none;">
+      Mova o mouse ou o celular para olhar ao redor. Em celulares, use dois dedos para mover ou dê dois toques para controlar a câmera.
+    </div>
+    <a-scene>
+      <a-assets>
+        <video id="video360" src="vimeo.mp4" crossorigin="anonymous" loop="true" playsinline webkit-playsinline></video>
+        <audio id="audio360" src="meditacao.mp3" crossorigin="anonymous"></audio>
+      </a-assets>
+      <a-videosphere src="#video360" rotation="0 -90 0"></a-videosphere>
+    </a-scene>
+    <button id="playBtn" style="display:none;">Iniciar Vídeo 360</button>
+    <button id="audioBtn" style="display:none;">Tocar Áudio</button>
+    <script>
+      var video = document.querySelector('#video360');
+      var audio = document.querySelector('#audio360');
+      var playBtn = document.getElementById('playBtn');
+      var audioBtn = document.getElementById('audioBtn');
+      var loader = document.getElementById('loader');
+      var errorMsg = document.getElementById('errorMsg');
+      var instructions = document.getElementById('instructions');
+      
+      // Exibe botão iniciar após carregamento do vídeo
+      video.addEventListener('canplaythrough', function () {
+        loader.style.display = 'none';
+        playBtn.style.display = 'block';
+      });
+
+      // Detecta e trata erro de carregamento
+      video.addEventListener('error', function() {
+        loader.style.display = 'none';
+        errorMsg.style.display = 'block';
+      });
+
+      // Botão de play - incluindo compatibilidade mobile
+      playBtn.addEventListener('click', function () {
+        video.play()
+          .then(() => {
+            playBtn.style.display = 'none';
+            instructions.style.display = 'block';
+            audioBtn.style.display = 'block'; // Mostra botão do áudio! 
+          })
+          .catch(() => {
+            errorMsg.innerText = "Seu navegador bloqueou o início automático do vídeo. Tente novamente.";
+            errorMsg.style.display = 'block';
+          });
+      });
+
+      // Botão para tocar áudio
+      audioBtn.addEventListener('click', function () {
+        audio.play()
+          .then(() => {
+            audioBtn.innerText = "Áudio tocando!";
+            audioBtn.disabled = true;
+          })
+          .catch(() => {
+            errorMsg.innerText = "Seu navegador bloqueou o início automático do áudio. Tente novamente.";
+            errorMsg.style.display = 'block';
+          });
+      });
+
+      // Para alguns navegadores, o preload pode ser restrito em mobile
+      // Mostra instrução após o vídeo ser iniciado
+      video.addEventListener('play', function () {
+        instructions.style.display = 'block';
+      });
+
+      // Garante que sempre volte à tela inicial em caso de erro crítico
+      window.addEventListener('unhandledrejection', function() {
+        loader.style.display = 'none';
+        errorMsg.style.display = 'block';
+      });
+    </script>
+  </body>
+</html>
