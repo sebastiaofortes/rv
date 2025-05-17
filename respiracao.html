@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <style>
+      #playBtn {
+        position: absolute;
+        top: 20px; left: 20px;
+        z-index: 10;
+        padding: 15px 30px;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+      }
+      #instructions {
+        position: absolute;
+        bottom: 20px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.5); color: #fff; padding: 8px 18px;
+        border-radius: 10px;
+        font-size: 1em; z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="playBtn">Iniciar Meditação 360</button>
+    <div id="instructions" style="display:none;">
+      Mova o mouse ou o celular para olhar ao redor.
+    </div>
+    <a-scene>
+      <a-assets>
+        <video id="video360" src="vimeo.mp4" crossorigin="anonymous" loop="true" playsinline webkit-playsinline></video>
+      </a-assets>
+      <a-videosphere src="#video360" rotation="0 -90 0"></a-videosphere>
+
+      <!-- Esfera para respiração guiada -->
+      <a-entity id="breathSphere" position="0 1.5 -3">
+        <a-sphere color="#7fffd4" radius="0.7" opacity="0.6"></a-sphere>
+        <!-- Texto para instrução -->
+        <a-entity id="breathText"
+                  text="value: Inspire; align: center; color: #FFFFFF; width: 3"
+                  position="0 1 0"></a-entity>
+      </a-entity>
+    </a-scene>
+    <script>
+      // Elementos
+      var playBtn = document.getElementById('playBtn');
+      var instructions = document.getElementById('instructions');
+      var video = document.querySelector('#video360');
+      var breathSphere = document.querySelector('#breathSphere');
+      var breathText = document.querySelector('#breathText');
+
+      // Parâmetros para animação de respiração
+      var inhaleDuration = 4000;   // Inspiração: 4s
+      var exhaleDuration = 4000;   // Expiração: 4s
+      var minScale = 1;
+      var maxScale = 2;
+      var breathing = false;
+
+      // Função para animar esfera de respiração guiada
+      function breathe(state) {
+        if (!breathing) return; // Interrompe caso a sessão acabe
+
+        let nextState = state === "in" ? "out" : "in";
+        let duration = state === "in" ? inhaleDuration : exhaleDuration;
+        let startScale = state === "in" ? minScale : maxScale;
+        let endScale = state === "in" ? maxScale : minScale;
+        let text = state === "in" ? "Inspire" : "Expire";
+
+        breathText.setAttribute('text', 'value', text);
+
+        // Animação de escala
+        let start = null;
+        function animate(now) {
+          if (!start) start = now;
+          let elapsed = now - start;
+          let progress = Math.min(elapsed / duration, 1);
+          let scale = startScale + (endScale - startScale) * progress;
+          breathSphere.setAttribute('scale', `${scale} ${scale} ${scale}`);
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            // Alterna entre inspiração e expiração
+            setTimeout(() => breathe(nextState), 0);
+          }
+        }
+        requestAnimationFrame(animate);
+      }
+
+      // Inicia tudo ao clicar no botão
+      playBtn.addEventListener('click', function () {
+        video.play();
+        playBtn.style.display = 'none';
+        instructions.style.display = 'block';
+        // Inicia respiração guiada
+        breathing = true;
+        breathe("in");
+      });
+
+      // Parar ao recarregar sessão
+      window.addEventListener('beforeunload', function() {
+        breathing = false;
+      });
+
+      // Opcional: esconder esfera após X minutos ou deixar enquanto o usuário desejar
+    </script>
+  </body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!-- A-Frame Core -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <!-- Troika Text -->
+    <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+    <style>
+        #playBtn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            background-color: #6ac5ff;
+            color: white;
+            cursor: pointer;
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-size: 1em;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="playBtn">Ver Palavras como Nuvens</button>
+    <div id="instructions" style="display:none;">
+        Palavras vão passar diante de você, como nuvens. Observe cada uma, e deixe-a ir...
+    </div>
+    <a-scene background="color: #20355e">
+        <a-assets>
+            <video id="video360" src="vimeo.mp4" crossorigin="anonymous" loop="true" playsinline
+                webkit-playsinline></video>
+        </a-assets>
+        <a-videosphere src="#video360" rotation="0 -90 0"></a-videosphere>
+        <a-entity id="cloudWords"></a-entity>
+    </a-scene>
+    <script>
+        // Lista de palavras com acentos
+        const palavras = [
+            "paz", "calma", "amor", "presença", "aceitação", "gratidão",
+            "alegria", "serenidade", "compaixão", "gentileza",
+            "ação", "emoção", "inspiração", "razão", "lição",
+            "conexão", "coração", "manhã", "amanhã", "união",
+            "tensão", "canção", "perdão", "solidão", "percepção",
+            "decisão", "admiração", "atenção"
+        ];
+        var playBtn = document.getElementById('playBtn');
+        var video = document.querySelector('#video360');
+        var instructions = document.getElementById('instructions');
+        var cloudWords = document.getElementById('cloudWords');
+        var intervalo;
+
+        // Use troika-text: https://github.com/protectwise/aframe-troika-text
+        function criarNuvemPalavra() {
+            const palavra = palavras[Math.floor(Math.random() * palavras.length)];
+            const x = (Math.random() - 0.5) * 2;
+            const y = 1 + Math.random() * 0.5;
+            const z = -2.4 - Math.random() * 0.3;
+
+            // Troika text: <a-troika-text>
+            const entidade = document.createElement('a-troika-text');
+            entidade.setAttribute('value', palavra);
+            entidade.setAttribute('color', '#82bdfa');
+            entidade.setAttribute('font-size', '0.5');
+            entidade.setAttribute('max-width', '2.5');
+            entidade.setAttribute('anchor', 'center');
+            entidade.setAttribute('position', `${x} ${y} ${z}`);
+            entidade.setAttribute('opacity', '1');
+            entidade.setAttribute('side', 'double');
+            entidade.setAttribute('font', 'https://cdn.jsdelivr.net/npm/@fontsource/roboto/files/roboto-latin-400-normal.woff');
+
+            cloudWords.appendChild(entidade);
+
+            // Animação manual para subida e fade-out
+            let start = null;
+            const dur = 5200 + Math.random() * 800;
+            function animate(time) {
+                if (!start) start = time;
+                const elapsed = time - start;
+                const ny = y + (elapsed / dur) * 1.9;
+                entidade.setAttribute('position', `${x} ${ny} ${z}`);
+                const op = Math.max(1 - (elapsed / dur), 0);
+                entidade.setAttribute('opacity', op);
+
+                if (elapsed < dur) {
+                    requestAnimationFrame(animate);
+                } else {
+                    if (cloudWords.contains(entidade)) cloudWords.removeChild(entidade);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        playBtn.addEventListener('click', function () {
+            video.play();
+            playBtn.style.display = 'none';
+            instructions.style.display = 'block';
+            criarNuvemPalavra();
+            intervalo = setInterval(criarNuvemPalavra, 2100);
+        });
+
+        window.addEventListener('beforeunload', function () {
+            clearInterval(intervalo);
+        });
+    </script>
+</body>
+
+</html>
