@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZenVR - Meditação Imersiva em Realidade Virtual</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800">
+
+<!-- Hero com vídeo ao fundo -->
+<section class="relative min-h-screen flex items-center justify-center text-center px-6 py-20 overflow-hidden">
+
+  <!-- Vídeo de fundo -->
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+    <source src="landing-video.mov" type="video/mp4" />
+    Seu navegador não suporta vídeos HTML5.
+  </video>
+
+  <!-- Sobreposição escura para melhor contraste -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
+
+  <!-- Conteúdo sobre o vídeo -->
+  <div class="relative z-20 text-white max-w-3xl">
+    <h1 class="text-5xl font-bold mb-4 drop-shadow-md">Entre em um novo estado de consciência com <span class="text-indigo-300">ZenVR</span></h1>
+    <p class="text-lg mb-6 drop-shadow-md">Uma experiência de meditação imersiva em realidade virtual, projetada para acalmar sua mente e conectar você com o presente.</p>
+    <a href="#cadastro" class="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow hover:bg-indigo-700 transition">Comece agora</a>
+  </div>
+
+</section>
+
+  <!-- Benefícios -->
+  <section class="py-20 bg-white">
+    <div class="max-w-5xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-10">Benefícios da Meditação em VR</h2>
+      <div class="grid md:grid-cols-3 gap-10 text-left">
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Imersão Total</h3>
+          <p>Ambientes 360° que eliminam distrações externas e aumentam a profundidade da sua prática.</p>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Redução do Estresse</h3>
+          <p>Sessões guiadas com sons relaxantes que ajudam a acalmar o sistema nervoso.</p>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Acesso em Qualquer Lugar</h3>
+          <p>Pratique em casa, no trabalho ou em viagem — tudo o que você precisa é seu headset VR.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- Como Funciona -->
+<section class="py-20 bg-indigo-50">
+  <div class="max-w-5xl mx-auto px-6 text-center">
+    <h2 class="text-3xl font-bold mb-10">Como Funciona</h2>
+    <div class="space-y-8 text-left max-w-3xl mx-auto text-lg leading-relaxed">
+      <div>
+        <h3 class="font-semibold text-indigo-600">1. Acesse o site pelo seu celular</h3>
+        <p>Abra o navegador do seu smartphone e entre em nosso site ZenVR.</p>
+      </div>
+      <div>
+        <h3 class="font-semibold text-indigo-600">2. Escolha sua meditação</h3>
+        <p>Selecione entre diferentes tipos de meditação: atenção plena, controle de respiração ou visualização de palavras.</p>
+      </div>
+      <div>
+        <h3 class="font-semibold text-indigo-600">3. Conecte seu celular ao VR Box</h3>
+        <p>
+            Insira o celular em um dispositivo de realidade virtual como o 
+                <a 
+                href="#"
+                class="text-indigo-700 font-semibold underline hover:text-indigo-900 hover:underline decoration-2 inline-flex items-center transition"
+                >
+                    VR BOX
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                </a>, 
+            ou qualquer headset compatível com smartphones.
+        </p>
+        <img 
+            src="vrbox.png" 
+            alt="VR Box"
+            class="w-full max-w-sm h-auto rounded-xl mx-auto mt-4"
+        />
+      </div>
+      <div>
+        <h3 class="font-semibold text-indigo-600">4. Sinta-se presente e medite</h3>
+        <p>Coloque o headset, relaxe e siga a experiência de meditação em 360° com som ambiente e visual imersivo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tipos de Meditação -->
+<section class="py-20 bg-white">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-3xl font-bold mb-10">Quais tipos de meditação oferecemos?</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      
+      <!-- Meditação 1 -->
+      <div class="bg-indigo-100 p-6 rounded-xl shadow text-left">
+        <img src="1.png" alt="Atenção Plena" class="rounded-md mb-4 w-full h-40 object-cover">
+        <p class="font-semibold text-xl text-indigo-700">Atenção Plena</p>
+        <p class="mt-2 text-gray-700">Mergulhe em paisagens imersivas em 360° enquanto treina sua presença no aqui e agora, com sons da natureza para aprofundar a conexão com o momento presente.</p>
+      </div>
+
+      <!-- Meditação 2 -->
+      <div class="bg-indigo-100 p-6 rounded-xl shadow text-left">
+        <img src="2.png" alt="Exercício de Respiração" class="rounded-md mb-4 w-full h-40 object-cover">
+        <p class="font-semibold text-xl text-indigo-700">Exercício de Respiração</p>
+        <p class="mt-2 text-gray-700">Siga instruções visuais e sonoras para regular sua respiração. Ideal para reduzir a ansiedade, melhorar o foco e restaurar o equilíbrio emocional.</p>
+      </div>
+
+      <!-- Meditação 3 -->
+      <div class="bg-indigo-100 p-6 rounded-xl shadow text-left">
+        <img src="3.png" alt="Chuva de Palavras" class="rounded-md mb-4 w-full h-40 object-cover">
+        <p class="font-semibold text-xl text-indigo-700">Chuva de Palavras</p>
+        <p class="mt-2 text-gray-700">Deixe palavras inspiradoras caírem suavemente ao seu redor enquanto você medita. Uma experiência visual que estimula a reflexão e eleva sua energia emocional.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Chamada Final -->
+<section id="cadastro" class="py-20 bg-indigo-600 text-white text-center">
+  <h2 class="text-4xl font-bold mb-6">Pronto para transformar sua mente?</h2>
+  <p class="mb-8 text-lg">Selecione o tipo de exercício que deseja realizar:</p>
+  
+  <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+    <a href="https://sebastiaofortes.github.io/rv/paisagem.html" class="px-6 py-3 bg-white text-indigo-700 font-semibold rounded-xl shadow hover:bg-gray-100 transition">
+      Ambiente para meditar
+    </a>
+    <a href="https://sebastiaofortes.github.io/rv/respiracao.html" class="px-6 py-3 bg-white text-indigo-700 font-semibold rounded-xl shadow hover:bg-gray-100 transition">
+      Exercício de respiração
+    </a>
+    <a href="https://sebastiaofortes.github.io/rv/palavras.html" class="px-6 py-3 bg-white text-indigo-700 font-semibold rounded-xl shadow hover:bg-gray-100 transition">
+      Chuva de palavras
+    </a>
+  </div>
+</section>
+
+  <!-- Footer -->
+  <footer class="py-6 text-center text-gray-500 text-sm">
+    © 2025 ZenVR. Todos os direitos reservados.
+  </footer>
+</body>
+</html>
