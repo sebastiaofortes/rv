@@ -61,11 +61,16 @@
             "tensão", "canção", "perdão", "solidão", "percepção",
             "decisão", "admiração", "atenção"
         ];
+        const videoParam = getQueryParam('video');
         var playBtn = document.getElementById('playBtn');
         var video = document.querySelector('#video360');
         var instructions = document.getElementById('instructions');
         var cloudWords = document.getElementById('cloudWords');
         var intervalo;
+
+        if (videoParam) {
+            video.src = './videos/' + videoParam;
+        }
 
         // Use troika-text: https://github.com/protectwise/aframe-troika-text
         function criarNuvemPalavra() {
@@ -119,6 +124,11 @@
         window.addEventListener('beforeunload', function () {
             clearInterval(intervalo);
         });
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
     </script>
 </body>
 

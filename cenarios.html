@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZenVR - Escolha seu Cenário</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- Cabeçalho simples -->
+  <header class="py-8 bg-white bg-opacity-80 shadow text-center">
+    <h1 class="text-4xl font-bold text-indigo-700 drop-shadow">Escolha seu Cenário</h1>
+    <p class="text-lg mt-2 text-indigo-900">Selecione um ambiente para sua próxima meditação imersiva</p>
+  </header>
+
+  <!-- Grid de cenários -->
+  <main class="flex-1 py-16">
+    <div class="max-w-5xl mx-auto px-6">
+      <div id="cenariosGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Os cards serão injetados aqui pelo JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer simples -->
+  <footer class="py-6 text-center text-gray-500 text-sm bg-white bg-opacity-60">
+    © 2025 ZenVR. Todos os direitos reservados.
+  </footer>
+
+<script>
+  const cenarios = [
+    {
+      imagem: "./cenarios/praia.png",
+      alt: "Praia",
+      titulo: "Praia",
+      video: null // ou "" caso não queira usar em todos
+    },
+    {
+      imagem: "./cenarios/montanhas.png",
+      alt: "Montanhas Serenas",
+      titulo: "Montanhas Serenas",
+      video: "mountain.webm"
+    },
+    {
+      imagem: "cenarios/praia-flores.png",
+      alt: "Praia com Flores",
+      titulo: "Praia com Flores",
+      video: "praia-flores.webm"
+    },
+    {
+      imagem: "cenarios/floresta.png",
+      alt: "Floresta",
+      titulo: "Floresta",
+      video: "floresta.webm"
+    },
+    {
+      imagem: "cenarios/cachoeira.png",
+      alt: "Cachoeira",
+      titulo: "Cachoeira",
+      video: "cachoeira.mp4"
+    }
+  ];
+
+  // Pega o param "pagina" (ou usa "paisagem" como padrão)
+  const params = new URLSearchParams(window.location.search);
+  const pagina = params.get('pagina') || "paisagem";
+
+  const cenariosGrid = document.getElementById('cenariosGrid');
+  cenarios.forEach(cenario => {
+    // Monta o link conforme o cenário e o valor do param
+    let link = `${pagina}.html`;
+    if(cenario.video) link += `?video=${encodeURIComponent(cenario.video)}`;
+    cenariosGrid.innerHTML += `
+      <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center hover:shadow-lg transition">
+        <img src="${cenario.imagem}" alt="${cenario.alt}" class="rounded-md mb-4 w-full h-40 object-cover" />
+        <h2 class="font-semibold text-xl text-indigo-700">${cenario.titulo}</h2>
+        <a href="${link}"
+          class="mt-auto px-6 py-3 bg-indigo-600 text-white rounded-xl shadow hover:bg-indigo-700 transition">Entrar</a>
+      </div>
+    `;
+  });
+</script>
+</body>
+</html>
