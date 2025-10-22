@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#4F46E5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ZenVR" />
+  <meta name="description" content="Experiências de meditação em realidade virtual para acalmar sua mente e conectar com o presente" />
+  <meta name="keywords" content="meditação, VR, realidade virtual, mindfulness, respiração, relaxamento, zen" />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  
+  <title>ZenVR - Meditação Imersiva</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9VF8X5L0RB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-9VF8X5L0RB');
+
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-hover:active {
+      transform: scale(0.98);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      animation: fadeOut 0.5s ease-in 2s forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+
+    .safe-top {
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .floating {
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .scroll-smooth {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-indigo-50 via-white to-blue-50 text-gray-800 overflow-x-hidden">
+
+  <!-- Splash Screen -->
+  <div class="splash-screen">
+    <div class="text-center">
+      <div class="w-24 h-24 mx-auto mb-6 bg-white rounded-3xl shadow-2xl flex items-center justify-center floating">
+        <svg class="w-16 h-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <h1 class="text-4xl font-bold text-white mb-2">ZenVR</h1>
+      <p class="text-white text-opacity-90">Meditação Imersiva</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="safe-top sticky top-0 z-50 glass-effect border-b border-white border-opacity-20">
+    <div class="px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-gray-800">ZenVR</h1>
+          <p class="text-xs text-gray-500">Sua paz interior</p>
+        </div>
+      </div>
+      <button class="w-10 h-10 bg-white rounded-xl shadow flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="px-6 pt-8 pb-6">
+    <div class="text-center mb-8 animate-slide-up">
+      <h2 class="text-3xl font-bold text-gray-800 mb-3">
+        Encontre seu momento <br />
+        <span class="gradient-text">de tranquilidade</span>
+      </h2>
+      <p class="text-gray-600 text-sm leading-relaxed max-w-md mx-auto">
+        Experiências de meditação em realidade virtual para acalmar sua mente e conectar com o presente
+      </p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-3 gap-3 mb-8">
+      <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
+        <div class="text-2xl font-bold text-indigo-600 mb-1">360°</div>
+        <div class="text-xs text-gray-500">Imersão</div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
+        <div class="text-2xl font-bold text-indigo-600 mb-1">5+</div>
+        <div class="text-xs text-gray-500">Cenários</div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
+        <div class="text-2xl font-bold text-indigo-600 mb-1">3</div>
+        <div class="text-xs text-gray-500">Técnicas</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="px-6 pb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Comece agora</h3>
+    
+    <a href="../cenarios.html?pagina=paisagem" class="block mb-4 card-hover">
+      <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-3xl p-6 shadow-lg text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <div class="text-xs font-semibold uppercase tracking-wider text-indigo-200 mb-2">Recomendado</div>
+              <h4 class="text-2xl font-bold mb-2">Atenção Plena</h4>
+              <p class="text-sm text-indigo-100 leading-relaxed">Mergulhe em paisagens 360° e conecte-se com o momento presente</p>
+            </div>
+            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4 text-xs">
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              5-20 min
+            </span>
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              Iniciante
+            </span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <div class="grid grid-cols-2 gap-4">
+      <a href="../cenarios.html?pagina=respiracao" class="block card-hover">
+        <div class="bg-white rounded-3xl p-5 shadow-md h-full">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </div>
+          <h4 class="font-bold text-gray-800 mb-2">Respiração</h4>
+          <p class="text-xs text-gray-500 mb-3">Exercícios guiados para acalmar</p>
+          <div class="flex items-center text-xs text-indigo-600 font-semibold">
+            Iniciar
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <a href="../cenarios.html?pagina=palavras" class="block card-hover">
+        <div class="bg-white rounded-3xl p-5 shadow-md h-full">
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+            </svg>
+          </div>
+          <h4 class="font-bold text-gray-800 mb-2">Palavras</h4>
+          <p class="text-xs text-gray-500 mb-3">Visualização e reflexão</p>
+          <div class="flex items-center text-xs text-indigo-600 font-semibold">
+            Iniciar
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="px-6 pb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Por que ZenVR?</h3>
+    <div class="space-y-3">
+      <div class="bg-white rounded-2xl p-4 shadow-sm flex items-start space-x-4">
+        <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h4 class="font-semibold text-gray-800 mb-1">Imersão Total</h4>
+          <p class="text-sm text-gray-600">Ambientes em realidade virtual que eliminam distrações externas</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm flex items-start space-x-4">
+        <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h4 class="font-semibold text-gray-800 mb-1">Redução do Estresse</h4>
+          <p class="text-sm text-gray-600">Sons relaxantes que acalmam o sistema nervoso</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm flex items-start space-x-4">
+        <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h4 class="font-semibold text-gray-800 mb-1">Acesso em Qualquer Lugar</h4>
+          <p class="text-sm text-gray-600">Pratique em casa, no trabalho ou em viagem</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section class="px-6 pb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Como funciona</h3>
+    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl p-6 space-y-4">
+      <div class="flex items-start space-x-4">
+        <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
+        <div class="flex-1 pt-1">
+          <p class="text-sm text-gray-700"><span class="font-semibold">Acesse o app</span> - Abra este app em um dispositivo compatível com realidade virtual</p>
+        </div>
+      </div>
+      <div class="flex items-start space-x-4">
+        <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
+        <div class="flex-1 pt-1">
+          <p class="text-sm text-gray-700"><span class="font-semibold">Escolha sua meditação</span> - Selecione o tipo de exercício e o ambiente virtual</p>
+        </div>
+      </div>
+      <div class="flex items-start space-x-4">
+        <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
+        <div class="flex-1 pt-1">
+          <p class="text-sm text-gray-700"><span class="font-semibold">Use seu VR Box</span> - Ative o modo VR no app</p>
+        </div>
+      </div>
+      <div class="flex items-start space-x-4">
+        <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">4</div>
+        <div class="flex-1 pt-1">
+          <p class="text-sm text-gray-700"><span class="font-semibold">Medite</span> - Relaxe e siga a experiência imersiva</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="px-6 pb-8 mb-20">
+    <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 text-center text-white shadow-2xl">
+      <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
+      </div>
+      <h3 class="text-2xl font-bold mb-3">Pronto para começar?</h3>
+      <p class="text-indigo-100 mb-6 text-sm">Sua jornada de tranquilidade começa agora</p>
+      <a href="../cenarios.html?pagina=paisagem" class="inline-block bg-white text-indigo-700 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+        Iniciar Primeira Sessão
+      </a>
+    </div>
+  </section>
+
+  <!-- Bottom Navigation -->
+  <nav class="safe-bottom fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+    <div class="flex justify-around items-center px-4 py-3">
+      <a href="#" class="flex flex-col items-center space-y-1 text-indigo-600">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+        </svg>
+        <span class="text-xs font-medium">Início</span>
+      </a>
+      <a href="../cenarios.html?pagina=paisagem" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        <span class="text-xs font-medium">Atenção</span>
+      </a>
+      <a href="../cenarios.html?pagina=respiracao" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+        <span class="text-xs font-medium">Respiração</span>
+      </a>
+      <a href="../cenarios.html?pagina=palavras" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+        </svg>
+        <span class="text-xs font-medium">Palavras</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then((registration) => {
+            console.log('[App] Service Worker registered:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('[App] Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
+
+</body>
+
+</html>
+

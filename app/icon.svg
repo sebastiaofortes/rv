@@ -1,0 +1,41 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background with rounded corners -->
+  <rect width="512" height="512" rx="112" fill="url(#grad)"/>
+  
+  <!-- Outer glow circles (meditation aura) -->
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.2"/>
+  <circle cx="256" cy="256" r="165" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.15"/>
+  <circle cx="256" cy="256" r="185" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.1"/>
+  
+  <!-- Center meditation symbol (simplified person + lightbulb concept) -->
+  <!-- Head/Lightbulb -->
+  <circle cx="256" cy="190" r="45" fill="#ffffff" opacity="0.95"/>
+  
+  <!-- Light rays from head -->
+  <line x1="256" y1="145" x2="256" y2="120" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <line x1="220" y1="160" x2="205" y2="145" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <line x1="292" y1="160" x2="307" y2="145" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- Body (sitting meditation pose simplified) -->
+  <path d="M 256 235 L 256 305" stroke="#ffffff" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.95"/>
+  
+  <!-- Arms in meditation pose -->
+  <path d="M 256 250 Q 220 260, 200 285" stroke="#ffffff" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.95"/>
+  <path d="M 256 250 Q 292 260, 312 285" stroke="#ffffff" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.95"/>
+  
+  <!-- Legs crossed -->
+  <ellipse cx="256" cy="310" rx="65" ry="25" fill="#ffffff" opacity="0.95"/>
+  
+  <!-- VR Element - goggles suggestion -->
+  <rect x="226" y="180" width="60" height="20" rx="10" fill="#764ba2" opacity="0.6"/>
+  <circle cx="240" cy="190" r="8" fill="#ffffff" opacity="0.4"/>
+  <circle cx="272" cy="190" r="8" fill="#ffffff" opacity="0.4"/>
+</svg>
+
