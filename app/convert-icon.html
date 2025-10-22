@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor de Ícone - ZenVR</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #4F46E5;
+      margin-bottom: 10px;
+    }
+    .preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .preview-item {
+      text-align: center;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    canvas {
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      max-width: 100%;
+    }
+    button {
+      background: #4F46E5;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #4338CA;
+    }
+    .success {
+      background: #10B981;
+      color: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      display: none;
+    }
+    .instructions {
+      background: #EEF2FF;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border-left: 4px solid #4F46E5;
+    }
+    .instructions ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Conversor de Ícone ZenVR</h1>
+    <p>Converta o ícone SVG para os formatos PNG necessários para o PWA</p>
+    
+    <div style="margin: 20px 0; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+      <label for="svgSelect" style="font-weight: 600; margin-right: 10px;">Escolha o ícone:</label>
+      <select id="svgSelect" style="padding: 8px 12px; border-radius: 6px; border: 2px solid #4F46E5; font-size: 14px;">
+        <option value="icon-traced.svg">icon-traced.svg (Traçado do original) ⭐⭐</option>
+        <option value="icon-faithful.svg">icon-faithful.svg (Recriado fiel)</option>
+        <option value="icon.svg">icon.svg (Versão artística)</option>
+        <option value="icon-no-hands.svg">icon-no-hands.svg (Minimalista) ✨</option>
+      </select>
+    </div>
+    
+    <div class="preview">
+      <div class="preview-item">
+        <h3>192 × 192 px</h3>
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <br><br>
+        <button onclick="downloadIcon(192)">📥 Baixar icon-192.png</button>
+      </div>
+      
+      <div class="preview-item">
+        <h3>512 × 512 px</h3>
+        <canvas id="canvas512" width="512" height="512"></canvas>
+        <br><br>
+        <button onclick="downloadIcon(512)">📥 Baixar icon-512.png</button>
+      </div>
+    </div>
+    
+    <div style="text-align: center;">
+      <button onclick="loadSVG()" style="background: #059669; font-size: 18px;">
+        🔄 Gerar Ícones
+      </button>
+      <div id="success" class="success">✅ Ícones gerados com sucesso! Clique nos botões acima para baixar.</div>
+    </div>
+    
+    <div class="instructions">
+      <h3>📋 Instruções:</h3>
+      <ol>
+        <li>Clique em "<strong>🔄 Gerar Ícones</strong>" para renderizar o SVG</li>
+        <li>Clique em "<strong>📥 Baixar icon-192.png</strong>" e salve na pasta <code>/app/</code></li>
+        <li>Clique em "<strong>📥 Baixar icon-512.png</strong>" e salve na pasta <code>/app/</code></li>
+        <li>Pronto! Os ícones estão prontos para uso no PWA</li>
+      </ol>
+      <p><strong>Nota:</strong> Os arquivos serão baixados automaticamente para sua pasta de Downloads. Mova-os para a pasta <code>/app/</code> do projeto.</p>
+    </div>
+  </div>
+
+  <script>
+    async function loadSVG() {
+      try {
+        // Get selected SVG file
+        const svgFile = document.getElementById('svgSelect').value;
+        
+        // Fetch the SVG file
+        const response = await fetch('./' + svgFile);
+        const svgText = await response.text();
+        
+        // Create a blob and object URL
+        const blob = new Blob([svgText], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        
+        // Create an image element
+        const img = new Image();
+        
+        img.onload = function() {
+          // Draw on both canvases
+          drawOnCanvas('canvas192', img, 192);
+          drawOnCanvas('canvas512', img, 512);
+          
+          // Show success message
+          document.getElementById('success').style.display = 'block';
+          
+          // Clean up
+          URL.revokeObjectURL(url);
+        };
+        
+        img.onerror = function() {
+          const svgFile = document.getElementById('svgSelect').value;
+          alert('Erro ao carregar o SVG. Certifique-se de que o arquivo ' + svgFile + ' está na mesma pasta.');
+        };
+        
+        img.src = url;
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao processar o SVG: ' + error.message);
+      }
+    }
+    
+    function drawOnCanvas(canvasId, img, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, size, size);
+      
+      // Draw the image scaled to the canvas size
+      ctx.drawImage(img, 0, 0, size, size);
+    }
+    
+    function downloadIcon(size) {
+      const canvas = document.getElementById(`canvas${size}`);
+      
+      // Convert canvas to blob
+      canvas.toBlob(function(blob) {
+        // Create download link
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `icon-${size}.png`;
+        
+        // Trigger download
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        // Clean up
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+        
+        // Visual feedback
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Baixado!';
+        btn.style.background = '#10B981';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = '#4F46E5';
+        }, 2000);
+        
+      }, 'image/png');
+    }
+  </script>
+</body>
+</html>
+
