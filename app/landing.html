@@ -112,6 +112,11 @@
       padding-bottom: max(2rem, env(safe-area-inset-bottom));
     }
 
+    .modal-scroll {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+
     .floating {
       animation: floating 3s ease-in-out infinite;
     }
@@ -429,67 +434,69 @@
   <div id="aboutModal" class="fixed inset-0 z-[100] hidden">
     <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAbout()"></div>
     <div class="absolute inset-x-4 top-[8%] max-w-md mx-auto max-h-[85vh] modal-safe-spacing">
-      <div class="bg-white rounded-3xl shadow-2xl overflow-hidden animate-slide-up max-h-full flex flex-col">
-        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 px-6 py-8 text-center text-white">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg">
+      <div class="bg-white rounded-3xl shadow-2xl animate-slide-up max-h-full flex flex-col overflow-hidden">
+        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 px-6 py-6 text-center text-white flex-shrink-0">
+          <div class="w-16 h-16 mx-auto mb-3 rounded-2xl overflow-hidden shadow-lg">
             <img src="./header-icon.png" alt="ZenVR Logo" class="w-full h-full object-cover" />
           </div>
-          <h2 class="text-2xl font-bold mb-2">ZenVR</h2>
+          <h2 class="text-2xl font-bold mb-1">ZenVR</h2>
           <p class="text-indigo-100 text-sm">Meditação Imersiva</p>
         </div>
-        <div class="p-6 space-y-4 overflow-y-auto flex-1">
-          <div>
-            <h3 class="font-semibold text-gray-800 mb-2">Sobre o App</h3>
-            <p class="text-sm text-gray-600 leading-relaxed">
-              ZenVR é uma plataforma de meditação em realidade virtual que oferece experiências imersivas 
-              para ajudar você a meditar e prarticar mindfulness através de ambientes virtuais com 
-              exercícios de respiração guiada e reflexões profundas.
-            </p>
-          </div>
-          <div>
-            <h4 class="font-semibold text-gray-800 mb-2 text-sm">Recursos</h4>
-            <ul class="space-y-2 text-sm text-gray-600">
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        <div class="overflow-y-auto flex-1 modal-scroll" style="max-height: calc(85vh - 180px);">
+          <div class="p-6 space-y-4">
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-2">Sobre o App</h3>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                ZenVR é uma plataforma de meditação em realidade virtual que oferece experiências imersivas 
+                para ajudar você a meditar e prarticar mindfulness através de ambientes virtuais com 
+                exercícios de respiração guiada e reflexões profundas.
+              </p>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-800 mb-2 text-sm">Recursos</h4>
+              <ul class="space-y-2 text-sm text-gray-600">
+                <li class="flex items-start">
+                  <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  Ambientes em realidade virtual imersivos
+                </li>
+                <li class="flex items-start">
+                  <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  Exercícios de respiração guiada
+                </li>
+                <li class="flex items-start">
+                  <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  Palavras de reflexão
+                </li>
+                <li class="flex items-start">
+                  <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  Compatível com qualquer dispositivo com suporte a WebXR.
+                </li>
+              </ul>
+            </div>
+            <div class="bg-indigo-50 rounded-2xl p-4">
+              <p class="text-xs text-gray-600 text-center mb-2">
+                Para mais informações, entre em contato:
+              </p>
+              <a href="mailto:sebastiaofortes4@gmail.com" class="flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                Ambientes em realidade virtual imersivos
-              </li>
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                Exercícios de respiração guiada
-              </li>
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                Palavras de reflexão
-              </li>
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                Compatível com qualquer dispositivo com suporte a WebXR.
-              </li>
-            </ul>
-          </div>
-          <div class="bg-indigo-50 rounded-2xl p-4">
-            <p class="text-xs text-gray-600 text-center mb-2">
-              Para mais informações, entre em contato:
-            </p>
-            <a href="mailto:sebastiaofortes4@gmail.com" class="flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              sebastiaofortes4@gmail.com
-            </a>
-          </div>
-          <div class="pt-4">
-            <button onclick="closeAbout()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              Fechar
-            </button>
+                sebastiaofortes4@gmail.com
+              </a>
+            </div>
+            <div class="pt-4">
+              <button onclick="closeAbout()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                Fechar
+              </button>
+            </div>
           </div>
         </div>
       </div>
