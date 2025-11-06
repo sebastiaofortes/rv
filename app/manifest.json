@@ -4,13 +4,19 @@
   "description": "Experiências de meditação em realidade virtual para acalmar sua mente e conectar com o presente",
   "start_url": "./landing.html",
   "display": "standalone",
+  "display_override": ["xr", "fullscreen", "standalone"],
   "background_color": "#4F46E5",
   "theme_color": "#4F46E5",
-  "orientation": "portrait",
+  "orientation": "any",
   "scope": "./",
   "lang": "pt-BR",
   "dir": "ltr",
-  "categories": ["health", "lifestyle", "wellness"],
+  "categories": ["health", "lifestyle", "wellness", "vr"],
+  "xr_capabilities": {
+    "supported_modes": ["immersive-vr", "inline"],
+    "required_features": ["local-floor"],
+    "optional_features": ["hand-tracking", "layers", "depth-sensing", "anchors", "hit-test"]
+  },
   "icons": [
     {
       "src": "./icon-192.png",

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>ZenVR - Respiração Guiada XR</title>
+  
+  <!-- A-Frame Core -->
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  
+  <!-- XR Components -->
+  <script src="./xr-components.js"></script>
+  
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #playBtn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      font-family: 'Arial', sans-serif;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+
+    #playBtn:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+
+    #vrButton {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2196F3;
+      color: white;
+      cursor: pointer;
+      font-family: 'Arial', sans-serif;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    #instructions {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 1em;
+      z-index: 10;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    #featureStatus {
+      position: absolute;
+      top: 80px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .feature-enabled {
+      color: #4CAF50;
+    }
+
+    .feature-disabled {
+      color: #ff5252;
+    }
+  </style>
+</head>
+
+<body>
+  <button id="playBtn">🧘 Iniciar Meditação XR</button>
+  <button id="vrButton" style="display:none;">🥽 Entrar em VR</button>
+  
+  <div id="instructions" style="display:none;">
+    Olhe para a esfera e respire junto com ela.<br>
+    <small>Use controles ou olhar para interagir</small>
+  </div>
+
+  <div id="featureStatus" style="display:none;">
+    <div>XR Features:</div>
+    <div id="handTrackingStatus">👋 Hand Tracking: <span class="feature-disabled">Checking...</span></div>
+    <div id="spatialAudioStatus">🔊 Spatial Audio: <span class="feature-disabled">Checking...</span></div>
+  </div>
+
+  <a-scene 
+    xr-feature-detector
+    xr-performance="targetFps: 72; adaptiveQuality: true"
+    meditation-session="duration: 600"
+    renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true"
+    vr-mode-ui="enabled: true">
+    
+    <a-assets>
+      <!-- Video 360 -->
+      <video 
+        id="video360" 
+        src="vimeo.mp4" 
+        crossorigin="anonymous" 
+        loop="true" 
+        playsinline 
+        webkit-playsinline
+        preload="auto"></video>
+      
+      <!-- Spatial Audio -->
+      <audio id="breathAudio" src="meditacao.mp3" preload="auto"></audio>
+    </a-assets>
+
+    <!-- Camera Rig with Eye Tracking -->
+    <a-entity id="cameraRig" position="0 1.6 0">
+      <a-camera 
+        eye-tracking="enabled: true; debugMode: false"
+        look-controls="pointerLockEnabled: false"
+        wasd-controls="enabled: false">
+        
+        <!-- Gaze cursor for interaction -->
+        <a-entity 
+          cursor="fuse: true; fuseTimeout: 2000"
+          position="0 0 -1"
+          geometry="primitive: ring; radiusInner: 0.008; radiusOuter: 0.012"
+          material="color: #4CAF50; shader: flat; opacity: 0.8"
+          raycaster="objects: .interactive; far: 10">
+        </a-entity>
+      </a-camera>
+
+      <!-- Hand tracking cursors -->
+      <a-entity 
+        id="leftHand" 
+        hand-tracking="hand: left"
+        visible="false">
+        <a-sphere radius="0.02" color="#4CAF50" opacity="0.8"></a-sphere>
+      </a-entity>
+
+      <a-entity 
+        id="rightHand" 
+        hand-tracking="hand: right"
+        visible="false">
+        <a-sphere radius="0.02" color="#2196F3" opacity="0.8"></a-sphere>
+      </a-entity>
+    </a-entity>
+
+    <!-- 360 Video Background -->
+    <a-videosphere 
+      src="#video360" 
+      rotation="0 -90 0"
+      video-360-optimized="src: vimeo.mp4; useEquirectLayer: true">
+    </a-videosphere>
+
+    <!-- Breathing Sphere with Gaze Interaction -->
+    <a-entity id="breathingSystem" position="0 1.6 -3">
+      
+      <!-- Main breathing sphere -->
+      <a-sphere 
+        id="breathSphere"
+        class="interactive"
+        gaze-interactive="duration: 1500"
+        color="#7fffd4" 
+        radius="0.7" 
+        opacity="0.6"
+        material="transparent: true; shader: flat"
+        animation__pulse="property: scale; 
+                          from: 1 1 1; 
+                          to: 2 2 2; 
+                          dur: 4000; 
+                          easing: easeInOutSine; 
+                          loop: true; 
+                          dir: alternate">
+      </a-sphere>
+
+      <!-- Inner glow effect -->
+      <a-sphere 
+        radius="0.65" 
+        opacity="0.3"
+        color="#00ffff"
+        material="transparent: true; shader: flat"
+        animation__glow="property: opacity; 
+                         from: 0.1; 
+                         to: 0.5; 
+                         dur: 4000; 
+                         easing: easeInOutSine; 
+                         loop: true; 
+                         dir: alternate">
+      </a-sphere>
+
+      <!-- Breathing instruction text -->
+      <a-text 
+        id="breathText"
+        value="Inspire" 
+        align="center" 
+        color="#FFFFFF" 
+        width="3"
+        position="0 1.2 0"
+        animation__breathText="property: text.value; 
+                               from: Inspire; 
+                               to: Expire; 
+                               dur: 4000; 
+                               loop: true; 
+                               dir: alternate">
+      </a-text>
+
+      <!-- Timer display -->
+      <a-text 
+        id="sessionTimer"
+        value="00:00" 
+        align="center" 
+        color="#CCCCCC" 
+        width="2"
+        position="0 -1.5 0">
+      </a-text>
+    </a-entity>
+
+    <!-- Spatial Audio Source -->
+    <a-entity 
+      position="0 1.6 -3"
+      spatial-audio-source="src: meditacao.mp3; 
+                           loop: true; 
+                           volume: 0.6;
+                           refDistance: 2;
+                           maxDistance: 10">
+    </a-entity>
+
+    <!-- Ambient particles for immersion -->
+    <a-entity id="particles">
+      <!-- Floating particles will be added dynamically -->
+    </a-entity>
+
+    <!-- Lighting -->
+    <a-entity light="type: ambient; color: #BBB; intensity: 0.5"></a-entity>
+    <a-entity light="type: directional; color: #FFF; intensity: 0.3" position="-1 2 1"></a-entity>
+
+  </a-scene>
+
+  <script>
+    // ========== INITIALIZATION ==========
+    const sceneEl = document.querySelector('a-scene');
+    const playBtn = document.getElementById('playBtn');
+    const vrButton = document.getElementById('vrButton');
+    const instructions = document.getElementById('instructions');
+    const featureStatus = document.getElementById('featureStatus');
+    const video = document.querySelector('#video360');
+    const breathSphere = document.querySelector('#breathSphere');
+    const breathText = document.querySelector('#breathText');
+    const sessionTimer = document.querySelector('#sessionTimer');
+    
+    let sessionStartTime = 0;
+    let sessionActive = false;
+    let timerInterval = null;
+
+    // Get video from URL parameter
+    const videoParam = getQueryParam('video');
+    if (videoParam) {
+      video.src = './videos/' + videoParam;
+    }
+
+    // ========== XR FEATURE DETECTION ==========
+    sceneEl.addEventListener('xr-features-detected', (e) => {
+      const features = e.detail;
+      
+      // Update UI with detected features
+      document.getElementById('handTrackingStatus').innerHTML = 
+        `👋 Hand Tracking: <span class="feature-${features.handTracking ? 'enabled' : 'disabled'}">
+          ${features.handTracking ? 'Available' : 'Not Available'}
+        </span>`;
+      
+      document.getElementById('spatialAudioStatus').innerHTML = 
+        `🔊 Spatial Audio: <span class="feature-enabled">Enabled</span>`;
+      
+      featureStatus.style.display = 'block';
+      
+      // Enable hand tracking visualization if available
+      if (features.handTracking) {
+        document.getElementById('leftHand').setAttribute('visible', 'true');
+        document.getElementById('rightHand').setAttribute('visible', 'true');
+      }
+    });
+
+    // ========== MEDITATION SESSION ==========
+    function startMeditationSession() {
+      sessionActive = true;
+      sessionStartTime = Date.now();
+      
+      // Start video
+      video.play().catch(e => console.error('Video play error:', e));
+      
+      // Hide button, show instructions
+      playBtn.style.display = 'none';
+      instructions.style.display = 'block';
+      vrButton.style.display = 'block';
+      
+      // Start spatial audio
+      const spatialAudioEntity = document.querySelector('[spatial-audio-source]');
+      if (spatialAudioEntity && spatialAudioEntity.components['spatial-audio-source']) {
+        spatialAudioEntity.components['spatial-audio-source'].play();
+      }
+      
+      // Emit meditation start event
+      sceneEl.emit('meditation-start');
+      
+      // Start timer
+      startSessionTimer();
+      
+      // Add ambient particles
+      addAmbientParticles();
+      
+      console.log('✅ Meditation session started');
+    }
+
+    function startSessionTimer() {
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        sessionTimer.setAttribute('value', 
+          `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+        );
+      }, 1000);
+    }
+
+    // ========== AMBIENT PARTICLES ==========
+    function addAmbientParticles() {
+      const particlesContainer = document.getElementById('particles');
+      
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('a-sphere');
+        const x = (Math.random() - 0.5) * 10;
+        const y = Math.random() * 3;
+        const z = (Math.random() - 0.5) * 10 - 2;
+        
+        particle.setAttribute('radius', 0.02 + Math.random() * 0.03);
+        particle.setAttribute('color', '#ffffff');
+        particle.setAttribute('opacity', 0.1 + Math.random() * 0.3);
+        particle.setAttribute('position', `${x} ${y} ${z}`);
+        
+        // Floating animation
+        particle.setAttribute('animation', {
+          property: 'position',
+          from: `${x} ${y} ${z}`,
+          to: `${x} ${y + 1} ${z}`,
+          dur: 3000 + Math.random() * 2000,
+          easing: 'easeInOutSine',
+          loop: true,
+          dir: 'alternate'
+        });
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // ========== GAZE INTERACTION ==========
+    breathSphere.addEventListener('gaze-activated', () => {
+      console.log('Breathing sphere activated by gaze');
+      
+      // Visual feedback
+      breathSphere.setAttribute('material', 'color', '#4CAF50');
+      setTimeout(() => {
+        breathSphere.setAttribute('material', 'color', '#7fffd4');
+      }, 500);
+      
+      // Play haptic feedback if available
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    });
+
+    // ========== SESSION COMPLETE ==========
+    sceneEl.addEventListener('session-complete', (e) => {
+      const duration = e.detail.duration;
+      console.log(`Session completed: ${Math.floor(duration / 60)} minutes`);
+      
+      instructions.innerHTML = `
+        🎉 Sessão completa!<br>
+        Duração: ${Math.floor(duration / 60)} minutos<br>
+        <small>Obrigado por meditar conosco</small>
+      `;
+      
+      clearInterval(timerInterval);
+    });
+
+    // ========== VR MODE ==========
+    vrButton.addEventListener('click', () => {
+      sceneEl.enterVR();
+    });
+
+    sceneEl.addEventListener('enter-vr', () => {
+      console.log('Entered VR mode');
+      vrButton.style.display = 'none';
+      instructions.style.bottom = '80px';
+    });
+
+    sceneEl.addEventListener('exit-vr', () => {
+      console.log('Exited VR mode');
+      vrButton.style.display = 'block';
+      instructions.style.bottom = '20px';
+    });
+
+    // ========== START BUTTON ==========
+    playBtn.addEventListener('click', startMeditationSession);
+
+    // ========== UTILITY ==========
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    // ========== CLEANUP ==========
+    window.addEventListener('beforeunload', () => {
+      if (timerInterval) clearInterval(timerInterval);
+      if (sessionActive) {
+        sceneEl.emit('meditation-end');
+      }
+    });
+
+    // ========== PERFORMANCE MONITORING ==========
+    if (window.performance && window.performance.memory) {
+      setInterval(() => {
+        const memory = window.performance.memory;
+        if (memory.usedJSHeapSize / memory.jsHeapSizeLimit > 0.9) {
+          console.warn('High memory usage detected');
+        }
+      }, 5000);
+    }
+
+    console.log('✅ ZenVR XR Enhanced - Ready');
+  </script>
+</body>
+
+</html>
+

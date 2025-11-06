@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>ZenVR - Android XR Native WebXR</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    #container {
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    #status {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      font-size: 1.1em;
+    }
+
+    button {
+      padding: 15px 40px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      margin: 10px;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0,0,0,0.4);
+    }
+
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    #xr-canvas {
+      display: none;
+    }
+
+    .feature-list {
+      text-align: left;
+      display: inline-block;
+      margin: 20px 0;
+    }
+
+    .feature-item {
+      padding: 5px 0;
+      font-size: 0.9em;
+    }
+
+    .feature-enabled {
+      color: #4CAF50;
+    }
+
+    .feature-disabled {
+      color: #ff5252;
+    }
+
+    #debugLog {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-family: monospace;
+      display: none;
+    }
+
+    .log-entry {
+      padding: 2px 0;
+      border-bottom: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>🧘 ZenVR Android XR</h1>
+    <p>Native WebXR API Integration</p>
+    
+    <div id="status">
+      <div>WebXR Status: <strong id="xrStatus">Checking...</strong></div>
+      <div class="feature-list" id="featureList"></div>
+    </div>
+
+    <button id="startXR" disabled>🥽 Start XR Experience</button>
+    <button id="toggleDebug">🐛 Toggle Debug</button>
+    
+    <div style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+      <p>Requisitos Android XR:</p>
+      <ul style="text-align: left; display: inline-block;">
+        <li>Android 10+ (API 29+)</li>
+        <li>WebXR compatible browser</li>
+        <li>XR headset ou emulador</li>
+      </ul>
+    </div>
+  </div>
+
+  <canvas id="xr-canvas"></canvas>
+
+  <div id="debugLog"></div>
+
+  <script type="module">
+    // ========== ANDROID XR NATIVE WEBXR IMPLEMENTATION ==========
+    
+    class AndroidXRApp {
+      constructor() {
+        this.gl = null;
+        this.xrSession = null;
+        this.xrRefSpace = null;
+        this.canvas = document.getElementById('xr-canvas');
+        this.debugEnabled = false;
+        this.features = {};
+        
+        this.init();
+      }
+
+      // ========== INITIALIZATION ==========
+      async init() {
+        this.log('Initializing Android XR App...');
+        
+        // Check WebXR support
+        if (!navigator.xr) {
+          this.updateStatus('WebXR not supported', false);
+          this.log('❌ WebXR API not available');
+          return;
+        }
+
+        this.log('✅ WebXR API available');
+        
+        // Check device capabilities
+        await this.checkXRSupport();
+        await this.detectXRFeatures();
+        
+        // Enable start button if supported
+        const startButton = document.getElementById('startXR');
+        if (this.features.immersiveVR) {
+          startButton.disabled = false;
+          startButton.addEventListener('click', () => this.startXRSession());
+        }
+      }
+
+      // ========== XR SUPPORT DETECTION ==========
+      async checkXRSupport() {
+        try {
+          const supported = await navigator.xr.isSessionSupported('immersive-vr');
+          this.features.immersiveVR = supported;
+          
+          this.updateStatus(
+            supported ? 'Ready for XR' : 'XR not supported on this device',
+            supported
+          );
+          
+          this.log(supported ? '✅ Immersive VR supported' : '❌ Immersive VR not supported');
+        } catch (error) {
+          this.log('❌ Error checking XR support: ' + error.message);
+          this.updateStatus('Error checking XR support', false);
+        }
+      }
+
+      // ========== FEATURE DETECTION ==========
+      async detectXRFeatures() {
+        this.log('Detecting Android XR features...');
+        
+        const featuresToCheck = [
+          { name: 'hand-tracking', label: '👋 Hand Tracking' },
+          { name: 'layers', label: '🎬 XR Layers' },
+          { name: 'depth-sensing', label: '📏 Depth Sensing' },
+          { name: 'anchors', label: '📍 Spatial Anchors' },
+          { name: 'hit-test', label: '🎯 Hit Testing' },
+          { name: 'dom-overlay', label: '📱 DOM Overlay' }
+        ];
+
+        const featureList = document.getElementById('featureList');
+        featureList.innerHTML = '<strong>Android XR Features:</strong><br>';
+
+        for (const feature of featuresToCheck) {
+          try {
+            const supported = await navigator.xr.isSessionSupported('immersive-vr', {
+              optionalFeatures: [feature.name]
+            });
+            
+            this.features[feature.name] = supported;
+            
+            const className = supported ? 'feature-enabled' : 'feature-disabled';
+            const icon = supported ? '✅' : '❌';
+            
+            featureList.innerHTML += 
+              `<div class="feature-item ${className}">${icon} ${feature.label}</div>`;
+            
+            this.log(`${icon} ${feature.label}: ${supported ? 'Available' : 'Not available'}`);
+          } catch (e) {
+            this.features[feature.name] = false;
+            featureList.innerHTML += 
+              `<div class="feature-item feature-disabled">❌ ${feature.label}</div>`;
+          }
+        }
+      }
+
+      // ========== START XR SESSION ==========
+      async startXRSession() {
+        this.log('Starting XR session...');
+        
+        try {
+          // Request XR session with all available features
+          const optionalFeatures = Object.keys(this.features)
+            .filter(f => this.features[f] && f !== 'immersiveVR');
+
+          const sessionInit = {
+            requiredFeatures: ['local-floor'],
+            optionalFeatures: optionalFeatures
+          };
+
+          this.log('Session features: ' + JSON.stringify(sessionInit));
+
+          this.xrSession = await navigator.xr.requestSession('immersive-vr', sessionInit);
+          this.log('✅ XR session created');
+
+          // Setup WebGL context
+          await this.setupWebGL();
+          
+          // Setup session event handlers
+          this.xrSession.addEventListener('end', () => this.onSessionEnd());
+          
+          // Setup reference space
+          this.xrRefSpace = await this.xrSession.requestReferenceSpace('local-floor');
+          this.log('✅ Reference space created');
+
+          // Hide UI and show canvas
+          document.getElementById('container').style.display = 'none';
+          this.canvas.style.display = 'block';
+
+          // Start render loop
+          this.xrSession.requestAnimationFrame((time, frame) => this.onXRFrame(time, frame));
+          
+          this.log('✅ XR session started successfully');
+        } catch (error) {
+          this.log('❌ Error starting XR session: ' + error.message);
+          alert('Failed to start XR session: ' + error.message);
+        }
+      }
+
+      // ========== WEBGL SETUP ==========
+      async setupWebGL() {
+        this.log('Setting up WebGL...');
+        
+        this.gl = this.canvas.getContext('webgl2', {
+          xrCompatible: true,
+          alpha: true,
+          antialias: true
+        });
+
+        if (!this.gl) {
+          throw new Error('WebGL 2 not supported');
+        }
+
+        // Make canvas compatible with XR
+        await this.gl.makeXRCompatible();
+        this.log('✅ WebGL context created and XR-compatible');
+
+        // Update XR session with WebGL layer
+        const xrLayer = new XRWebGLLayer(this.xrSession, this.gl, {
+          framebufferScaleFactor: 1.0, // Adjust for performance
+          antialias: true
+        });
+
+        await this.xrSession.updateRenderState({
+          baseLayer: xrLayer
+        });
+
+        this.log('✅ XR WebGL layer configured');
+
+        // Setup scene
+        this.setupScene();
+      }
+
+      // ========== SCENE SETUP ==========
+      setupScene() {
+        const gl = this.gl;
+        
+        // Basic gradient background shader
+        const vertexShaderSource = `#version 300 es
+          in vec4 position;
+          out vec2 vUV;
+          void main() {
+            gl_Position = position;
+            vUV = position.xy * 0.5 + 0.5;
+          }
+        `;
+
+        const fragmentShaderSource = `#version 300 es
+          precision highp float;
+          in vec2 vUV;
+          out vec4 fragColor;
+          uniform float time;
+          
+          void main() {
+            vec3 color1 = vec3(0.2, 0.4, 0.8);
+            vec3 color2 = vec3(0.4, 0.2, 0.6);
+            vec3 color = mix(color1, color2, vUV.y + sin(time * 0.5) * 0.2);
+            fragColor = vec4(color, 1.0);
+          }
+        `;
+
+        // Create shaders
+        const vertexShader = this.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+        const fragmentShader = this.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+
+        // Create program
+        this.program = this.createProgram(gl, vertexShader, fragmentShader);
+        
+        // Get uniform locations
+        this.timeUniform = gl.getUniformLocation(this.program, 'time');
+
+        // Create fullscreen quad
+        const positions = new Float32Array([
+          -1, -1,
+           1, -1,
+          -1,  1,
+           1,  1
+        ]);
+
+        this.positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+        this.log('✅ Scene setup complete');
+      }
+
+      // ========== SHADER HELPERS ==========
+      createShader(gl, type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+          gl.deleteShader(shader);
+          return null;
+        }
+        
+        return shader;
+      }
+
+      createProgram(gl, vertexShader, fragmentShader) {
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        
+        if (!gl.getShaderParameter(program, gl.LINK_STATUS)) {
+          console.error('Program link error:', gl.getProgramInfoLog(program));
+          gl.deleteProgram(program);
+          return null;
+        }
+        
+        return program;
+      }
+
+      // ========== XR FRAME CALLBACK ==========
+      onXRFrame(time, frame) {
+        const session = frame.session;
+        
+        // Request next frame
+        session.requestAnimationFrame((time, frame) => this.onXRFrame(time, frame));
+
+        // Get pose
+        const pose = frame.getViewerPose(this.xrRefSpace);
+        if (!pose) return;
+
+        const gl = this.gl;
+        const layer = session.renderState.baseLayer;
+
+        // Bind framebuffer
+        gl.bindFramebuffer(gl.FRAMEBUFFER, layer.framebuffer);
+        
+        // Clear
+        gl.clearColor(0.1, 0.1, 0.2, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        // Render for each eye
+        for (const view of pose.views) {
+          const viewport = layer.getViewport(view);
+          gl.viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+
+          // Use shader program
+          gl.useProgram(this.program);
+          
+          // Update time uniform
+          gl.uniform1f(this.timeUniform, time * 0.001);
+
+          // Draw
+          const positionLocation = gl.getAttribLocation(this.program, 'position');
+          gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+          gl.enableVertexAttribArray(positionLocation);
+          gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+          
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        }
+
+        // Handle hand tracking if available
+        if (this.features['hand-tracking']) {
+          this.handleHandTracking(frame);
+        }
+      }
+
+      // ========== HAND TRACKING ==========
+      handleHandTracking(frame) {
+        for (const inputSource of frame.session.inputSources) {
+          if (inputSource.hand) {
+            // Get hand joints
+            const hand = inputSource.hand;
+            
+            // Example: Get index finger tip
+            const indexTip = hand.get('index-finger-tip');
+            if (indexTip) {
+              const pose = frame.getJointPose(indexTip, this.xrRefSpace);
+              if (pose) {
+                // Use pose.transform.position for hand tracking
+                // this.log('Hand position: ' + JSON.stringify(pose.transform.position));
+              }
+            }
+          }
+        }
+      }
+
+      // ========== SESSION END ==========
+      onSessionEnd() {
+        this.log('XR session ended');
+        this.xrSession = null;
+        
+        // Show UI again
+        document.getElementById('container').style.display = 'block';
+        this.canvas.style.display = 'none';
+        
+        // Re-enable start button
+        document.getElementById('startXR').disabled = false;
+      }
+
+      // ========== UI HELPERS ==========
+      updateStatus(message, success) {
+        const statusEl = document.getElementById('xrStatus');
+        statusEl.textContent = message;
+        statusEl.style.color = success ? '#4CAF50' : '#ff5252';
+      }
+
+      log(message) {
+        console.log(message);
+        
+        if (this.debugEnabled) {
+          const logEl = document.getElementById('debugLog');
+          const entry = document.createElement('div');
+          entry.className = 'log-entry';
+          entry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+          logEl.appendChild(entry);
+          logEl.scrollTop = logEl.scrollHeight;
+        }
+      }
+
+      toggleDebug() {
+        this.debugEnabled = !this.debugEnabled;
+        const logEl = document.getElementById('debugLog');
+        logEl.style.display = this.debugEnabled ? 'block' : 'none';
+      }
+    }
+
+    // ========== INITIALIZE APP ==========
+    const app = new AndroidXRApp();
+
+    // Debug toggle
+    document.getElementById('toggleDebug').addEventListener('click', () => {
+      app.toggleDebug();
+    });
+
+    // Export for debugging
+    window.xrApp = app;
+    
+    console.log('✅ Android XR Native WebXR App initialized');
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZenVR - Checklist de Deploy Android XR</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .progress-bar {
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 5px;
+      margin: 20px 0;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, #4CAF50, #45a049);
+      height: 30px;
+      border-radius: 15px;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      min-width: 50px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .card h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .checklist-item {
+      padding: 15px;
+      margin: 10px 0;
+      background: #f5f5f5;
+      border-radius: 8px;
+      border-left: 4px solid #ddd;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .checklist-item:hover {
+      background: #e8e8e8;
+      transform: translateX(5px);
+    }
+
+    .checklist-item.completed {
+      background: #e8f5e9;
+      border-left-color: #4CAF50;
+    }
+
+    .checklist-item.completed .checkbox {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .checkbox {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
+      border: 2px solid #ddd;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    .checklist-content {
+      flex: 1;
+    }
+
+    .checklist-content h3 {
+      color: #333;
+      margin-bottom: 5px;
+      font-size: 1.1em;
+    }
+
+    .checklist-content p {
+      color: #666;
+      font-size: 0.9em;
+      line-height: 1.5;
+    }
+
+    .code-snippet {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 0.85em;
+      overflow-x: auto;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      color: white;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #2196F3, #1976D2);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+
+    .badge-critical {
+      background: #f44336;
+      color: white;
+    }
+
+    .badge-important {
+      background: #ff9800;
+      color: white;
+    }
+
+    .badge-optional {
+      background: #2196F3;
+      color: white;
+    }
+
+    #resetBtn {
+      background: #666;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #resetBtn:hover {
+      background: #555;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8em;
+      }
+
+      .checklist-item {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>✅ Checklist de Deploy Android XR</h1>
+      <p>Siga todos os passos para garantir sucesso</p>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressBar">0%</div>
+      </div>
+    </header>
+
+    <!-- PRE-DEPLOYMENT -->
+    <div class="card">
+      <h2>🔧 Pré-Deploy</h2>
+      
+      <div class="section">
+        <div class="checklist-item" data-id="1">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Testar no Desktop <span class="badge badge-critical">CRÍTICO</span></h3>
+            <p>Abra cada arquivo -xr.html no navegador e teste funcionalidade básica</p>
+            <div class="code-snippet">
+# Arquivos para testar:
+- respiracao-xr.html
+- paisagem-xr.html  
+- palavras-xr.html
+- android-xr-native.html
+            </div>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="2">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Verificar Console Errors <span class="badge badge-critical">CRÍTICO</span></h3>
+            <p>Abra DevTools (F12) e verifique se não há erros JavaScript no console</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="3">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Otimizar Vídeos 360° <span class="badge badge-important">IMPORTANTE</span></h3>
+            <p>Comprima vídeos para 4K máximo, H.265, 20-40 Mbps</p>
+            <div class="code-snippet">
+# Exemplo FFmpeg:
+ffmpeg -i input.mp4 -c:v libx265 -b:v 30M \
+  -vf scale=3840:1920 -c:a aac -b:a 192k output.mp4
+            </div>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="4">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Otimizar Áudio <span class="badge badge-optional">OPCIONAL</span></h3>
+            <p>Comprima arquivos de áudio para 128-192 kbps</p>
+            <div class="code-snippet">
+# Converter para AAC:
+ffmpeg -i input.mp3 -c:a aac -b:a 192k output.aac
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOSTING SETUP -->
+    <div class="card">
+      <h2>🌐 Configuração de Hosting</h2>
+      
+      <div class="section">
+        <div class="checklist-item" data-id="5">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Escolher Plataforma de Hosting <span class="badge badge-critical">CRÍTICO</span></h3>
+            <p>WebXR requer HTTPS. Opções recomendadas:</p>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+              <li><strong>GitHub Pages</strong> - Grátis, fácil setup</li>
+              <li><strong>Netlify</strong> - Grátis, deploy automático</li>
+              <li><strong>Vercel</strong> - Grátis, muito rápido</li>
+              <li><strong>Firebase Hosting</strong> - Grátis, Google infra</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="6">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Configurar HTTPS <span class="badge badge-critical">CRÍTICO</span></h3>
+            <p>WebXR não funciona sem HTTPS. Todas as plataformas acima já incluem.</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="7">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Upload de Arquivos <span class="badge badge-critical">CRÍTICO</span></h3>
+            <p>Fazer upload de todos os arquivos necessários:</p>
+            <div class="code-snippet">
+Arquivos essenciais:
+- index.html
+- *.html (todos os XR)
+- xr-components.js
+- xr-optimization-guide.js
+- app/manifest.json
+- videos/*.mp4
+- *.mp3 (áudio)
+- cenarios/*.png
+            </div>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="8">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Configurar CORS <span class="badge badge-important">IMPORTANTE</span></h3>
+            <p>Permitir CORS para vídeos e áudio se usar CDN externo</p>
+            <div class="code-snippet">
+# Exemplo Netlify (_headers file):
+/*
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PWA CONFIG -->
+    <div class="card">
+      <h2>📱 Configuração PWA</h2>
+      
+      <div class="section">
+        <div class="checklist-item" data-id="9">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Verificar Manifest.json <span class="badge badge-critical">CRÍTICO</span></h3>
+            <p>Confirme que app/manifest.json está atualizado com xr_capabilities</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="10">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Configurar Service Worker <span class="badge badge-optional">OPCIONAL</span></h3>
+            <p>Para funcionar offline (app/service-worker.js já existe)</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="11">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Testar como PWA <span class="badge badge-optional">OPCIONAL</span></h3>
+            <p>Chrome DevTools > Application > Manifest > Verificar instalabilidade</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEVICE TESTING -->
+    <div class="card">
+      <h2>🥽 Teste em Dispositivos</h2>
+      
+      <div class="section">
+        <div class="checklist-item" data-id="12">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Teste em Smartphone Android <span class="badge badge-critical">CRÍTICO</span></h3>
+            <p>Acesse URL via Chrome Android e teste modo inline (sem VR)</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="13">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Teste com Cardboard/Simple VR <span class="badge badge-important">IMPORTANTE</span></h3>
+            <p>Use modo VR básico para validar estereoscopia</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="14">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Teste em Meta Quest <span class="badge badge-important">IMPORTANTE</span></h3>
+            <p>Abra no browser nativo do Quest e entre em VR</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="15">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Teste Hand Tracking <span class="badge badge-optional">OPCIONAL</span></h3>
+            <p>Em Quest, ative hand tracking e teste interações</p>
+            <div class="code-snippet">
+Quest: Settings > Hands and Controllers > Hand Tracking: ON
+            </div>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="16">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Teste Performance <span class="badge badge-important">IMPORTANTE</span></h3>
+            <p>Verifique FPS usando stats em paisagem-xr.html</p>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+              <li>Target: 72+ FPS</li>
+              <li>Mínimo aceitável: 60 FPS</li>
+              <li>Se menor, reduza qualidade ou vídeo</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VALIDATION -->
+    <div class="card">
+      <h2>✔️ Validação Final</h2>
+      
+      <div class="section">
+        <div class="checklist-item" data-id="17">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Features Detection Working <span class="badge badge-critical">CRÍTICO</span></h3>
+            <p>Abra android-xr-native.html e veja quais features estão disponíveis</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="18">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Spatial Audio Funcionando <span class="badge badge-important">IMPORTANTE</span></h3>
+            <p>Teste respiracao-xr.html e confirme áudio 3D posicional</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="19">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Gaze Interaction Working <span class="badge badge-important">IMPORTANTE</span></h3>
+            <p>Olhe para esferas em paisagem-xr.html e veja labels aparecerem</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="20">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Session Tracking Working <span class="badge badge-optional">OPCIONAL</span></h3>
+            <p>Verifique timer de sessão e eventos de início/fim</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTIMIZATION -->
+    <div class="card">
+      <h2>⚡ Otimização (Pós-Deploy)</h2>
+      
+      <div class="section">
+        <div class="checklist-item" data-id="21">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Ativar Compression <span class="badge badge-important">IMPORTANTE</span></h3>
+            <p>Habilitar gzip/brotli no servidor para JS/CSS</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="22">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Setup CDN <span class="badge badge-optional">OPCIONAL</span></h3>
+            <p>Usar Cloudflare ou similar para cache e velocidade</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="23">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Analytics Integration <span class="badge badge-optional">OPCIONAL</span></h3>
+            <p>Adicionar Google Analytics ou similar para tracking</p>
+          </div>
+        </div>
+
+        <div class="checklist-item" data-id="24">
+          <div class="checkbox">⬜</div>
+          <div class="checklist-content">
+            <h3>Error Tracking <span class="badge badge-optional">OPCIONAL</span></h3>
+            <p>Integrar Sentry ou similar para monitorar erros</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+      <h2 style="color: white;">🚀 Próximas Ações</h2>
+      <div class="btn-group">
+        <a href="xr-improvements-demo.html" class="btn btn-primary">📋 Ver Melhorias</a>
+        <a href="respiracao-xr.html" class="btn btn-secondary">🧘 Testar App</a>
+        <button id="resetBtn">🔄 Resetar Checklist</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Checklist functionality
+    const items = document.querySelectorAll('.checklist-item');
+    const progressBar = document.getElementById('progressBar');
+    const totalItems = items.length;
+    const storageKey = 'zenvrChecklist';
+
+    // Load saved state
+    function loadState() {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const state = JSON.parse(saved);
+        state.forEach(id => {
+          const item = document.querySelector(`[data-id="${id}"]`);
+          if (item) {
+            item.classList.add('completed');
+            item.querySelector('.checkbox').textContent = '✓';
+          }
+        });
+      }
+      updateProgress();
+    }
+
+    // Save state
+    function saveState() {
+      const completed = Array.from(document.querySelectorAll('.checklist-item.completed'))
+        .map(item => item.getAttribute('data-id'));
+      localStorage.setItem(storageKey, JSON.stringify(completed));
+    }
+
+    // Toggle item
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('completed');
+        const checkbox = item.querySelector('.checkbox');
+        checkbox.textContent = item.classList.contains('completed') ? '✓' : '⬜';
+        updateProgress();
+        saveState();
+      });
+    });
+
+    // Update progress
+    function updateProgress() {
+      const completed = document.querySelectorAll('.checklist-item.completed').length;
+      const percentage = Math.round((completed / totalItems) * 100);
+      progressBar.style.width = percentage + '%';
+      progressBar.textContent = percentage + '%';
+      
+      if (percentage === 100) {
+        setTimeout(() => {
+          showConfetti();
+        }, 300);
+      }
+    }
+
+    // Reset checklist
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (confirm('Tem certeza que deseja resetar o checklist?')) {
+        items.forEach(item => {
+          item.classList.remove('completed');
+          item.querySelector('.checkbox').textContent = '⬜';
+        });
+        localStorage.removeItem(storageKey);
+        updateProgress();
+      }
+    });
+
+    // Confetti effect
+    function showConfetti() {
+      alert('🎉 Parabéns! Checklist completo!\n\nSeu ZenVR está pronto para Android XR!');
+    }
+
+    // Initialize
+    loadState();
+
+    console.log('✅ XR Deployment Checklist - Ready');
+  </script>
+</body>
+</html>
+

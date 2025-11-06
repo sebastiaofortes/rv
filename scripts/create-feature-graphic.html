@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Feature Graphic - ZenVR</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .canvas-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      height: auto;
+    }
+    .controls {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .control-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button {
+      background: #4F46E5;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #4338CA;
+    }
+    button.secondary {
+      background: #6B7280;
+    }
+    button.secondary:hover {
+      background: #4B5563;
+    }
+    .info {
+      background: #EEF2FF;
+      border: 1px solid #C7D2FE;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      color: #3730A3;
+    }
+    h1 {
+      color: #111827;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #6B7280;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Gerador de Feature Graphic - ZenVR</h1>
+    <p class="subtitle">Crie o banner 1024x500 para Google Play Store</p>
+
+    <div class="info">
+      <strong>📐 Dimensões obrigatórias:</strong> 1024x500 pixels<br>
+      <strong>📄 Formato:</strong> PNG ou JPEG<br>
+      <strong>💡 Dica:</strong> Ajuste os textos e cores, depois clique em "Baixar PNG"
+    </div>
+
+    <div class="canvas-container">
+      <canvas id="canvas" width="1024" height="500"></canvas>
+    </div>
+
+    <div class="controls">
+      <h2>Personalização</h2>
+      
+      <div class="control-group">
+        <label>Título Principal</label>
+        <input type="text" id="mainTitle" value="ZenVR" maxlength="20">
+      </div>
+
+      <div class="control-group">
+        <label>Subtítulo</label>
+        <input type="text" id="subtitle" value="Meditação Imersiva" maxlength="30">
+      </div>
+
+      <div class="control-group">
+        <label>Descrição</label>
+        <textarea id="description" rows="2" maxlength="100">Experiências de meditação em realidade virtual</textarea>
+      </div>
+
+      <div class="control-group">
+        <label>Cor do Gradiente 1</label>
+        <input type="color" id="color1" value="#667eea">
+      </div>
+
+      <div class="control-group">
+        <label>Cor do Gradiente 2</label>
+        <input type="color" id="color2" value="#764ba2">
+      </div>
+
+      <div class="control-group">
+        <label>Estilo</label>
+        <select id="style">
+          <option value="gradient">Gradiente Simples</option>
+          <option value="circles">Círculos Decorativos</option>
+          <option value="zen">Zen Minimalista</option>
+        </select>
+      </div>
+
+      <button onclick="updateCanvas()">🔄 Atualizar Preview</button>
+      <button onclick="downloadImage()">📥 Baixar PNG</button>
+      <button class="secondary" onclick="resetDefaults()">↺ Restaurar Padrão</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function drawFeatureGraphic() {
+      const mainTitle = document.getElementById('mainTitle').value;
+      const subtitle = document.getElementById('subtitle').value;
+      const description = document.getElementById('description').value;
+      const color1 = document.getElementById('color1').value;
+      const color2 = document.getElementById('color2').value;
+      const style = document.getElementById('style').value;
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, color1);
+      gradient.addColorStop(1, color2);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Add style decorations
+      if (style === 'circles') {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.beginPath();
+        ctx.arc(150, 150, 180, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(900, 400, 150, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(800, 100, 100, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (style === 'zen') {
+        // Zen circles
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 2;
+        for (let i = 1; i <= 5; i++) {
+          ctx.beginPath();
+          ctx.arc(200, 250, i * 40, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      // Icon/Logo placeholder (white circle)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.beginPath();
+      ctx.arc(170, 250, 100, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw text
+      ctx.textAlign = 'left';
+      ctx.fillStyle = 'white';
+
+      // Main title
+      ctx.font = 'bold 120px system-ui, -apple-system, sans-serif';
+      ctx.fillText(mainTitle, 320, 200);
+
+      // Subtitle
+      ctx.font = '600 50px system-ui, -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillText(subtitle, 320, 270);
+
+      // Description
+      ctx.font = '400 28px system-ui, -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      
+      // Word wrap for description
+      const words = description.split(' ');
+      let line = '';
+      let y = 330;
+      const maxWidth = 650;
+      
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && i > 0) {
+          ctx.fillText(line, 320, y);
+          line = words[i] + ' ';
+          y += 35;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, 320, y);
+
+      // VR Badge
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.fillRect(320, 400, 120, 50);
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 24px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('VR', 380, 433);
+    }
+
+    function updateCanvas() {
+      drawFeatureGraphic();
+    }
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.download = 'zenvr-feature-graphic-1024x500.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function resetDefaults() {
+      document.getElementById('mainTitle').value = 'ZenVR';
+      document.getElementById('subtitle').value = 'Meditação Imersiva';
+      document.getElementById('description').value = 'Experiências de meditação em realidade virtual';
+      document.getElementById('color1').value = '#667eea';
+      document.getElementById('color2').value = '#764ba2';
+      document.getElementById('style').value = 'gradient';
+      updateCanvas();
+    }
+
+    // Auto-update on input change
+    document.querySelectorAll('input, select, textarea').forEach(element => {
+      element.addEventListener('input', updateCanvas);
+      element.addEventListener('change', updateCanvas);
+    });
+
+    // Initial draw
+    drawFeatureGraphic();
+  </script>
+</body>
+</html>
+
+
+
+
+
