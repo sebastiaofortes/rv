@@ -1,8 +1,13 @@
-const CACHE_NAME = 'zenvr-app-v1';
+const CACHE_NAME = 'zenvr-app-v2';
 const STATIC_ASSETS = [
   './landing.html',
   './index.html',
   './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './favicon.png',
+  './screenshot1.png',
+  './screenshot2.png',
   '../cenarios.html',
   '../cenarios/praia.png',
   '../cenarios/montanhas.png',

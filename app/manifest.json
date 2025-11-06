@@ -73,9 +73,9 @@
     },
     {
       "src": "./screenshot2.png",
-      "sizes": "720x540",
+      "sizes": "540x720",
       "type": "image/png",
-      "platform": "wide",
+      "platform": "narrow",
       "label": "Experiência de meditação 360°"
     }
   ],
