@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respiração XR - Hand Tracking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px 30px;
+            border-radius: 15px;
+            z-index: 100;
+            font-size: 18px;
+            max-width: 90%;
+        }
+
+        #breathCounter {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            background: rgba(76, 175, 80, 0.9);
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 100;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            background: rgba(76, 175, 80, 1);
+            transform: translateY(-2px);
+        }
+
+        .btn.pause {
+            background: rgba(255, 152, 0, 0.9);
+        }
+
+        .btn.pause:hover {
+            background: rgba(255, 152, 0, 1);
+        }
+
+        #debugInfo {
+            position: absolute;
+            top: 200px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: lime;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            border-radius: 8px;
+            z-index: 100;
+            max-width: 350px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 600px) {
+            #info { font-size: 14px; padding: 15px; }
+            .btn { padding: 12px 20px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="info">
+        🫁 Exercício de Respiração XR<br>
+        <small>Use suas mãos para interagir | Olhe para os botões para ativar</small>
+    </div>
+
+    <div id="breathCounter">
+        Respirações: <span id="count">0</span>
+    </div>
+
+    <div id="debugInfo">Iniciando...</div>
+
+    <div id="controls">
+        <button id="startBtn" class="btn">▶️ Iniciar</button>
+        <button id="pauseBtn" class="btn pause" style="display: none;">⏸️ Pausar</button>
+        <button id="resetBtn" class="btn">🔄 Resetar</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { VRButton } from 'three/addons/webxr/VRButton.js';
+        import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
+
+        // Debug
+        const debugDiv = document.getElementById('debugInfo');
+        function log(msg) {
+            console.log(msg);
+            debugDiv.innerHTML += '<br>' + msg;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+
+        // Variáveis globais
+        let scene, camera, renderer;
+        let breathSphere, breathGlow, instructionText;
+        let isBreathing = false;
+        let breathPhase = 'inhale'; // 'inhale' ou 'exhale'
+        let breathCount = 0;
+        let animationTime = 0;
+        let hand1, hand2;
+        let controller1, controller2;
+        let raycaster, tempMatrix;
+        let interactiveButtons = [];
+
+        // Constantes de respiração
+        const BREATH_DURATION = 3; // 3 segundos
+        const MIN_SCALE = 0.3;
+        const MAX_SCALE = 0.8;
+
+        // Elementos DOM
+        const container = document.getElementById('container');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const countDisplay = document.getElementById('count');
+
+        // Inicialização
+        init();
+
+        function init() {
+            log('Iniciando experiência de respiração XR...');
+
+            // Cena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e);
+            scene.fog = new THREE.Fog(0x1a1a2e, 10, 50);
+
+            // Câmera
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                100
+            );
+            camera.position.set(0, 1.6, 3);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.xr.enabled = true;
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Luzes
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0x667eea, 1, 100);
+            pointLight.position.set(0, 5, 0);
+            scene.add(pointLight);
+
+            // Criar esfera de respiração
+            createBreathSphere();
+
+            // Criar texto 3D de instrução
+            createInstructionText();
+
+            // Criar botões 3D interativos
+            createInteractiveButtons();
+
+            // Configurar Hand Tracking
+            setupHandTracking();
+
+            // Configurar Raycasting
+            raycaster = new THREE.Raycaster();
+            tempMatrix = new THREE.Matrix4();
+
+            // Botão VR
+            setupVRButton();
+
+            // Event listeners
+            startBtn.addEventListener('click', startBreathing);
+            pauseBtn.addEventListener('click', pauseBreathing);
+            resetBtn.addEventListener('click', resetExercise);
+            window.addEventListener('resize', onWindowResize);
+
+            // Iniciar animação
+            renderer.setAnimationLoop(animate);
+            log('Sistema iniciado!');
+        }
+
+        function createBreathSphere() {
+            // Esfera principal
+            const geometry = new THREE.SphereGeometry(0.5, 64, 64);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0x667eea,
+                emissive: 0x667eea,
+                emissiveIntensity: 0.5,
+                transparent: true,
+                opacity: 0.8,
+                shininess: 100
+            });
+
+            breathSphere = new THREE.Mesh(geometry, material);
+            breathSphere.position.set(0, 1.6, -2);
+            breathSphere.scale.setScalar(MIN_SCALE);
+            scene.add(breathSphere);
+
+            // Glow effect (esfera maior, mais transparente)
+            const glowGeometry = new THREE.SphereGeometry(0.6, 32, 32);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x764ba2,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.BackSide
+            });
+
+            breathGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+            breathSphere.add(breathGlow);
+
+            log('Esfera de respiração criada');
+        }
+
+        function createInstructionText() {
+            // Criar sprite de texto
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 512;
+            canvas.height = 128;
+
+            context.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            context.font = 'bold 48px Arial';
+            context.fillStyle = 'white';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText('Inspire', canvas.width / 2, canvas.height / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture });
+            instructionText = new THREE.Sprite(material);
+            instructionText.position.set(0, 2.5, -2);
+            instructionText.scale.set(2, 0.5, 1);
+            scene.add(instructionText);
+
+            log('Texto de instrução criado');
+        }
+
+        function updateInstructionText(text) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 512;
+            canvas.height = 128;
+
+            context.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            context.font = 'bold 48px Arial';
+            context.fillStyle = breathPhase === 'inhale' ? '#64ffda' : '#ff6b9d';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+            instructionText.material.map.dispose();
+            instructionText.material.map = new THREE.CanvasTexture(canvas);
+            instructionText.material.needsUpdate = true;
+        }
+
+        function createInteractiveButtons() {
+            // Criar botões 3D que flutuam ao redor
+            const buttonPositions = [
+                { x: -1.5, y: 1.6, z: -2, label: 'Start', action: 'start', color: 0x4caf50 },
+                { x: 1.5, y: 1.6, z: -2, label: 'Reset', action: 'reset', color: 0xff9800 }
+            ];
+
+            buttonPositions.forEach(config => {
+                const button = createButton3D(config.label, config.color);
+                button.position.set(config.x, config.y, config.z);
+                button.userData = { action: config.action, isHovered: false };
+                scene.add(button);
+                interactiveButtons.push(button);
+            });
+
+            log('Botões 3D criados: ' + interactiveButtons.length);
+        }
+
+        function createButton3D(text, color) {
+            const group = new THREE.Group();
+
+            // Fundo do botão
+            const geometry = new THREE.BoxGeometry(0.4, 0.2, 0.05);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: color,
+                emissive: color,
+                emissiveIntensity: 0.3
+            });
+            const button = new THREE.Mesh(geometry, material);
+            group.add(button);
+
+            // Texto
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 128;
+
+            context.font = 'bold 40px Arial';
+            context.fillStyle = 'white';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(0.3, 0.15, 1);
+            sprite.position.z = 0.03;
+            group.add(sprite);
+
+            return group;
+        }
+
+        function setupHandTracking() {
+            const handModelFactory = new XRHandModelFactory();
+
+            // Controller 1 (mão esquerda)
+            controller1 = renderer.xr.getController(0);
+            scene.add(controller1);
+
+            hand1 = renderer.xr.getHand(0);
+            hand1.add(handModelFactory.createHandModel(hand1, 'mesh'));
+            scene.add(hand1);
+
+            // Controller 2 (mão direita)
+            controller2 = renderer.xr.getController(1);
+            scene.add(controller2);
+
+            hand2 = renderer.xr.getHand(1);
+            hand2.add(handModelFactory.createHandModel(hand2, 'mesh'));
+            scene.add(hand2);
+
+            // Criar raios visuais para as mãos
+            const rayGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, 0, -5)
+            ]);
+            const rayMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff });
+
+            const ray1 = new THREE.Line(rayGeometry, rayMaterial);
+            controller1.add(ray1);
+
+            const ray2 = new THREE.Line(rayGeometry, rayMaterial);
+            controller2.add(ray2);
+
+            log('Hand tracking configurado');
+        }
+
+        async function setupVRButton() {
+            if ('xr' in navigator) {
+                try {
+                    const vrSupported = await navigator.xr.isSessionSupported('immersive-vr');
+                    
+                    if (vrSupported) {
+                        const vrButton = VRButton.createButton(renderer);
+                        vrButton.style.position = 'absolute';
+                        vrButton.style.top = '20px';
+                        vrButton.style.right = '20px';
+                        vrButton.style.zIndex = '101';
+                        container.appendChild(vrButton);
+                        log('✅ VR disponível');
+                    } else {
+                        log('⚠️ VR não suportado');
+                    }
+                } catch (error) {
+                    log('❌ Erro XR: ' + error.message);
+                }
+            }
+        }
+
+        function startBreathing() {
+            isBreathing = true;
+            animationTime = 0;
+            breathPhase = 'inhale';
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline-block';
+            updateInstructionText('Inspire');
+            log('Exercício iniciado');
+        }
+
+        function pauseBreathing() {
+            isBreathing = false;
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+            log('Exercício pausado');
+        }
+
+        function resetExercise() {
+            isBreathing = false;
+            animationTime = 0;
+            breathPhase = 'inhale';
+            breathCount = 0;
+            countDisplay.textContent = '0';
+            breathSphere.scale.setScalar(MIN_SCALE);
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+            updateInstructionText('Inspire');
+            log('Exercício resetado');
+        }
+
+        function updateBreathing(delta) {
+            if (!isBreathing) return;
+
+            animationTime += delta;
+
+            // Calcular progresso no ciclo (0 a 1)
+            const progress = (animationTime % BREATH_DURATION) / BREATH_DURATION;
+
+            // Suavizar transição com easing
+            const eased = easeInOutSine(progress);
+
+            if (breathPhase === 'inhale') {
+                // Inspirar: crescer
+                const scale = THREE.MathUtils.lerp(MIN_SCALE, MAX_SCALE, eased);
+                breathSphere.scale.setScalar(scale);
+                breathSphere.material.emissiveIntensity = 0.3 + eased * 0.4;
+
+                if (animationTime % (BREATH_DURATION * 2) >= BREATH_DURATION) {
+                    breathPhase = 'exhale';
+                    updateInstructionText('Expire');
+                    animationTime = 0;
+                }
+            } else {
+                // Expirar: diminuir
+                const scale = THREE.MathUtils.lerp(MAX_SCALE, MIN_SCALE, eased);
+                breathSphere.scale.setScalar(scale);
+                breathSphere.material.emissiveIntensity = 0.7 - eased * 0.4;
+
+                if (animationTime >= BREATH_DURATION) {
+                    breathPhase = 'inhale';
+                    updateInstructionText('Inspire');
+                    animationTime = 0;
+                    breathCount++;
+                    countDisplay.textContent = breathCount;
+                    log(`Ciclo completo: ${breathCount}`);
+                }
+            }
+        }
+
+        function easeInOutSine(x) {
+            return -(Math.cos(Math.PI * x) - 1) / 2;
+        }
+
+        function checkHandInteraction() {
+            // Verificar interação com as mãos usando raycasting
+            [controller1, controller2].forEach((controller, index) => {
+                if (controller.visible) {
+                    tempMatrix.identity().extractRotation(controller.matrixWorld);
+                    raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+                    raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
+                    const intersects = raycaster.intersectObjects(interactiveButtons, true);
+
+                    if (intersects.length > 0) {
+                        const button = intersects[0].object.parent || intersects[0].object;
+                        
+                        if (button.userData && !button.userData.isHovered) {
+                            button.userData.isHovered = true;
+                            button.scale.setScalar(1.2);
+                            
+                            // Executar ação do botão
+                            if (button.userData.action === 'start') {
+                                if (!isBreathing) startBreathing();
+                                else pauseBreathing();
+                            } else if (button.userData.action === 'reset') {
+                                resetExercise();
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Resetar hover dos botões
+            interactiveButtons.forEach(button => {
+                if (button.userData.isHovered) {
+                    const intersects = raycaster.intersectObject(button, true);
+                    if (intersects.length === 0) {
+                        button.userData.isHovered = false;
+                        button.scale.setScalar(1);
+                    }
+                }
+            });
+        }
+
+        function checkGazeInteraction() {
+            // Fallback: interação por olhar (gaze)
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const intersects = raycaster.intersectObjects(interactiveButtons, true);
+
+            if (intersects.length > 0) {
+                const button = intersects[0].object.parent || intersects[0].object;
+                
+                if (button.userData) {
+                    button.scale.setScalar(1.1);
+                } else {
+                    button.scale.setScalar(1);
+                }
+            } else {
+                interactiveButtons.forEach(button => button.scale.setScalar(1));
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        let clock = new THREE.Clock();
+
+        function animate() {
+            const delta = clock.getDelta();
+
+            // Atualizar respiração
+            updateBreathing(delta);
+
+            // Rotação sutil da esfera
+            if (breathSphere) {
+                breathSphere.rotation.y += delta * 0.2;
+                breathGlow.rotation.x += delta * 0.3;
+            }
+
+            // Verificar interações
+            if (renderer.xr.isPresenting) {
+                checkHandInteraction();
+            } else {
+                checkGazeInteraction();
+            }
+
+            // Fazer botões flutuarem
+            interactiveButtons.forEach((button, i) => {
+                button.position.y += Math.sin(Date.now() * 0.001 + i) * 0.0005;
+            });
+
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
+
