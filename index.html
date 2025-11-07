@@ -1,17 +1,209 @@
-<h2 style="color: #4CAF50; margin-top: 20px;">Versões Android XR Otimizadas</h2>
-<a href="xr-improvements-demo.html"><h3>Ver Todas as Melhorias XR</h3></a>
-<a href="video-xr.html"><h3>🎥 Vídeo 360° XR (Three.js Puro + WebXR)</h3></a>
-<a href="video-xr-simple.html"><h3>🎥 Vídeo 360° XR - Versão Simplificada (Debug)</h3></a>
-<a href="respiracao-xr.html"><h3>Respiração XR (Hand Tracking + Spatial Audio)</h3></a>
-<a href="respiracao-xr-hands.html"><h3>🫁 Respiração XR com Hand Tracking (Esfera 3D Interativa)</h3></a>
-<a href="paisagem-xr.html"><h3>Paisagem XR (Hotspots + Performance)</h3></a>
-<a href="palavras-xr.html"><h3>Palavras XR (Optimized + Controls)</h3></a>
-<a href="android-xr-native.html"><h3>Android XR Native (WebXR API Demo)</h3></a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Coleção de experiências XR e realidade virtual usando WebXR, Three.js e Android XR">
+    <meta name="keywords" content="WebXR, VR, AR, Three.js, Android XR, Realidade Virtual, Meditação, Respiração">
+    <meta name="author" content="RV Master">
+    <title>RV Master - Experiências WebXR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<h2 style="color: #666; margin-top: 30px;">📱 Versões Originais</h2>
-<a href="paisagem.html"><h3>Paisagem</h3></a> <br />
-<a href="landing.html"><h3>Landing Page</h3></a> <br />
-<a href="audio.html"><h3>Audio</h3></a> <br />
-<a href="jogo.html"><h3>Jogo</h3></a> <br />
-<a href="respiracao.html"><h3>Exercício de respiração</h3></a> <br />
-<a href="palavras.html"><h3>Visualização de palavras</h3></a> <br />
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        h2 {
+            color: #4CAF50;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4CAF50;
+            font-size: 1.8em;
+        }
+
+        h2:first-of-type {
+            margin-top: 0;
+        }
+
+        .section-original h2 {
+            color: #666;
+            border-bottom-color: #666;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            margin-bottom: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        a:hover {
+            transform: translateX(10px);
+        }
+
+        h3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            margin: 0;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+
+        a:hover h3 {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .section-original h3 {
+            background: linear-gradient(135deg, #999 0%, #666 100%);
+        }
+
+        .section-original a:hover h3 {
+            background: linear-gradient(135deg, #666 0%, #999 100%);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #ddd;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1em;
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RV Master</h1>
+        <p class="subtitle">Experiências Imersivas em Realidade Virtual e XR</p>
+
+        <section class="section-xr">
+            <h2>Versões Android XR Otimizadas</h2>
+            
+            <a href="xr-improvements-demo.html">
+                <h3>Ver Todas as Melhorias XR</h3>
+            </a>
+            
+            <a href="video-xr.html">
+                <h3>Vídeo 360° XR (Three.js Puro + WebXR)</h3>
+            </a>
+            
+            <a href="video-xr-simple.html">
+                <h3>Vídeo 360° XR - Versão Simplificada (Debug)</h3>
+            </a>
+            
+            <a href="respiracao-xr.html">
+                <h3>Respiração XR (Hand Tracking + Spatial Audio)</h3>
+            </a>
+            
+            <a href="respiracao-xr-hands.html">
+                <h3>Respiração XR com Hand Tracking (Esfera 3D Interativa)</h3>
+            </a>
+            
+            <a href="respiracao-video-360.html">
+                <h3>Respiração XR + Vídeo 360° (COMPLETO!)</h3>
+            </a>
+            
+            <a href="paisagem-xr.html">
+                <h3>Paisagem XR (Hotspots + Performance)</h3>
+            </a>
+            
+            <a href="palavras-xr.html">
+                <h3>Palavras XR (Optimized + Controls)</h3>
+            </a>
+            
+            <a href="android-xr-native.html">
+                <h3>Android XR Native (WebXR API Demo)</h3>
+            </a>
+        </section>
+
+        <section class="section-original">
+            <h2>Versões Originais</h2>
+            
+            <a href="paisagem.html">
+                <h3>Paisagem</h3>
+            </a>
+            
+            <a href="landing.html">
+                <h3>Landing Page</h3>
+            </a>
+            
+            <a href="audio.html">
+                <h3>Audio</h3>
+            </a>
+            
+            <a href="jogo.html">
+                <h3>Jogo</h3>
+            </a>
+            
+            <a href="respiracao.html">
+                <h3>Exercício de respiração</h3>
+            </a>
+            
+            <a href="palavras.html">
+                <h3>Visualização de palavras</h3>
+            </a>
+        </section>
+
+        <footer>
+            <p><strong>RV Master</strong> - Experiências WebXR com Three.js</p>
+            <p>Otimizado para Android XR, Meta Quest e navegadores compatíveis</p>
+        </footer>
+    </div>
+</body>
+</html>
