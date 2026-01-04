@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfico de Barras 3D VR - Three.js</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(20, 30, 50, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 350px;
+            border: 2px solid rgba(100, 200, 255, 0.5);
+            box-shadow: 0 0 30px rgba(100, 200, 255, 0.3);
+        }
+
+        #info h3 {
+            color: #64c8ff;
+            margin-bottom: 12px;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        #dataInfo {
+            position: absolute;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            color: white;
+            background: rgba(20, 30, 50, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 450px;
+            border: 2px solid rgba(100, 200, 255, 0.6);
+            box-shadow: 0 0 40px rgba(100, 200, 255, 0.5);
+            display: none;
+        }
+
+        #dataInfo h2 {
+            color: #64c8ff;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-shadow: 0 0 15px rgba(100, 200, 255, 0.8);
+        }
+
+        #dataInfo .value {
+            color: #a0d8ff;
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        #dataInfo .description {
+            line-height: 1.8;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        #dataInfo .stats-box {
+            background: rgba(100, 200, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #64c8ff;
+            margin-top: 15px;
+        }
+
+        #dataInfo .stats-box strong {
+            color: #64c8ff;
+        }
+
+        #dataInfo.visible {
+            display: block;
+            animation: slideInRight 0.4s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateY(-50%) translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+            }
+        }
+
+        #chart-stats {
+            position: absolute;
+            bottom: 100px;
+            right: 30px;
+            color: white;
+            background: rgba(20, 30, 50, 0.9);
+            padding: 20px 25px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 100;
+            border: 2px solid rgba(100, 200, 255, 0.5);
+            min-width: 200px;
+        }
+
+        #chart-stats .stat-row {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #chart-stats .stat-label {
+            color: #a0c0ff;
+        }
+
+        #chart-stats .stat-value {
+            color: #64c8ff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #64c8ff;
+            font-size: 28px;
+            z-index: 100;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.8);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #value-display {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #64c8ff;
+            font-size: 72px;
+            font-weight: bold;
+            text-shadow: 0 0 30px rgba(100, 200, 255, 0.9);
+            z-index: 99;
+            pointer-events: none;
+            display: none;
+        }
+
+        #legend {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(20, 30, 50, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(100, 200, 255, 0.5);
+            z-index: 100;
+            color: white;
+        }
+
+        #legend h4 {
+            color: #64c8ff;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #legend {
+                top: auto;
+                bottom: 150px;
+                right: 20px;
+                left: auto;
+                max-width: calc(100% - 40px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="info">
+        <h3>📊 Gráfico de Barras 3D</h3>
+        <p><strong>Navegação:</strong></p>
+        <p>🖱️ <strong>Mouse:</strong> Rotacionar visão</p>
+        <p>🎯 <strong>Click:</strong> Selecionar barra</p>
+        <p>🔍 <strong>Scroll:</strong> Zoom in/out</p>
+        <p>🔄 <strong>Animar:</strong> Ver crescimento das barras</p>
+        <p>🥽 <strong>VR:</strong> Imersão total nos dados</p>
+    </div>
+
+    <div id="legend">
+        <h4>📈 Legenda</h4>
+        <div id="legend-items"></div>
+    </div>
+
+    <div id="value-display">100M</div>
+
+    <div id="controls">
+        <button id="animateBtn" class="btn">🎬 Animar Crescimento</button>
+        <button id="resetBtn" class="btn">🔄 Resetar Vista</button>
+        <button id="sortBtn" class="btn">📊 Ordenar</button>
+        <button id="vrButton" class="btn">🥽 VR</button>
+    </div>
+
+    <div id="chart-stats">
+        <div class="stat-row">
+            <span class="stat-label">Total:</span>
+            <span class="stat-value" id="totalValue">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Média:</span>
+            <span class="stat-value" id="avgValue">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Máximo:</span>
+            <span class="stat-value" id="maxValue">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Mínimo:</span>
+            <span class="stat-value" id="minValue">0</span>
+        </div>
+    </div>
+
+    <div id="dataInfo">
+        <h2 id="dataTitle">Categoria</h2>
+        <p class="value" id="dataValue">$0</p>
+        <p class="description" id="dataDescription">Descrição...</p>
+        <div class="stats-box">
+            <strong>📈 Detalhes:</strong>
+            <p id="dataDetails">Informações adicionais...</p>
+        </div>
+    </div>
+
+    <div id="loading">Gerando gráfico 3D...</div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { VRButton } from 'three/addons/webxr/VRButton.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Configuração
+        let scene, camera, renderer, controls;
+        let raycaster, mouse;
+        let bars = [];
+        let gridLines = [];
+        let labels = [];
+        let selectedBar = null;
+        let isSorted = false;
+
+        // Dados do gráfico - Receita de tecnologias web (em milhões de dólares)
+        const chartData = [
+            {
+                label: "JavaScript",
+                value: 850,
+                description: "Linguagem mais popular para desenvolvimento web frontend e backend",
+                details: "Usado em 98% dos websites. Ecossistema gigante com Node.js, React, Vue, Angular.",
+                color: 0xf7df1e,
+                icon: "JS"
+            },
+            {
+                label: "TypeScript",
+                value: 620,
+                description: "Superset do JavaScript com tipagem estática, crescendo rapidamente",
+                details: "Adotado por grandes empresas. Reduz bugs e melhora manutenibilidade de código.",
+                color: 0x3178c6,
+                icon: "TS"
+            },
+            {
+                label: "Python",
+                value: 780,
+                description: "Linguagem versátil para web, ciência de dados e inteligência artificial",
+                details: "Django e Flask para web. Líder em ML/AI com TensorFlow e PyTorch.",
+                color: 0x3776ab,
+                icon: "PY"
+            },
+            {
+                label: "React",
+                value: 590,
+                description: "Biblioteca JavaScript para construir interfaces de usuário interativas",
+                details: "Desenvolvido pelo Facebook. Arquitetura baseada em componentes. Virtual DOM.",
+                color: 0x61dafb,
+                icon: "⚛️"
+            },
+            {
+                label: "Node.js",
+                value: 720,
+                description: "Runtime JavaScript para construir aplicações server-side escaláveis",
+                details: "Event-driven, non-blocking I/O. Perfeito para APIs e microserviços.",
+                color: 0x339933,
+                icon: "📦"
+            },
+            {
+                label: "WebGL",
+                value: 340,
+                description: "API JavaScript para renderizar gráficos 3D no navegador",
+                details: "Base para Three.js e Babylon.js. Jogos, visualizações e experiências imersivas.",
+                color: 0xff6b6b,
+                icon: "🎮"
+            },
+            {
+                label: "WebXR",
+                value: 180,
+                description: "API para experiências de realidade virtual e aumentada na web",
+                details: "Futuro da web imersiva. Compatível com Quest, Vive, HoloLens e outros.",
+                color: 0xa855f7,
+                icon: "🥽"
+            },
+            {
+                label: "Three.js",
+                value: 280,
+                description: "Biblioteca JavaScript para criar gráficos 3D de forma simplificada",
+                details: "Abstração sobre WebGL. Usado em portfolios, jogos web e visualizações.",
+                color: 0x049ef4,
+                icon: "🎨"
+            },
+            {
+                label: "Vue.js",
+                value: 420,
+                description: "Framework JavaScript progressivo para construir UIs modernas",
+                details: "Fácil de aprender. Sistema reativo. Crescendo rapidamente na comunidade.",
+                color: 0x42b883,
+                icon: "💚"
+            },
+            {
+                label: "Docker",
+                value: 680,
+                description: "Plataforma para desenvolver, enviar e executar aplicações em containers",
+                details: "Revolucionou deployment. Isola dependências. Facilita DevOps e CI/CD.",
+                color: 0x2496ed,
+                icon: "🐳"
+            }
+        ];
+
+        function init() {
+            // Cena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0f1e);
+            scene.fog = new THREE.Fog(0x0a0f1e, 30, 100);
+
+            // Câmera
+            camera = new THREE.PerspectiveCamera(
+                60,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(20, 15, 25);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.xr.enabled = true;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            // Controles
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 10;
+            controls.maxDistance = 60;
+            controls.maxPolarAngle = Math.PI / 2;
+
+            // Raycaster
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Criar ambiente
+            createEnvironment();
+            createGrid();
+            createBars();
+            createLegend();
+            updateStats();
+
+            // Botão VR
+            const vrButton = VRButton.createButton(renderer);
+            document.getElementById('vrButton').addEventListener('click', () => {
+                vrButton.click();
+            });
+
+            // Event listeners
+            setupEventListeners();
+
+            // Esconder loading
+            document.getElementById('loading').classList.add('hidden');
+
+            // Animar
+            renderer.setAnimationLoop(animate);
+        }
+
+        function createEnvironment() {
+            // Chão
+            const floorGeometry = new THREE.PlaneGeometry(100, 100);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1a1f35,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = 0;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // Iluminação
+            const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
+            scene.add(ambientLight);
+
+            const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            mainLight.position.set(10, 20, 10);
+            mainLight.castShadow = true;
+            mainLight.shadow.camera.left = -30;
+            mainLight.shadow.camera.right = 30;
+            mainLight.shadow.camera.top = 30;
+            mainLight.shadow.camera.bottom = -30;
+            mainLight.shadow.mapSize.width = 2048;
+            mainLight.shadow.mapSize.height = 2048;
+            scene.add(mainLight);
+
+            // Luzes de destaque
+            const light1 = new THREE.PointLight(0x64c8ff, 0.5, 50);
+            light1.position.set(-15, 10, 10);
+            scene.add(light1);
+
+            const light2 = new THREE.PointLight(0xf093fb, 0.5, 50);
+            light2.position.set(15, 10, -10);
+            scene.add(light2);
+
+            // Partículas de fundo
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1000;
+            const positions = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 100;
+                positions[i + 1] = Math.random() * 50;
+                positions[i + 2] = (Math.random() - 0.5) * 100;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x64c8ff,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.4,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+        }
+
+        function createGrid() {
+            const gridSize = chartData.length;
+            const spacing = 4;
+            const maxValue = Math.max(...chartData.map(d => d.value));
+            const gridHeight = Math.ceil(maxValue / 100) * 100;
+            const gridSteps = 10;
+
+            // Linhas horizontais (valores)
+            for (let i = 0; i <= gridSteps; i++) {
+                const y = (i / gridSteps) * (gridHeight / 100);
+                const value = (i / gridSteps) * gridHeight;
+                
+                // Linha
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(-2, y, 0),
+                    new THREE.Vector3(gridSize * spacing, y, 0)
+                ]);
+                const lineMaterial = new THREE.LineBasicMaterial({
+                    color: 0x334455,
+                    opacity: 0.3,
+                    transparent: true
+                });
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                scene.add(line);
+                gridLines.push(line);
+
+                // Label de valor
+                const canvas = document.createElement('canvas');
+                canvas.width = 128;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#64c8ff';
+                ctx.font = 'bold 32px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(value + 'M', 120, 45);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+                const sprite = new THREE.Sprite(spriteMaterial);
+                sprite.scale.set(2, 1, 1);
+                sprite.position.set(-3, y, 0);
+                scene.add(sprite);
+                labels.push(sprite);
+            }
+        }
+
+        function createBars() {
+            const spacing = 4;
+            const barWidth = 2;
+            const maxHeight = Math.ceil(Math.max(...chartData.map(d => d.value)) / 100) * 100 / 100;
+
+            chartData.forEach((data, index) => {
+                const barGroup = createBar(data, index, barWidth, spacing, maxHeight);
+                bars.push(barGroup);
+                scene.add(barGroup);
+            });
+        }
+
+        function createBar(data, index, barWidth, spacing, maxHeight) {
+            const group = new THREE.Group();
+            const height = (data.value / 100);
+            
+            // Barra principal
+            const barGeometry = new THREE.BoxGeometry(barWidth, height, barWidth);
+            const barMaterial = new THREE.MeshStandardMaterial({
+                color: data.color,
+                emissive: data.color,
+                emissiveIntensity: 0.3,
+                roughness: 0.3,
+                metalness: 0.7
+            });
+            const bar = new THREE.Mesh(barGeometry, barMaterial);
+            bar.position.y = height / 2;
+            bar.castShadow = true;
+            bar.receiveShadow = true;
+            group.add(bar);
+
+            // Borda brilhante no topo
+            const topGeometry = new THREE.BoxGeometry(barWidth + 0.1, 0.2, barWidth + 0.1);
+            const topMaterial = new THREE.MeshStandardMaterial({
+                color: data.color,
+                emissive: data.color,
+                emissiveIntensity: 0.8,
+                roughness: 0.1,
+                metalness: 0.9
+            });
+            const top = new THREE.Mesh(topGeometry, topMaterial);
+            top.position.y = height;
+            group.add(top);
+
+            // Luz no topo
+            const light = new THREE.PointLight(data.color, 0.5, 10);
+            light.position.y = height + 1;
+            group.add(light);
+
+            // Label com ícone
+            const iconCanvas = document.createElement('canvas');
+            iconCanvas.width = 128;
+            iconCanvas.height = 128;
+            const iconCtx = iconCanvas.getContext('2d');
+            iconCtx.fillStyle = '#' + data.color.toString(16).padStart(6, '0');
+            iconCtx.font = 'bold 80px Arial';
+            iconCtx.textAlign = 'center';
+            iconCtx.textBaseline = 'middle';
+            iconCtx.fillText(data.icon, 64, 64);
+
+            const iconTexture = new THREE.CanvasTexture(iconCanvas);
+            const iconSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: iconTexture }));
+            iconSprite.scale.set(1.5, 1.5, 1);
+            iconSprite.position.set(0, height + 1.5, 0);
+            group.add(iconSprite);
+
+            // Label com nome
+            const labelCanvas = document.createElement('canvas');
+            labelCanvas.width = 256;
+            labelCanvas.height = 64;
+            const labelCtx = labelCanvas.getContext('2d');
+            labelCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            labelCtx.fillRect(0, 0, labelCanvas.width, labelCanvas.height);
+            labelCtx.fillStyle = '#ffffff';
+            labelCtx.font = 'bold 28px Arial';
+            labelCtx.textAlign = 'center';
+            labelCtx.fillText(data.label, 128, 40);
+
+            const labelTexture = new THREE.CanvasTexture(labelCanvas);
+            const labelSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTexture }));
+            labelSprite.scale.set(3, 0.75, 1);
+            labelSprite.position.set(0, -1, 0);
+            group.add(labelSprite);
+
+            // Label com valor
+            const valueCanvas = document.createElement('canvas');
+            valueCanvas.width = 256;
+            valueCanvas.height = 64;
+            const valueCtx = valueCanvas.getContext('2d');
+            valueCtx.fillStyle = '#' + data.color.toString(16).padStart(6, '0');
+            valueCtx.font = 'bold 40px Arial';
+            valueCtx.textAlign = 'center';
+            valueCtx.fillText('$' + data.value + 'M', 128, 45);
+
+            const valueTexture = new THREE.CanvasTexture(valueCanvas);
+            const valueSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: valueTexture }));
+            valueSprite.scale.set(2.5, 0.65, 1);
+            valueSprite.position.set(0, height + 2.8, 0);
+            group.add(valueSprite);
+
+            // Posicionar grupo
+            group.position.x = index * spacing;
+            group.position.z = 0;
+            
+            // Esconder inicialmente para animação
+            group.scale.y = 0;
+            group.userData = {
+                ...data,
+                isBar: true,
+                index: index,
+                targetHeight: height,
+                currentScale: 0
+            };
+
+            return group;
+        }
+
+        function createLegend() {
+            const legendContainer = document.getElementById('legend-items');
+            chartData.forEach(data => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: #${data.color.toString(16).padStart(6, '0')}"></div>
+                    <span>${data.icon} ${data.label}</span>
+                `;
+                legendContainer.appendChild(item);
+            });
+        }
+
+        function updateStats() {
+            const values = chartData.map(d => d.value);
+            const total = values.reduce((a, b) => a + b, 0);
+            const avg = Math.round(total / values.length);
+            const max = Math.max(...values);
+            const min = Math.min(...values);
+
+            document.getElementById('totalValue').textContent = '$' + total + 'M';
+            document.getElementById('avgValue').textContent = '$' + avg + 'M';
+            document.getElementById('maxValue').textContent = '$' + max + 'M';
+            document.getElementById('minValue').textContent = '$' + min + 'M';
+        }
+
+        function animateBarsGrowth() {
+            const duration = 2000;
+            const startTime = performance.now();
+
+            function animate() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeOutBounce(progress);
+
+                bars.forEach(bar => {
+                    bar.scale.y = eased;
+                    bar.userData.currentScale = eased;
+                });
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function sortBars() {
+            isSorted = !isSorted;
+            const sortedData = [...chartData].sort((a, b) => 
+                isSorted ? b.value - a.value : 0
+            );
+
+            const spacing = 4;
+            const duration = 1000;
+            const startTime = performance.now();
+
+            bars.forEach((bar, index) => {
+                const dataIndex = isSorted 
+                    ? chartData.findIndex(d => d.label === sortedData[index].label)
+                    : bar.userData.index;
+                
+                const startX = bar.position.x;
+                const targetX = isSorted ? index * spacing : dataIndex * spacing;
+
+                function animate() {
+                    const elapsed = performance.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = easeInOutCubic(progress);
+
+                    bar.position.x = startX + (targetX - startX) * eased;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                }
+                animate();
+            });
+
+            document.getElementById('sortBtn').textContent = isSorted ? '↩️ Ordem Original' : '📊 Ordenar';
+        }
+
+        function setupEventListeners() {
+            window.addEventListener('click', onBarClick);
+            window.addEventListener('mousemove', onMouseMove);
+
+            document.getElementById('animateBtn').addEventListener('click', animateBarsGrowth);
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                camera.position.set(20, 15, 25);
+                controls.target.set(chartData.length * 2, 5, 0);
+            });
+            document.getElementById('sortBtn').addEventListener('click', sortBars);
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Animar crescimento ao carregar
+            setTimeout(animateBarsGrowth, 500);
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(bars, true);
+
+            bars.forEach(bar => {
+                if (bar.children[0]) {
+                    bar.children[0].material.emissiveIntensity = 0.3;
+                    bar.children[0].scale.set(1, 1, 1);
+                }
+            });
+
+            if (intersects.length > 0) {
+                const bar = intersects[0].object.parent;
+                if (bar.userData.isBar) {
+                    bar.children[0].material.emissiveIntensity = 0.6;
+                    bar.children[0].scale.set(1.1, 1, 1.1);
+                    document.body.style.cursor = 'pointer';
+                }
+            } else {
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        function onBarClick() {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(bars, true);
+
+            if (intersects.length > 0) {
+                const bar = intersects[0].object.parent;
+                if (bar.userData.isBar) {
+                    selectBar(bar);
+                }
+            }
+        }
+
+        function selectBar(bar) {
+            selectedBar = bar;
+
+            // Mostrar informações
+            document.getElementById('dataTitle').textContent = bar.userData.label;
+            document.getElementById('dataValue').textContent = '$' + bar.userData.value + 'M';
+            document.getElementById('dataDescription').textContent = bar.userData.description;
+            document.getElementById('dataDetails').textContent = bar.userData.details;
+            document.getElementById('dataInfo').classList.add('visible');
+
+            // Animar câmera
+            const targetPos = bar.position.clone();
+            const newCameraPos = new THREE.Vector3(
+                targetPos.x,
+                bar.userData.targetHeight + 5,
+                targetPos.z + 10
+            );
+
+            animateCameraTo(newCameraPos, new THREE.Vector3(targetPos.x, bar.userData.targetHeight / 2, targetPos.z));
+
+            setTimeout(() => {
+                document.getElementById('dataInfo').classList.remove('visible');
+            }, 8000);
+        }
+
+        function animateCameraTo(targetPosition, lookAtPosition) {
+            const startPos = camera.position.clone();
+            const startLookAt = controls.target.clone();
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function animate() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeInOutCubic(progress);
+
+                camera.position.lerpVectors(startPos, targetPosition, eased);
+                controls.target.lerpVectors(startLookAt, lookAtPosition, eased);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function easeInOutCubic(x) {
+            return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        }
+
+        function easeOutBounce(x) {
+            const n1 = 7.5625;
+            const d1 = 2.75;
+
+            if (x < 1 / d1) {
+                return n1 * x * x;
+            } else if (x < 2 / d1) {
+                return n1 * (x -= 1.5 / d1) * x + 0.75;
+            } else if (x < 2.5 / d1) {
+                return n1 * (x -= 2.25 / d1) * x + 0.9375;
+            } else {
+                return n1 * (x -= 2.625 / d1) * x + 0.984375;
+            }
+        }
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            controls.update();
+
+            // Animar barras (pulsar levemente)
+            bars.forEach((bar, index) => {
+                if (bar.children[1]) {
+                    const scale = 1 + Math.sin(time * 2 + index * 0.3) * 0.05;
+                    bar.children[1].scale.set(scale, scale, scale);
+                }
+                
+                // Rotação suave do ícone
+                if (bar.children[3]) {
+                    bar.children[3].rotation.z = Math.sin(time + index) * 0.1;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
+

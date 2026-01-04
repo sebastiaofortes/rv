@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline 3D VR - Three.js</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(20, 20, 40, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 350px;
+            border: 2px solid rgba(100, 200, 255, 0.5);
+            box-shadow: 0 0 30px rgba(100, 200, 255, 0.3);
+        }
+
+        #info h3 {
+            color: #64c8ff;
+            margin-bottom: 12px;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        #eventInfo {
+            position: absolute;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            color: white;
+            background: rgba(20, 20, 40, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 450px;
+            border: 2px solid rgba(100, 200, 255, 0.6);
+            box-shadow: 0 0 40px rgba(100, 200, 255, 0.5);
+            display: none;
+        }
+
+        #eventInfo h2 {
+            color: #64c8ff;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-shadow: 0 0 15px rgba(100, 200, 255, 0.8);
+        }
+
+        #eventInfo .date {
+            color: #a0d8ff;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        #eventInfo .description {
+            line-height: 1.8;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        #eventInfo .impact {
+            background: rgba(100, 200, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #64c8ff;
+            margin-top: 15px;
+        }
+
+        #eventInfo .impact strong {
+            color: #64c8ff;
+        }
+
+        #eventInfo.visible {
+            display: block;
+            animation: slideInRight 0.4s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateY(-50%) translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+            }
+        }
+
+        #timeline-nav {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 20, 40, 0.9);
+            padding: 20px 30px;
+            border-radius: 15px;
+            border: 2px solid rgba(100, 200, 255, 0.5);
+            z-index: 100;
+        }
+
+        #timeline-progress {
+            width: 600px;
+            max-width: 80vw;
+            height: 8px;
+            background: rgba(100, 200, 255, 0.2);
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        #timeline-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #64c8ff 100%);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        #timeline-markers {
+            position: relative;
+            height: 30px;
+            margin-top: 10px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #64c8ff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
+        }
+
+        .timeline-marker:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 20px rgba(100, 200, 255, 1);
+        }
+
+        .timeline-marker.active {
+            background: #fff;
+            transform: scale(1.8);
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #64c8ff;
+            font-size: 28px;
+            z-index: 100;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.8);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #year-display {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #64c8ff;
+            font-size: 72px;
+            font-weight: bold;
+            text-shadow: 0 0 30px rgba(100, 200, 255, 0.9);
+            z-index: 99;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="info">
+        <h3>⏰ Timeline 3D</h3>
+        <p><strong>Navegação:</strong></p>
+        <p>◀️ ▶️ <strong>Setas:</strong> Evento anterior/próximo</p>
+        <p>🖱️ <strong>Mouse:</strong> Rotacionar visão</p>
+        <p>🎯 <strong>Click:</strong> Selecionar evento</p>
+        <p>📊 <strong>Barra:</strong> Pular para qualquer ano</p>
+        <p>🥽 <strong>VR:</strong> Viagem temporal imersiva</p>
+    </div>
+
+    <div id="year-display">2024</div>
+
+    <div id="controls">
+        <button id="prevBtn" class="btn">◀️ Anterior</button>
+        <button id="playBtn" class="btn">▶️ Auto-Play</button>
+        <button id="nextBtn" class="btn">Próximo ▶️</button>
+        <button id="vrButton" class="btn">🥽 VR</button>
+    </div>
+
+    <div id="timeline-nav">
+        <div id="timeline-progress">
+            <div id="timeline-progress-bar"></div>
+        </div>
+        <div id="timeline-markers"></div>
+    </div>
+
+    <div id="eventInfo">
+        <h2 id="eventTitle">Evento</h2>
+        <p class="date" id="eventDate">Data</p>
+        <p class="description" id="eventDescription">Descrição...</p>
+        <div class="impact">
+            <strong>💡 Impacto:</strong>
+            <p id="eventImpact">Impacto do evento...</p>
+        </div>
+    </div>
+
+    <div id="loading">Construindo linha do tempo...</div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { VRButton } from 'three/addons/webxr/VRButton.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Configuração
+        let scene, camera, renderer, controls;
+        let raycaster, mouse;
+        let events = [];
+        let currentEventIndex = 0;
+        let timelinePath;
+        let autoPlayInterval;
+        let isAutoPlaying = false;
+
+        // Dados dos eventos históricos
+        const eventsData = [
+            {
+                year: 2010,
+                title: "WebGL 1.0 Release",
+                description: "Lançamento oficial do WebGL 1.0, trazendo gráficos 3D acelerados por hardware para navegadores web sem plugins.",
+                impact: "Revolucionou a web, permitindo jogos 3D, visualizações científicas e experiências interativas diretamente no navegador.",
+                color: 0x4287f5
+            },
+            {
+                year: 2013,
+                title: "Three.js Ganha Popularidade",
+                description: "Three.js se torna a biblioteca JavaScript mais popular para criar gráficos 3D na web, simplificando o uso do WebGL.",
+                impact: "Democratizou o desenvolvimento 3D na web, permitindo que desenvolvedores sem conhecimento profundo de OpenGL criassem experiências 3D.",
+                color: 0x42f554
+            },
+            {
+                year: 2016,
+                title: "WebVR 1.0 Specification",
+                description: "Primeira especificação oficial do WebVR, permitindo experiências de realidade virtual em navegadores web.",
+                impact: "Abriu as portas para VR acessível via web, sem necessidade de instalação de aplicativos nativos.",
+                color: 0xf54242
+            },
+            {
+                year: 2018,
+                title: "WebXR Device API",
+                description: "WebXR substitui WebVR, suportando tanto Realidade Virtual quanto Realidade Aumentada em uma única API.",
+                impact: "Unificou o desenvolvimento de experiências imersivas, suportando uma gama maior de dispositivos e casos de uso.",
+                color: 0xf5d442
+            },
+            {
+                year: 2019,
+                title: "Oculus Quest Launch",
+                description: "Lançamento do Oculus Quest, primeiro headset VR standalone de sucesso com acesso a navegadores web.",
+                impact: "Tornou experiências WebXR verdadeiramente portáteis e acessíveis, sem necessidade de PC ou cabos.",
+                color: 0xf542d4
+            },
+            {
+                year: 2020,
+                title: "WebGL 2.0 Adoption",
+                description: "Ampla adoção do WebGL 2.0, trazendo recursos modernos de gráficos como instancing, transformações de feedback e texturas 3D.",
+                impact: "Permitiu gráficos de qualidade próxima a jogos nativos, com melhor performance e recursos visuais avançados.",
+                color: 0x42f5f5
+            },
+            {
+                year: 2021,
+                title: "Metaverse Boom",
+                description: "Explosão de interesse no metaverso, impulsionando desenvolvimento de mundos virtuais 3D baseados em web.",
+                impact: "Acelerou investimentos em tecnologias web 3D e criou demanda massiva por desenvolvedores WebGL/WebXR.",
+                color: 0xff6b35
+            },
+            {
+                year: 2022,
+                title: "Meta Quest Pro",
+                description: "Lançamento do Meta Quest Pro com mixed reality avançada, elevando o padrão de experiências WebXR.",
+                impact: "Trouxe recursos profissionais para WebXR, como eye tracking e face tracking via web APIs.",
+                color: 0xa742f5
+            },
+            {
+                year: 2023,
+                title: "Apple Vision Pro Announced",
+                description: "Apple anuncia Vision Pro, trazendo credibilidade mainstream e novo ímpeto para spatial computing na web.",
+                impact: "Validou o mercado de spatial computing e prometeu levar WebXR para milhões de novos usuários.",
+                color: 0xf5a742
+            },
+            {
+                year: 2024,
+                title: "WebGPU Launch",
+                description: "Lançamento do WebGPU, sucessor do WebGL, oferecendo controle de baixo nível e performance próxima ao metal.",
+                impact: "Nova era de gráficos web com ray tracing, compute shaders e performance comparável a APIs nativas.",
+                color: 0x64c8ff
+            }
+        ];
+
+        function init() {
+            // Cena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000510);
+            scene.fog = new THREE.Fog(0x000510, 20, 200);
+
+            // Câmera
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(0, 5, 15);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.xr.enabled = true;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            // Controles
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 5;
+            controls.maxDistance = 50;
+
+            // Raycaster
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Criar timeline
+            createTimeline();
+            createEvents();
+            createEnvironment();
+
+            // Botão VR
+            const vrButton = VRButton.createButton(renderer);
+            document.getElementById('vrButton').addEventListener('click', () => {
+                vrButton.click();
+            });
+
+            // Event listeners
+            setupEventListeners();
+
+            // Posicionar no primeiro evento
+            goToEvent(0);
+
+            // Esconder loading
+            document.getElementById('loading').classList.add('hidden');
+
+            // Animar
+            renderer.setAnimationLoop(animate);
+        }
+
+        function createTimeline() {
+            // Linha principal da timeline
+            const points = [];
+            const totalLength = eventsData.length * 20;
+            
+            for (let i = 0; i < eventsData.length; i++) {
+                const x = i * 20 - totalLength / 2 + 10;
+                const y = Math.sin(i * 0.5) * 2; // Ondulação suave
+                const z = 0;
+                points.push(new THREE.Vector3(x, y, z));
+            }
+
+            const curve = new THREE.CatmullRomCurve3(points);
+            const tubeGeometry = new THREE.TubeGeometry(curve, 200, 0.3, 8, false);
+            const tubeMaterial = new THREE.MeshStandardMaterial({
+                color: 0x64c8ff,
+                emissive: 0x64c8ff,
+                emissiveIntensity: 0.5,
+                roughness: 0.3,
+                metalness: 0.8
+            });
+            timelinePath = new THREE.Mesh(tubeGeometry, tubeMaterial);
+            scene.add(timelinePath);
+
+            // Partículas ao longo da linha
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 500;
+            const particlesPositions = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount; i++) {
+                const t = i / particlesCount;
+                const point = curve.getPoint(t);
+                particlesPositions[i * 3] = point.x + (Math.random() - 0.5) * 2;
+                particlesPositions[i * 3 + 1] = point.y + (Math.random() - 0.5) * 2;
+                particlesPositions[i * 3 + 2] = point.z + (Math.random() - 0.5) * 2;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlesPositions, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x64c8ff,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+        }
+
+        function createEvents() {
+            const totalLength = eventsData.length * 20;
+
+            eventsData.forEach((data, index) => {
+                const eventGroup = createEventMarker(data, index);
+                
+                const x = index * 20 - totalLength / 2 + 10;
+                const y = Math.sin(index * 0.5) * 2;
+                const z = 0;
+                
+                eventGroup.position.set(x, y, z);
+                events.push(eventGroup);
+                scene.add(eventGroup);
+
+                // Criar marcador na UI
+                createUIMarker(index);
+            });
+        }
+
+        function createEventMarker(data, index) {
+            const group = new THREE.Group();
+
+            // Pilar vertical
+            const pillarGeometry = new THREE.CylinderGeometry(0.1, 0.1, 8, 16);
+            const pillarMaterial = new THREE.MeshStandardMaterial({
+                color: data.color,
+                emissive: data.color,
+                emissiveIntensity: 0.3
+            });
+            const pillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+            pillar.position.y = 4;
+            group.add(pillar);
+
+            // Marcador no topo
+            const markerGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+            const markerMaterial = new THREE.MeshStandardMaterial({
+                color: data.color,
+                emissive: data.color,
+                emissiveIntensity: 0.6,
+                roughness: 0.3,
+                metalness: 0.7
+            });
+            const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+            marker.position.y = 8.5;
+            group.add(marker);
+
+            // Anel ao redor
+            const ringGeometry = new THREE.TorusGeometry(1.2, 0.1, 16, 100);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: data.color,
+                transparent: true,
+                opacity: 0.6
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = 8.5;
+            group.add(ring);
+
+            // Luz pontual
+            const light = new THREE.PointLight(data.color, 1, 15);
+            light.position.y = 8.5;
+            group.add(light);
+
+            // Label com ano
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#' + data.color.toString(16).padStart(6, '0');
+            ctx.font = 'bold 72px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(data.year, canvas.width / 2, 90);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(4, 2, 1);
+            sprite.position.y = 10.5;
+            group.add(sprite);
+
+            group.userData = {
+                ...data,
+                isEvent: true,
+                index: index
+            };
+
+            return group;
+        }
+
+        function createUIMarker(index) {
+            const marker = document.createElement('div');
+            marker.className = 'timeline-marker';
+            marker.style.left = `${(index / (eventsData.length - 1)) * 100}%`;
+            marker.addEventListener('click', () => goToEvent(index));
+            document.getElementById('timeline-markers').appendChild(marker);
+        }
+
+        function createEnvironment() {
+            // Campo de estrelas
+            const starsGeometry = new THREE.BufferGeometry();
+            const starCount = 3000;
+            const positions = new Float32Array(starCount * 3);
+
+            for (let i = 0; i < starCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 300;
+                positions[i + 1] = (Math.random() - 0.5) * 300;
+                positions[i + 2] = (Math.random() - 0.5) * 300;
+            }
+
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.3,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+
+            // Iluminação
+            const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(10, 20, 10);
+            scene.add(directionalLight);
+        }
+
+        function setupEventListeners() {
+            window.addEventListener('click', onEventClick);
+            window.addEventListener('mousemove', onMouseMove);
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                goToEvent(Math.max(0, currentEventIndex - 1));
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                goToEvent(Math.min(eventsData.length - 1, currentEventIndex + 1));
+            });
+
+            document.getElementById('playBtn').addEventListener('click', toggleAutoPlay);
+
+            document.getElementById('timeline-progress').addEventListener('click', (e) => {
+                const rect = e.target.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percent = x / rect.width;
+                const index = Math.round(percent * (eventsData.length - 1));
+                goToEvent(index);
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') goToEvent(Math.max(0, currentEventIndex - 1));
+                if (e.key === 'ArrowRight') goToEvent(Math.min(eventsData.length - 1, currentEventIndex + 1));
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(events, true);
+
+            events.forEach(event => {
+                if (event.children[2]) {
+                    event.children[2].material.opacity = 0.6;
+                }
+                if (event.children[1]) {
+                    event.children[1].scale.set(1, 1, 1);
+                }
+            });
+
+            if (intersects.length > 0) {
+                const event = intersects[0].object.parent;
+                if (event.userData.isEvent) {
+                    if (event.children[2]) {
+                        event.children[2].material.opacity = 1;
+                    }
+                    if (event.children[1]) {
+                        event.children[1].scale.set(1.3, 1.3, 1.3);
+                    }
+                    document.body.style.cursor = 'pointer';
+                }
+            } else {
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        function onEventClick() {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(events, true);
+
+            if (intersects.length > 0) {
+                const event = intersects[0].object.parent;
+                if (event.userData.isEvent) {
+                    goToEvent(event.userData.index);
+                }
+            }
+        }
+
+        function goToEvent(index) {
+            if (index < 0 || index >= eventsData.length) return;
+
+            currentEventIndex = index;
+            const event = events[index];
+            const data = eventsData[index];
+
+            // Atualizar UI
+            document.getElementById('eventTitle').textContent = data.title;
+            document.getElementById('eventDate').textContent = data.year;
+            document.getElementById('eventDescription').textContent = data.description;
+            document.getElementById('eventImpact').textContent = data.impact;
+            document.getElementById('eventInfo').classList.add('visible');
+
+            document.getElementById('year-display').textContent = data.year;
+
+            // Atualizar barra de progresso
+            const progress = (index / (eventsData.length - 1)) * 100;
+            document.getElementById('timeline-progress-bar').style.width = `${progress}%`;
+
+            // Atualizar marcadores
+            document.querySelectorAll('.timeline-marker').forEach((marker, i) => {
+                marker.classList.toggle('active', i === index);
+            });
+
+            // Animar câmera
+            const targetPos = event.position.clone();
+            targetPos.y += 5;
+            targetPos.z += 10;
+
+            animateCameraTo(targetPos, event.position);
+
+            // Atualizar botões
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === eventsData.length - 1;
+
+            setTimeout(() => {
+                document.getElementById('eventInfo').classList.remove('visible');
+            }, 8000);
+        }
+
+        function toggleAutoPlay() {
+            isAutoPlaying = !isAutoPlaying;
+            const btn = document.getElementById('playBtn');
+            
+            if (isAutoPlaying) {
+                btn.textContent = '⏸️ Pausar';
+                autoPlayInterval = setInterval(() => {
+                    if (currentEventIndex < eventsData.length - 1) {
+                        goToEvent(currentEventIndex + 1);
+                    } else {
+                        toggleAutoPlay();
+                    }
+                }, 5000);
+            } else {
+                btn.textContent = '▶️ Auto-Play';
+                clearInterval(autoPlayInterval);
+            }
+        }
+
+        function animateCameraTo(targetPosition, lookAtPosition) {
+            const startPos = camera.position.clone();
+            const startLookAt = controls.target.clone();
+            const duration = 1500;
+            const startTime = performance.now();
+
+            function animate() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeInOutCubic(progress);
+
+                camera.position.lerpVectors(startPos, targetPosition, eased);
+                controls.target.lerpVectors(startLookAt, lookAtPosition, eased);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function easeInOutCubic(x) {
+            return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        }
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            controls.update();
+
+            // Animar anéis
+            events.forEach((event, index) => {
+                if (event.children[2]) {
+                    event.children[2].rotation.z += delta * (1 + index * 0.1);
+                }
+                
+                // Pulsar marcador
+                if (event.children[1]) {
+                    const scale = 1 + Math.sin(time * 2 + index) * 0.1;
+                    event.children[1].scale.set(scale, scale, scale);
+                }
+            });
+
+            // Pulsar linha do tempo
+            if (timelinePath) {
+                timelinePath.material.emissiveIntensity = 0.5 + Math.sin(time * 2) * 0.2;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiências VR - Galeria Imersiva</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Particles background */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(100, 200, 255, 0.6);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: linear-gradient(180deg, rgba(10, 10, 30, 0.9) 0%, rgba(10, 10, 30, 0) 100%);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                filter: hue-rotate(0deg);
+            }
+            50% {
+                filter: hue-rotate(20deg);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0c0ff;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .header-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: float-icon 3s ease-in-out infinite;
+        }
+
+        @keyframes float-icon {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Main container */
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        /* Grid de cards */
+        .experiences-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        /* Card */
+        .experience-card {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(100, 150, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .experience-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, var(--card-color) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .experience-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 50px var(--card-glow);
+            border-color: var(--card-color);
+        }
+
+        .experience-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            filter: drop-shadow(0 0 10px var(--card-glow));
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--card-color);
+            text-shadow: 0 0 15px var(--card-glow);
+        }
+
+        .card-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #c0d0ff;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .card-features li {
+            font-size: 0.9rem;
+            color: #a0b0d0;
+            margin-bottom: 8px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .card-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--card-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .card-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--card-color) 0%, var(--card-color-dark) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px var(--card-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .card-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .card-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px var(--card-glow);
+        }
+
+        .card-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Cores específicas para cada card */
+        .card-apresentacao {
+            --card-color: #667eea;
+            --card-color-dark: #764ba2;
+            --card-glow: rgba(102, 126, 234, 0.4);
+        }
+
+        .card-dna {
+            --card-color: #32c896;
+            --card-color-dark: #1e7e5c;
+            --card-glow: rgba(50, 200, 150, 0.4);
+        }
+
+        .card-galaxia {
+            --card-color: #6496ff;
+            --card-color-dark: #4a74d9;
+            --card-glow: rgba(100, 150, 255, 0.4);
+        }
+
+        .card-mapa {
+            --card-color: #667eea;
+            --card-color-dark: #5568cc;
+            --card-glow: rgba(102, 126, 234, 0.4);
+        }
+
+        .card-museu {
+            --card-color: #f093fb;
+            --card-color-dark: #c46dc9;
+            --card-glow: rgba(240, 147, 251, 0.4);
+        }
+
+        .card-timeline {
+            --card-color: #64c8ff;
+            --card-color-dark: #4a9fd9;
+            --card-glow: rgba(100, 200, 255, 0.4);
+        }
+
+        .card-barras {
+            --card-color: #10b981;
+            --card-color-dark: #059669;
+            --card-glow: rgba(16, 185, 129, 0.4);
+        }
+
+        .card-dashboard {
+            --card-color: #3b82f6;
+            --card-color-dark: #1e40af;
+            --card-glow: rgba(59, 130, 246, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(10, 10, 30, 0.8);
+            border-top: 1px solid rgba(100, 150, 255, 0.2);
+            margin-top: 40px;
+        }
+
+        footer p {
+            color: #a0c0ff;
+            font-size: 0.9rem;
+        }
+
+        /* Stats counter */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px 30px;
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 15px;
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a0c0ff;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .experiences-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Loading animation */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles Background -->
+    <div id="particles"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-icon">🥽</div>
+        <h1>Galeria de Experiências VR</h1>
+        <p class="subtitle">Explore mundos virtuais imersivos com Three.js e WebXR</p>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Experiências VR</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Web-Based</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Possibilidades</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="experiences-grid">
+            <!-- Card 1: Apresentação VR -->
+            <div class="experience-card card-apresentacao" onclick="location.href='apresentacao-vr.html'">
+                <span class="card-icon">📊</span>
+                <h2 class="card-title">Apresentação VR 360°</h2>
+                <p class="card-description">
+                    Sistema de apresentação imersivo onde os slides flutuam ao seu redor em um ambiente 3D. 
+                    Navegue entre os conteúdos com uma experiência única de apresentação.
+                </p>
+                <ul class="card-features">
+                    <li>Slides circulares em 360°</li>
+                    <li>Suporte a vídeos do YouTube</li>
+                    <li>Navegação suave entre slides</li>
+                    <li>Controles VR integrados</li>
+                </ul>
+                <a href="apresentacao-vr.html" class="card-btn">
+                    <span>🚀 Iniciar Experiência</span>
+                </a>
+            </div>
+
+            <!-- Card 2: DNA Helix -->
+            <div class="experience-card card-dna" onclick="location.href='dna-helix-vr.html'">
+                <span class="card-icon">🧬</span>
+                <h2 class="card-title">DNA Helix de Dados</h2>
+                <p class="card-description">
+                    Visualize informações como uma hélice de DNA tridimensional. Cada par de bases representa 
+                    uma fase ou etapa de um processo, conectados em uma estrutura helical fascinante.
+                </p>
+                <ul class="card-features">
+                    <li>Estrutura de DNA em 3D</li>
+                    <li>Navegação vertical por camadas</li>
+                    <li>Pares de bases interativos</li>
+                    <li>Animações biológicas realistas</li>
+                </ul>
+                <a href="dna-helix-vr.html" class="card-btn">
+                    <span>🧬 Explorar Helix</span>
+                </a>
+            </div>
+
+            <!-- Card 3: Galáxia -->
+            <div class="experience-card card-galaxia" onclick="location.href='galaxia-vr.html'">
+                <span class="card-icon">🌌</span>
+                <h2 class="card-title">Galáxia de Conteúdo</h2>
+                <p class="card-description">
+                    Navegue por um sistema solar de conhecimento onde cada planeta representa um tópico ou conceito. 
+                    Orbite, explore e descubra informações de forma espacial.
+                </p>
+                <ul class="card-features">
+                    <li>Planetas orbitando o núcleo</li>
+                    <li>Campo de estrelas dinâmico</li>
+                    <li>Seleção interativa de planetas</li>
+                    <li>Animações orbitais realistas</li>
+                </ul>
+                <a href="galaxia-vr.html" class="card-btn">
+                    <span>🌟 Viajar pelo Espaço</span>
+                </a>
+            </div>
+
+            <!-- Card 4: Mapa Mental -->
+            <div class="experience-card card-mapa" onclick="location.href='mapa-mental-vr.html'">
+                <span class="card-icon">🧠</span>
+                <h2 class="card-title">Mapa Mental VR</h2>
+                <p class="card-description">
+                    Organize e visualize ideias em um mapa mental tridimensional. Conexões visuais entre conceitos 
+                    flutuam no espaço, tornando o brainstorming imersivo.
+                </p>
+                <ul class="card-features">
+                    <li>Nós hierárquicos conectados</li>
+                    <li>Navegação por ideias relacionadas</li>
+                    <li>Estrutura ramificada em 3D</li>
+                    <li>Visualização de relações complexas</li>
+                </ul>
+                <a href="mapa-mental-vr.html" class="card-btn">
+                    <span>💡 Expandir Ideias</span>
+                </a>
+            </div>
+
+            <!-- Card 5: Museu Virtual -->
+            <div class="experience-card card-museu" onclick="location.href='museu-virtual-vr.html'">
+                <span class="card-icon">🏛️</span>
+                <h2 class="card-title">Museu Virtual VR</h2>
+                <p class="card-description">
+                    Caminhe por galerias de arte virtual, explore obras e artefatos em um ambiente de museu 
+                    totalmente imersivo. Cultura e história ao seu alcance.
+                </p>
+                <ul class="card-features">
+                    <li>Galerias temáticas em 3D</li>
+                    <li>Obras de arte interativas</li>
+                    <li>Ambiente de museu realista</li>
+                    <li>Informações detalhadas das peças</li>
+                </ul>
+                <a href="museu-virtual-vr.html" class="card-btn">
+                    <span>🖼️ Visitar Museu</span>
+                </a>
+            </div>
+
+            <!-- Card 6: Timeline -->
+            <div class="experience-card card-timeline" onclick="location.href='timeline-vr.html'">
+                <span class="card-icon">⏰</span>
+                <h2 class="card-title">Timeline 3D VR</h2>
+                <p class="card-description">
+                    Viaje através do tempo em uma linha temporal tridimensional. Eventos históricos ganham vida 
+                    enquanto você navega por marcos importantes da história.
+                </p>
+                <ul class="card-features">
+                    <li>Linha do tempo tridimensional</li>
+                    <li>Eventos históricos detalhados</li>
+                    <li>Navegação temporal fluida</li>
+                    <li>Auto-play para tours guiados</li>
+                </ul>
+                <a href="timeline-vr.html" class="card-btn">
+                    <span>🕐 Viajar no Tempo</span>
+                </a>
+            </div>
+
+            <!-- Card 7: Gráfico de Barras -->
+            <div class="experience-card card-barras" onclick="location.href='grafico-barras-vr.html'">
+                <span class="card-icon">📊</span>
+                <h2 class="card-title">Gráfico de Barras 3D</h2>
+                <p class="card-description">
+                    Visualize dados de forma imersiva com barras 3D interativas. Estatísticas ganham vida 
+                    em um espaço tridimensional com animações e análises detalhadas.
+                </p>
+                <ul class="card-features">
+                    <li>Barras 3D coloridas e interativas</li>
+                    <li>Animações de crescimento suaves</li>
+                    <li>Estatísticas em tempo real</li>
+                    <li>Ordenação e filtragem de dados</li>
+                </ul>
+                <a href="grafico-barras-vr.html" class="card-btn">
+                    <span>📈 Explorar Dados</span>
+                </a>
+            </div>
+
+            <!-- Card 8: Dashboard Executivo -->
+            <div class="experience-card card-dashboard" onclick="location.href='dashboard-executivo-vr.html'">
+                <span class="card-icon">💼</span>
+                <h2 class="card-title">Dashboard Executivo 3D</h2>
+                <p class="card-description">
+                    Métricas de negócios flutuando ao seu redor em um ambiente imersivo. KPIs, gráficos 
+                    e análises em 360° para tomada de decisões baseada em dados.
+                </p>
+                <ul class="card-features">
+                    <li>6 KPIs principais em painéis 3D</li>
+                    <li>Gráficos de pizza e barras interativos</li>
+                    <li>Alertas visuais de performance</li>
+                    <li>Seleção de períodos (mês, trimestre, ano)</li>
+                </ul>
+                <a href="dashboard-executivo-vr.html" class="card-btn">
+                    <span>💼 Ver Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>🚀 Desenvolvido com Three.js, WebXR e paixão por tecnologia imersiva</p>
+        <p style="margin-top: 10px; opacity: 0.7;">
+            💡 Funciona em VR headsets compatíveis com WebXR (Meta Quest, HTC Vive, etc.)
+        </p>
+    </footer>
+
+    <script>
+        // Criar partículas de fundo
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Animação de hover suave nos cards
+        document.querySelectorAll('.experience-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                card.style.transform = `
+                    translateY(-10px) 
+                    scale(1.02) 
+                    rotateX(${rotateX}deg) 
+                    rotateY(${rotateY}deg)
+                `;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1) rotateX(0) rotateY(0)';
+            });
+        });
+
+        // Inicializar
+        createParticles();
+
+        // Animação de fade-in nos cards
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
+                }
+            });
+        });
+
+        document.querySelectorAll('.experience-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
+

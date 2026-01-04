@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Helix VR - Three.js</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(20, 40, 60, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 350px;
+            border: 2px solid rgba(50, 200, 150, 0.6);
+            box-shadow: 0 0 30px rgba(50, 200, 150, 0.4);
+        }
+
+        #info h3 {
+            color: #32c896;
+            margin-bottom: 12px;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(50, 200, 150, 0.8);
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #32c896 0%, #1e7e5c 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(50, 200, 150, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(50, 200, 150, 0.6);
+        }
+
+        #dataInfo {
+            position: absolute;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            color: white;
+            background: rgba(20, 40, 60, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 450px;
+            border: 2px solid rgba(50, 200, 150, 0.6);
+            box-shadow: 0 0 40px rgba(50, 200, 150, 0.5);
+            display: none;
+        }
+
+        #dataInfo h2 {
+            color: #32c896;
+            margin-bottom: 15px;
+            font-size: 28px;
+            text-shadow: 0 0 15px rgba(50, 200, 150, 0.8);
+        }
+
+        #dataInfo .type {
+            color: #6ee7b7;
+            font-style: italic;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        #dataInfo .description {
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        #dataInfo .connections {
+            background: rgba(50, 200, 150, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #32c896;
+            margin-top: 15px;
+        }
+
+        #dataInfo.visible {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #helix-stats {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: white;
+            background: rgba(20, 40, 60, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 100;
+            border: 2px solid rgba(50, 200, 150, 0.4);
+        }
+
+        #helix-stats .stat {
+            margin: 8px 0;
+        }
+
+        .stat-value {
+            color: #32c896;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(50, 200, 150, 0.6);
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #32c896;
+            font-size: 28px;
+            z-index: 100;
+            text-shadow: 0 0 20px rgba(50, 200, 150, 0.8);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #sequence-display {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #32c896;
+            font-size: 36px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(50, 200, 150, 0.9);
+            z-index: 99;
+            pointer-events: none;
+            letter-spacing: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="info">
+        <h3>🧬 DNA Helix de Dados</h3>
+        <p><strong>Navegação:</strong></p>
+        <p>🖱️ <strong>Mouse:</strong> Rotacionar helix</p>
+        <p>🎯 <strong>Click:</strong> Selecionar dado</p>
+        <p>🔍 <strong>Scroll:</strong> Zoom</p>
+        <p>⬆️⬇️ <strong>Setas:</strong> Navegar sequência</p>
+        <p>🔄 <strong>Auto-Rotate:</strong> Rotação automática</p>
+        <p>🥽 <strong>VR:</strong> Imersão total na hélice</p>
+    </div>
+
+    <div id="sequence-display">A-T-G-C</div>
+
+    <div id="controls">
+        <button id="prevBtn" class="btn">⬆️ Anterior</button>
+        <button id="rotateBtn" class="btn">🔄 Auto-Rotate</button>
+        <button id="nextBtn" class="btn">Próximo ⬇️</button>
+        <button id="vrButton" class="btn">🥽 VR</button>
+    </div>
+
+    <div id="helix-stats">
+        <div class="stat">Pares de Base: <span class="stat-value" id="pairCount">0</span></div>
+        <div class="stat">Camada Atual: <span class="stat-value" id="currentLayer">0</span></div>
+        <div class="stat">Rotação: <span class="stat-value" id="rotation">0°</span></div>
+    </div>
+
+    <div id="dataInfo">
+        <h2 id="dataTitle">Dado</h2>
+        <p class="type" id="dataType">Tipo</p>
+        <p class="description" id="dataDescription">Descrição...</p>
+        <div class="connections">
+            <strong>🔗 Conexões:</strong>
+            <p id="dataConnections">Conectado a...</p>
+        </div>
+    </div>
+
+    <div id="loading">Sintetizando DNA...</div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { VRButton } from 'three/addons/webxr/VRButton.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Configuração
+        let scene, camera, renderer, controls;
+        let raycaster, mouse;
+        let helixData = [];
+        let connections = [];
+        let backbones = [];
+        let currentIndex = 0;
+        let autoRotate = true;
+
+        // Dados da hélice (representando um processo ou jornada)
+        const dnaData = [
+            {
+                title: "Requisitos",
+                type: "Fase 1",
+                description: "Coleta e análise de requisitos do projeto. Definição de escopo, objetivos e stakeholders.",
+                connections: "Conecta com Design e Planejamento",
+                baseA: "A", baseB: "T",
+                colorA: 0x3b82f6, colorB: 0xef4444
+            },
+            {
+                title: "Design",
+                type: "Fase 2",
+                description: "Criação da arquitetura do sistema. UX/UI design, modelagem de dados e fluxos.",
+                connections: "Conecta com Requisitos e Desenvolvimento",
+                baseA: "G", baseB: "C",
+                colorA: 0x10b981, colorB: 0xf59e0b
+            },
+            {
+                title: "Desenvolvimento",
+                type: "Fase 3",
+                description: "Implementação do código. Frontend, backend, banco de dados e integrações.",
+                connections: "Conecta com Design e Testes",
+                baseA: "T", baseB: "A",
+                colorA: 0xef4444, colorB: 0x3b82f6
+            },
+            {
+                title: "Testes",
+                type: "Fase 4",
+                description: "Testes unitários, integração e E2E. QA e validação de requisitos.",
+                connections: "Conecta com Desenvolvimento e Deploy",
+                baseA: "C", baseB: "G",
+                colorA: 0xf59e0b, colorB: 0x10b981
+            },
+            {
+                title: "Deploy",
+                type: "Fase 5",
+                description: "Implantação em produção. CI/CD, configuração de servidores e monitoramento.",
+                connections: "Conecta com Testes e Manutenção",
+                baseA: "A", baseB: "T",
+                colorA: 0x3b82f6, colorB: 0xef4444
+            },
+            {
+                title: "Manutenção",
+                type: "Fase 6",
+                description: "Suporte contínuo, bug fixes e atualizações. Monitoramento de performance.",
+                connections: "Conecta com Deploy e Evolução",
+                baseA: "G", baseB: "C",
+                colorA: 0x10b981, colorB: 0xf59e0b
+            },
+            {
+                title: "Evolução",
+                type: "Fase 7",
+                description: "Novas features, melhorias e otimizações baseadas em feedback dos usuários.",
+                connections: "Conecta com Manutenção e ciclo reinicia",
+                baseA: "T", baseB: "A",
+                colorA: 0xef4444, colorB: 0x3b82f6
+            },
+            {
+                title: "Otimização",
+                type: "Fase 8",
+                description: "Performance tuning, refatoração e melhorias de código. Scale e infraestrutura.",
+                connections: "Conecta com todo o ciclo",
+                baseA: "C", baseB: "G",
+                colorA: 0xf59e0b, colorB: 0x10b981
+            }
+        ];
+
+        function init() {
+            // Cena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a0f);
+            scene.fog = new THREE.Fog(0x0a0a0f, 20, 100);
+
+            // Câmera
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(0, 20, 40);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.xr.enabled = true;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            // Controles
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 15;
+            controls.maxDistance = 80;
+            controls.autoRotate = autoRotate;
+            controls.autoRotateSpeed = 1.0;
+
+            // Raycaster
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Criar DNA Helix
+            createDNAHelix();
+            createEnvironment();
+
+            // Botão VR
+            const vrButton = VRButton.createButton(renderer);
+            document.getElementById('vrButton').addEventListener('click', () => {
+                vrButton.click();
+            });
+
+            // Event listeners
+            setupEventListeners();
+
+            // Selecionar primeiro
+            selectData(0);
+
+            // Stats
+            document.getElementById('pairCount').textContent = dnaData.length;
+
+            // Esconder loading
+            document.getElementById('loading').classList.add('hidden');
+
+            // Animar
+            renderer.setAnimationLoop(animate);
+        }
+
+        function createDNAHelix() {
+            const radius = 5;
+            const height = 60;
+            const layerHeight = height / dnaData.length;
+            const rotationPerLayer = (Math.PI * 2) / 3; // 120 graus por camada
+
+            // Criar pares de bases
+            dnaData.forEach((data, index) => {
+                const y = index * layerHeight - height / 2 + layerHeight / 2;
+                const angle = index * rotationPerLayer;
+
+                // Base A (esquerda)
+                const posA = new THREE.Vector3(
+                    Math.cos(angle) * radius,
+                    y,
+                    Math.sin(angle) * radius
+                );
+
+                // Base T/C (direita, oposta)
+                const posB = new THREE.Vector3(
+                    Math.cos(angle + Math.PI) * radius,
+                    y,
+                    Math.sin(angle + Math.PI) * radius
+                );
+
+                // Criar par de bases
+                const pair = createBasePair(data, posA, posB, index);
+                helixData.push(pair);
+                scene.add(pair.groupA);
+                scene.add(pair.groupB);
+
+                // Conexão entre as bases (rung da escada)
+                const connection = createConnection(posA, posB, data.colorA, data.colorB);
+                connections.push(connection);
+                scene.add(connection);
+            });
+
+            // Criar backbones (espinha dorsal)
+            createBackbones(radius, height, layerHeight, rotationPerLayer);
+        }
+
+        function createBasePair(data, posA, posB, index) {
+            // Grupo A
+            const groupA = new THREE.Group();
+            
+            const sphereA = new THREE.Mesh(
+                new THREE.SphereGeometry(0.8, 32, 32),
+                new THREE.MeshStandardMaterial({
+                    color: data.colorA,
+                    emissive: data.colorA,
+                    emissiveIntensity: 0.5,
+                    roughness: 0.3,
+                    metalness: 0.7
+                })
+            );
+            groupA.add(sphereA);
+
+            // Glow
+            const glowA = new THREE.Mesh(
+                new THREE.SphereGeometry(1.2, 16, 16),
+                new THREE.MeshBasicMaterial({
+                    color: data.colorA,
+                    transparent: true,
+                    opacity: 0.2,
+                    side: THREE.BackSide
+                })
+            );
+            groupA.add(glowA);
+
+            // Label
+            const labelA = createLabel(data.baseA, data.colorA);
+            labelA.position.y = 1.5;
+            groupA.add(labelA);
+
+            groupA.position.copy(posA);
+            groupA.userData = { ...data, isBase: true, index: index, side: 'A' };
+
+            // Grupo B
+            const groupB = new THREE.Group();
+            
+            const sphereB = new THREE.Mesh(
+                new THREE.SphereGeometry(0.8, 32, 32),
+                new THREE.MeshStandardMaterial({
+                    color: data.colorB,
+                    emissive: data.colorB,
+                    emissiveIntensity: 0.5,
+                    roughness: 0.3,
+                    metalness: 0.7
+                })
+            );
+            groupB.add(sphereB);
+
+            // Glow
+            const glowB = new THREE.Mesh(
+                new THREE.SphereGeometry(1.2, 16, 16),
+                new THREE.MeshBasicMaterial({
+                    color: data.colorB,
+                    transparent: true,
+                    opacity: 0.2,
+                    side: THREE.BackSide
+                })
+            );
+            groupB.add(glowB);
+
+            // Label
+            const labelB = createLabel(data.baseB, data.colorB);
+            labelB.position.y = 1.5;
+            groupB.add(labelB);
+
+            groupB.position.copy(posB);
+            groupB.userData = { ...data, isBase: true, index: index, side: 'B' };
+
+            // Luzes
+            const lightA = new THREE.PointLight(data.colorA, 0.5, 10);
+            groupA.add(lightA);
+
+            const lightB = new THREE.PointLight(data.colorB, 0.5, 10);
+            groupB.add(lightB);
+
+            return { groupA, groupB, data };
+        }
+
+        function createLabel(text, color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+            ctx.font = 'bold 80px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+            sprite.scale.set(2, 2, 1);
+            
+            return sprite;
+        }
+
+        function createConnection(posA, posB, colorA, colorB) {
+            const direction = new THREE.Vector3().subVectors(posB, posA);
+            const distance = direction.length();
+            
+            const geometry = new THREE.CylinderGeometry(0.15, 0.15, distance, 8);
+            
+            // Gradiente entre as duas cores
+            const material = new THREE.MeshStandardMaterial({
+                color: colorA,
+                emissive: colorA,
+                emissiveIntensity: 0.3,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const cylinder = new THREE.Mesh(geometry, material);
+            
+            cylinder.position.copy(posA).add(posB).multiplyScalar(0.5);
+            const axis = new THREE.Vector3(0, 1, 0);
+            cylinder.quaternion.setFromUnitVectors(axis, direction.normalize());
+            
+            return cylinder;
+        }
+
+        function createBackbones(radius, height, layerHeight, rotationPerLayer) {
+            const segments = dnaData.length * 5;
+            
+            // Backbone esquerdo
+            const pointsA = [];
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const y = t * height - height / 2;
+                const angle = (t * dnaData.length) * rotationPerLayer;
+                
+                pointsA.push(new THREE.Vector3(
+                    Math.cos(angle) * radius,
+                    y,
+                    Math.sin(angle) * radius
+                ));
+            }
+            
+            const curveA = new THREE.CatmullRomCurve3(pointsA);
+            const tubeA = new THREE.TubeGeometry(curveA, segments, 0.2, 8, false);
+            const backboneA = new THREE.Mesh(
+                tubeA,
+                new THREE.MeshStandardMaterial({
+                    color: 0x32c896,
+                    emissive: 0x32c896,
+                    emissiveIntensity: 0.4,
+                    roughness: 0.4,
+                    metalness: 0.6
+                })
+            );
+            scene.add(backboneA);
+            backbones.push(backboneA);
+            
+            // Backbone direito
+            const pointsB = [];
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const y = t * height - height / 2;
+                const angle = (t * dnaData.length) * rotationPerLayer + Math.PI;
+                
+                pointsB.push(new THREE.Vector3(
+                    Math.cos(angle) * radius,
+                    y,
+                    Math.sin(angle) * radius
+                ));
+            }
+            
+            const curveB = new THREE.CatmullRomCurve3(pointsB);
+            const tubeB = new THREE.TubeGeometry(curveB, segments, 0.2, 8, false);
+            const backboneB = new THREE.Mesh(
+                tubeB,
+                new THREE.MeshStandardMaterial({
+                    color: 0x32c896,
+                    emissive: 0x32c896,
+                    emissiveIntensity: 0.4,
+                    roughness: 0.4,
+                    metalness: 0.6
+                })
+            );
+            scene.add(backboneB);
+            backbones.push(backboneB);
+        }
+
+        function createEnvironment() {
+            // Partículas flutuantes
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 2000;
+            const positions = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 150;
+                positions[i + 1] = (Math.random() - 0.5) * 150;
+                positions[i + 2] = (Math.random() - 0.5) * 150;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x32c896,
+                size: 0.2,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+
+            // Iluminação
+            const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(10, 20, 10);
+            scene.add(directionalLight);
+        }
+
+        function setupEventListeners() {
+            window.addEventListener('click', onBaseClick);
+            window.addEventListener('mousemove', onMouseMove);
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                selectData(Math.max(0, currentIndex - 1));
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                selectData(Math.min(dnaData.length - 1, currentIndex + 1));
+            });
+
+            document.getElementById('rotateBtn').addEventListener('click', () => {
+                autoRotate = !autoRotate;
+                controls.autoRotate = autoRotate;
+                document.getElementById('rotateBtn').textContent = autoRotate ? '⏸️ Pausar' : '🔄 Auto-Rotate';
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') selectData(Math.max(0, currentIndex - 1));
+                if (e.key === 'ArrowDown') selectData(Math.min(dnaData.length - 1, currentIndex + 1));
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            
+            const allBases = [];
+            helixData.forEach(pair => {
+                allBases.push(pair.groupA, pair.groupB);
+            });
+            
+            const intersects = raycaster.intersectObjects(allBases, true);
+
+            allBases.forEach(base => {
+                if (base.children[0]) {
+                    base.children[0].scale.set(1, 1, 1);
+                }
+            });
+
+            if (intersects.length > 0) {
+                const base = intersects[0].object.parent;
+                if (base.userData.isBase) {
+                    base.children[0].scale.set(1.3, 1.3, 1.3);
+                    document.body.style.cursor = 'pointer';
+                }
+            } else {
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        function onBaseClick() {
+            raycaster.setFromCamera(mouse, camera);
+            
+            const allBases = [];
+            helixData.forEach(pair => {
+                allBases.push(pair.groupA, pair.groupB);
+            });
+            
+            const intersects = raycaster.intersectObjects(allBases, true);
+
+            if (intersects.length > 0) {
+                const base = intersects[0].object.parent;
+                if (base.userData.isBase) {
+                    selectData(base.userData.index);
+                }
+            }
+        }
+
+        function selectData(index) {
+            if (index < 0 || index >= dnaData.length) return;
+
+            currentIndex = index;
+            const data = dnaData[index];
+            const pair = helixData[index];
+
+            // Atualizar UI
+            document.getElementById('dataTitle').textContent = data.title;
+            document.getElementById('dataType').textContent = data.type;
+            document.getElementById('dataDescription').textContent = data.description;
+            document.getElementById('dataConnections').textContent = data.connections;
+            document.getElementById('dataInfo').classList.add('visible');
+
+            document.getElementById('sequence-display').textContent = `${data.baseA}-${data.baseB}`;
+            document.getElementById('currentLayer').textContent = index + 1;
+
+            // Animar câmera
+            const targetPos = new THREE.Vector3().addVectors(
+                pair.groupA.position,
+                pair.groupB.position
+            ).multiplyScalar(0.5);
+            
+            const cameraOffset = new THREE.Vector3(15, 5, 15);
+            const newCameraPos = targetPos.clone().add(cameraOffset);
+
+            animateCameraTo(newCameraPos, targetPos);
+
+            // Atualizar botões
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === dnaData.length - 1;
+
+            setTimeout(() => {
+                document.getElementById('dataInfo').classList.remove('visible');
+            }, 8000);
+        }
+
+        function animateCameraTo(targetPosition, lookAtPosition) {
+            const startPos = camera.position.clone();
+            const startLookAt = controls.target.clone();
+            const duration = 1500;
+            const startTime = performance.now();
+
+            function animate() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeInOutCubic(progress);
+
+                camera.position.lerpVectors(startPos, targetPosition, eased);
+                controls.target.lerpVectors(startLookAt, lookAtPosition, eased);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function easeInOutCubic(x) {
+            return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        }
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            controls.update();
+
+            // Rotação da hélice inteira
+            helixData.forEach((pair, index) => {
+                const scale = 1 + Math.sin(time * 2 + index * 0.5) * 0.05;
+                pair.groupA.children[0].scale.setScalar(scale);
+                pair.groupB.children[0].scale.setScalar(scale);
+
+                // Pulsar glow
+                pair.groupA.children[1].material.opacity = 0.2 + Math.sin(time * 3 + index) * 0.1;
+                pair.groupB.children[1].material.opacity = 0.2 + Math.sin(time * 3 + index) * 0.1;
+            });
+
+            // Atualizar stats
+            const rotation = ((controls.getAzimuthalAngle() * 180 / Math.PI) % 360).toFixed(0);
+            document.getElementById('rotation').textContent = rotation + '°';
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Executivo 3D VR - Three.js</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 350px;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+
+        #info h3 {
+            color: #3b82f6;
+            margin-bottom: 12px;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        #metricInfo {
+            position: absolute;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            color: white;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 400px;
+            border: 2px solid rgba(59, 130, 246, 0.6);
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+            display: none;
+        }
+
+        #metricInfo h2 {
+            color: #3b82f6;
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+        }
+
+        #metricInfo .value {
+            font-size: 48px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        #metricInfo .trend {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        #metricInfo .trend.up {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        #metricInfo .trend.down {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        #metricInfo .description {
+            line-height: 1.8;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        #metricInfo.visible {
+            display: block;
+            animation: slideInRight 0.4s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateY(-50%) translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+            }
+        }
+
+        #summary-panel {
+            position: absolute;
+            bottom: 100px;
+            right: 30px;
+            color: white;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 100;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            min-width: 280px;
+        }
+
+        #summary-panel h4 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+        }
+
+        .summary-row {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .summary-label {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .summary-value {
+            color: #3b82f6;
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+        }
+
+        #period-selector {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            z-index: 100;
+            color: white;
+        }
+
+        #period-selector select {
+            background: rgba(59, 130, 246, 0.2);
+            color: white;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #3b82f6;
+            font-size: 28px;
+            z-index: 100;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #status-alerts {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99;
+            pointer-events: none;
+            display: flex;
+            gap: 15px;
+        }
+
+        .alert {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+        }
+
+        .alert.warning {
+            background: rgba(251, 191, 36, 0.9);
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.9);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.8);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        #tour-progress {
+            position: absolute;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(59, 130, 246, 0.95);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            z-index: 99;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+            display: none;
+        }
+
+        #tour-progress.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        #tour-progress-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        #tour-progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        #vr-notification {
+            position: absolute;
+            top: 240px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(139, 92, 246, 0.95);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 99;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.8);
+            display: none;
+        }
+
+        #vr-notification.active {
+            display: block;
+            animation: fadeInOut 3s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            20%, 80% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        #vr-status {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #22c55e;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 100;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #22c55e;
+        }
+
+        #vr-status.inactive {
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+
+        /* Indicador grande no centro (apenas em VR) */
+        #metric-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(59, 130, 246, 0.95);
+            color: white;
+            padding: 40px 60px;
+            border-radius: 20px;
+            font-size: 48px;
+            font-weight: bold;
+            z-index: 150;
+            pointer-events: none;
+            box-shadow: 0 0 60px rgba(59, 130, 246, 1);
+            border: 4px solid white;
+            display: none;
+            text-align: center;
+        }
+
+        #metric-indicator.show {
+            display: block;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: translate(-50%, -50%) scale(0);
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="info">
+        <h3>📊 Dashboard Executivo 3D</h3>
+        <p><strong>Desktop:</strong></p>
+        <p>🎯 <strong>Tour:</strong> Foco automático a cada 4s</p>
+        <p>⌨️ <strong>T:</strong> Iniciar/Pausar tour</p>
+        <p>⌨️ <strong>1-6:</strong> Ir para métrica específica</p>
+        <p>🖱️ <strong>Mouse:</strong> Rotacionar visão</p>
+        <p>🎯 <strong>Click:</strong> Ver detalhes da métrica</p>
+        <p style="margin-top: 10px;"><strong>VR:</strong></p>
+        <p>🥽 <strong>Auto:</strong> Tour inicia ao entrar em VR!</p>
+        <p>🎮 <strong>Esq:</strong> Pausar/Retomar tour</p>
+        <p>🎮 <strong>Dir:</strong> Próxima métrica (manual)</p>
+        <p style="margin-top: 10px; font-size: 11px; opacity: 0.7;">
+            💡 Status VR visível no canto inferior esquerdo
+        </p>
+    </div>
+
+    <div id="period-selector">
+        <label>📅 Período:</label>
+        <select id="periodSelect">
+            <option value="month">Este Mês</option>
+            <option value="quarter">Este Trimestre</option>
+            <option value="year" selected>Este Ano</option>
+        </select>
+    </div>
+
+    <div id="status-alerts">
+        <div class="alert success">✅ Meta de Receita Atingida</div>
+        <div class="alert warning">⚠️ Churn acima da meta</div>
+    </div>
+
+    <div id="tour-progress">
+        <div id="tour-progress-text">🎯 Tour Automático: Métrica <span id="tour-current">1</span> de <span id="tour-total">6</span></div>
+        <div id="tour-progress-bar">
+            <div id="tour-progress-fill"></div>
+        </div>
+    </div>
+
+    <div id="vr-notification">
+        🥽 Modo VR Ativado - Iniciando tour automático...
+    </div>
+
+    <div id="vr-status" class="inactive">
+        🔴 VR: Desconectado
+    </div>
+
+    <div id="metric-indicator">
+        💰 Receita Mensal
+    </div>
+
+    <div id="controls">
+        <button id="autoTourBtn" class="btn">🎯 Tour Automático</button>
+        <button id="animateBtn" class="btn">🎬 Animar Métricas</button>
+        <button id="resetBtn" class="btn">🔄 Resetar Vista</button>
+        <button id="autoRotateBtn" class="btn">🔄 Auto-Rotate</button>
+        <button id="vrButton" class="btn">🥽 VR</button>
+    </div>
+
+    <div id="summary-panel">
+        <h4>📈 Resumo Executivo</h4>
+        <div class="summary-row">
+            <span class="summary-label">Performance Geral:</span>
+            <span class="summary-value">+18.5%</span>
+        </div>
+        <div class="summary-row">
+            <span class="summary-label">Receita Total:</span>
+            <span class="summary-value">$2.4M</span>
+        </div>
+        <div class="summary-row">
+            <span class="summary-label">Novos Clientes:</span>
+            <span class="summary-value">+1,245</span>
+        </div>
+        <div class="summary-row">
+            <span class="summary-label">Margem Média:</span>
+            <span class="summary-value">42.3%</span>
+        </div>
+        <div class="summary-row">
+            <span class="summary-label">NPS Score:</span>
+            <span class="summary-value">8.7/10</span>
+        </div>
+    </div>
+
+    <div id="metricInfo">
+        <h2 id="metricTitle">Métrica</h2>
+        <div class="value" id="metricValue">$0</div>
+        <div class="trend up" id="metricTrend">↑ +15%</div>
+        <p class="description" id="metricDescription">Descrição...</p>
+    </div>
+
+    <div id="loading">Carregando dashboard...</div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { VRButton } from 'three/addons/webxr/VRButton.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Configuração
+        let scene, camera, renderer, controls;
+        let raycaster, mouse;
+        let kpiPanels = [];
+        let charts = [];
+        let selectedMetric = null;
+        let autoRotate = false;
+        let autoTourActive = false;
+        let autoTourInterval = null;
+        let currentTourIndex = 0;
+        let tourProgressAnimation = null;
+        let wasInVR = false;
+        let vrTourStarted = false;
+
+        // Dados do dashboard
+        const dashboardData = {
+            kpis: [
+                {
+                    title: "Receita Mensal",
+                    value: "$2.4M",
+                    numericValue: 2400000,
+                    trend: "+18.5%",
+                    trendDirection: "up",
+                    description: "Receita recorrente mensal (MRR) cresceu significativamente. Novos contratos enterprise impulsionaram o crescimento.",
+                    icon: "💰",
+                    color: 0x10b981,
+                    target: 2200000,
+                    position: { angle: 0, radius: 12, height: 4 }
+                },
+                {
+                    title: "Novos Clientes",
+                    value: "1,245",
+                    numericValue: 1245,
+                    trend: "+32.8%",
+                    trendDirection: "up",
+                    description: "Aquisição de clientes superou expectativas. Campanhas de marketing digital foram altamente efetivas.",
+                    icon: "👥",
+                    color: 0x3b82f6,
+                    target: 1000,
+                    position: { angle: 60, radius: 12, height: 4 }
+                },
+                {
+                    title: "Taxa de Conversão",
+                    value: "4.8%",
+                    numericValue: 4.8,
+                    trend: "+0.8%",
+                    trendDirection: "up",
+                    description: "Melhoria no funil de vendas. Otimizações no checkout e nova landing page aumentaram conversões.",
+                    icon: "📈",
+                    color: 0x8b5cf6,
+                    target: 4.5,
+                    position: { angle: 120, radius: 12, height: 4 }
+                },
+                {
+                    title: "Churn Rate",
+                    value: "3.2%",
+                    numericValue: 3.2,
+                    trend: "+0.5%",
+                    trendDirection: "down",
+                    description: "Atenção: Taxa de cancelamento acima da meta. Necessário melhorar onboarding e suporte ao cliente.",
+                    icon: "⚠️",
+                    color: 0xef4444,
+                    target: 2.5,
+                    position: { angle: 180, radius: 12, height: 4 }
+                },
+                {
+                    title: "LTV (Lifetime Value)",
+                    value: "$12,450",
+                    numericValue: 12450,
+                    trend: "+22.3%",
+                    trendDirection: "up",
+                    description: "Valor vitalício do cliente aumentou. Estratégias de upsell e cross-sell estão funcionando.",
+                    icon: "💎",
+                    color: 0xf59e0b,
+                    target: 11000,
+                    position: { angle: 240, radius: 12, height: 4 }
+                },
+                {
+                    title: "NPS Score",
+                    value: "8.7/10",
+                    numericValue: 87,
+                    trend: "+1.2",
+                    trendDirection: "up",
+                    description: "Satisfação do cliente em alta. Feedback positivo sobre novas features e atendimento.",
+                    icon: "⭐",
+                    color: 0xec4899,
+                    target: 85,
+                    position: { angle: 300, radius: 12, height: 4 }
+                }
+            ],
+            charts: [
+                {
+                    type: "pie",
+                    title: "Receita por Segmento",
+                    data: [
+                        { label: "Enterprise", value: 45, color: 0x3b82f6 },
+                        { label: "SMB", value: 30, color: 0x10b981 },
+                        { label: "Startup", value: 25, color: 0xf59e0b }
+                    ],
+                    position: { x: 0, y: 8, z: -8 }
+                },
+                {
+                    type: "bars",
+                    title: "Crescimento Mensal",
+                    data: [
+                        { label: "Jan", value: 1.8 },
+                        { label: "Fev", value: 2.1 },
+                        { label: "Mar", value: 2.0 },
+                        { label: "Abr", value: 2.3 },
+                        { label: "Mai", value: 2.4 }
+                    ],
+                    color: 0x8b5cf6,
+                    position: { x: -10, y: 2, z: 0 }
+                }
+            ]
+        };
+
+        function init() {
+            // Cena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0f1e);
+            scene.fog = new THREE.Fog(0x0a0f1e, 20, 60);
+
+            // Câmera
+            camera = new THREE.PerspectiveCamera(
+                70,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(0, 5, 18);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.xr.enabled = true;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            // Controles
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 8;
+            controls.maxDistance = 35;
+            controls.maxPolarAngle = Math.PI / 2;
+            controls.autoRotate = autoRotate;
+            controls.autoRotateSpeed = 1.0;
+
+            // Raycaster
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Criar ambiente
+            createEnvironment();
+            createKPIPanels();
+            createCharts();
+
+            // Botão VR
+            const vrButton = VRButton.createButton(renderer);
+            document.getElementById('vrButton').addEventListener('click', () => {
+                vrButton.click();
+            });
+
+            // Detectar entrada/saída do modo VR
+            setupVRListeners();
+
+            // Event listeners
+            setupEventListeners();
+
+            // Esconder loading
+            document.getElementById('loading').classList.add('hidden');
+
+            // Animar entrada dos painéis
+            setTimeout(animatePanelsEntry, 500);
+
+            // Configurar controles VR
+            setupVRControllers();
+
+            // Animar
+            renderer.setAnimationLoop(animate);
+        }
+
+        function createEnvironment() {
+            // Plataforma circular
+            const platformGeometry = new THREE.CylinderGeometry(18, 18, 0.5, 64);
+            const platformMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                roughness: 0.7,
+                metalness: 0.3
+            });
+            const platform = new THREE.Mesh(platformGeometry, platformMaterial);
+            platform.position.y = 0;
+            platform.receiveShadow = true;
+            scene.add(platform);
+
+            // Grade na plataforma
+            const gridHelper = new THREE.PolarGridHelper(18, 16, 8, 64, 0x334155, 0x1e293b);
+            gridHelper.position.y = 0.26;
+            scene.add(gridHelper);
+
+            // Iluminação
+            const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+            scene.add(ambientLight);
+
+            const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            mainLight.position.set(10, 20, 10);
+            mainLight.castShadow = true;
+            mainLight.shadow.camera.left = -30;
+            mainLight.shadow.camera.right = 30;
+            mainLight.shadow.camera.top = 30;
+            mainLight.shadow.camera.bottom = -30;
+            scene.add(mainLight);
+
+            // Luzes coloridas ambiente
+            const light1 = new THREE.PointLight(0x3b82f6, 0.6, 30);
+            light1.position.set(10, 5, 10);
+            scene.add(light1);
+
+            const light2 = new THREE.PointLight(0x10b981, 0.6, 30);
+            light2.position.set(-10, 5, -10);
+            scene.add(light2);
+
+            const light3 = new THREE.PointLight(0x8b5cf6, 0.6, 30);
+            light3.position.set(0, 5, -12);
+            scene.add(light3);
+
+            // Partículas flutuantes
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 800;
+            const positions = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i += 3) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 25;
+                positions[i] = Math.cos(angle) * radius;
+                positions[i + 1] = Math.random() * 20;
+                positions[i + 2] = Math.sin(angle) * radius;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x3b82f6,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+        }
+
+        function createKPIPanels() {
+            dashboardData.kpis.forEach((kpi, index) => {
+                const panel = createKPIPanel(kpi, index);
+                kpiPanels.push(panel);
+                scene.add(panel);
+            });
+        }
+
+        function createKPIPanel(kpi, index) {
+            const group = new THREE.Group();
+            
+            // Painel base
+            const panelWidth = 4;
+            const panelHeight = 3;
+            const panelDepth = 0.1;
+            
+            const panelGeometry = new THREE.BoxGeometry(panelWidth, panelHeight, panelDepth);
+            const panelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                roughness: 0.3,
+                metalness: 0.7,
+                emissive: kpi.color,
+                emissiveIntensity: 0.1
+            });
+            const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+            panel.castShadow = true;
+            panel.receiveShadow = true;
+            group.add(panel);
+
+            // Borda brilhante
+            const borderGeometry = new THREE.BoxGeometry(panelWidth + 0.1, panelHeight + 0.1, panelDepth - 0.05);
+            const borderMaterial = new THREE.MeshStandardMaterial({
+                color: kpi.color,
+                emissive: kpi.color,
+                emissiveIntensity: 0.5,
+                roughness: 0.2,
+                metalness: 0.8
+            });
+            const border = new THREE.Mesh(borderGeometry, borderMaterial);
+            border.position.z = -0.05;
+            group.add(border);
+
+            // Luz no painel
+            const panelLight = new THREE.PointLight(kpi.color, 0.5, 8);
+            panelLight.position.z = 1;
+            group.add(panelLight);
+
+            // Canvas para conteúdo
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 384;
+            const ctx = canvas.getContext('2d');
+
+            // Fundo
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Ícone
+            ctx.font = 'bold 80px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#' + kpi.color.toString(16).padStart(6, '0');
+            ctx.fillText(kpi.icon, canvas.width / 2, 100);
+
+            // Título
+            ctx.font = 'bold 32px Arial';
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText(kpi.title, canvas.width / 2, 160);
+
+            // Valor
+            ctx.font = 'bold 64px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(kpi.value, canvas.width / 2, 240);
+
+            // Trend
+            const trendColor = kpi.trendDirection === 'up' ? '#22c55e' : '#ef4444';
+            ctx.font = 'bold 36px Arial';
+            ctx.fillStyle = trendColor;
+            const arrow = kpi.trendDirection === 'up' ? '↑' : '↓';
+            ctx.fillText(arrow + ' ' + kpi.trend, canvas.width / 2, 300);
+
+            // Barra de progresso (comparação com meta)
+            const progressPercent = (kpi.numericValue / kpi.target) * 100;
+            const barWidth = 400;
+            const barHeight = 20;
+            const barX = (canvas.width - barWidth) / 2;
+            const barY = 330;
+
+            // Fundo da barra
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(barX, barY, barWidth, barHeight);
+
+            // Progresso
+            const progressWidth = (barWidth * Math.min(progressPercent, 100)) / 100;
+            const gradient = ctx.createLinearGradient(barX, barY, barX + progressWidth, barY);
+            gradient.addColorStop(0, '#' + kpi.color.toString(16).padStart(6, '0'));
+            gradient.addColorStop(1, '#ffffff');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(barX, barY, progressWidth, barHeight);
+
+            // Textura
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+
+            const contentMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true
+            });
+            const contentMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(panelWidth - 0.1, panelHeight - 0.1),
+                contentMaterial
+            );
+            contentMesh.position.z = 0.06;
+            group.add(contentMesh);
+
+            // Posicionar no círculo
+            const angle = (kpi.position.angle * Math.PI) / 180;
+            const x = Math.cos(angle) * kpi.position.radius;
+            const z = Math.sin(angle) * kpi.position.radius;
+            
+            group.position.set(x, kpi.position.height, z);
+            group.lookAt(0, kpi.position.height, 0);
+            
+            // Inicialmente escondido para animação
+            group.scale.set(0, 0, 0);
+            
+            group.userData = {
+                ...kpi,
+                isKPI: true,
+                index: index
+            };
+
+            return group;
+        }
+
+        function createCharts() {
+            dashboardData.charts.forEach(chart => {
+                if (chart.type === 'pie') {
+                    const pieChart = createPieChart(chart);
+                    charts.push(pieChart);
+                    scene.add(pieChart);
+                } else if (chart.type === 'bars') {
+                    const barChart = createBarChart(chart);
+                    charts.push(barChart);
+                    scene.add(barChart);
+                }
+            });
+        }
+
+        function createPieChart(chartData) {
+            const group = new THREE.Group();
+            
+            const radius = 2;
+            const height = 0.5;
+            let currentAngle = 0;
+
+            chartData.data.forEach((segment, index) => {
+                const angle = (segment.value / 100) * Math.PI * 2;
+                
+                const geometry = new THREE.CylinderGeometry(
+                    radius, radius, height, 32, 1, false, currentAngle, angle
+                );
+                
+                const material = new THREE.MeshStandardMaterial({
+                    color: segment.color,
+                    emissive: segment.color,
+                    emissiveIntensity: 0.4,
+                    roughness: 0.3,
+                    metalness: 0.7
+                });
+                
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.castShadow = true;
+                group.add(mesh);
+
+                // Label
+                const labelAngle = currentAngle + angle / 2;
+                const labelRadius = radius * 0.7;
+                const labelX = Math.cos(labelAngle) * labelRadius;
+                const labelZ = Math.sin(labelAngle) * labelRadius;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 128;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(segment.value + '%', 128, 50);
+                ctx.font = 'bold 32px Arial';
+                ctx.fillText(segment.label, 128, 100);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+                sprite.scale.set(2, 1, 1);
+                sprite.position.set(labelX, height / 2 + 1.5, labelZ);
+                group.add(sprite);
+
+                currentAngle += angle;
+            });
+
+            // Título
+            const titleCanvas = document.createElement('canvas');
+            titleCanvas.width = 512;
+            titleCanvas.height = 64;
+            const titleCtx = titleCanvas.getContext('2d');
+            titleCtx.fillStyle = '#ffffff';
+            titleCtx.font = 'bold 40px Arial';
+            titleCtx.textAlign = 'center';
+            titleCtx.fillText(chartData.title, 256, 45);
+
+            const titleTexture = new THREE.CanvasTexture(titleCanvas);
+            const titleSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: titleTexture }));
+            titleSprite.scale.set(6, 0.75, 1);
+            titleSprite.position.set(0, height / 2 + 3, 0);
+            group.add(titleSprite);
+
+            group.position.copy(chartData.position);
+            group.scale.set(0, 0, 0);
+
+            return group;
+        }
+
+        function createBarChart(chartData) {
+            const group = new THREE.Group();
+            const barWidth = 0.5;
+            const spacing = 1.2;
+            const maxHeight = Math.max(...chartData.data.map(d => d.value));
+
+            chartData.data.forEach((bar, index) => {
+                const height = (bar.value / maxHeight) * 3;
+                
+                const geometry = new THREE.BoxGeometry(barWidth, height, barWidth);
+                const material = new THREE.MeshStandardMaterial({
+                    color: chartData.color,
+                    emissive: chartData.color,
+                    emissiveIntensity: 0.4,
+                    roughness: 0.3,
+                    metalness: 0.7
+                });
+                
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(index * spacing - (chartData.data.length * spacing) / 2, height / 2, 0);
+                mesh.castShadow = true;
+                group.add(mesh);
+
+                // Label
+                const canvas = document.createElement('canvas');
+                canvas.width = 128;
+                canvas.height = 128;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(bar.label, 64, 64);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+                sprite.scale.set(1, 1, 1);
+                sprite.position.set(index * spacing - (chartData.data.length * spacing) / 2, -0.8, 0);
+                group.add(sprite);
+            });
+
+            // Título
+            const titleCanvas = document.createElement('canvas');
+            titleCanvas.width = 512;
+            titleCanvas.height = 64;
+            const titleCtx = titleCanvas.getContext('2d');
+            titleCtx.fillStyle = '#ffffff';
+            titleCtx.font = 'bold 36px Arial';
+            titleCtx.textAlign = 'center';
+            titleCtx.fillText(chartData.title, 256, 45);
+
+            const titleTexture = new THREE.CanvasTexture(titleCanvas);
+            const titleSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: titleTexture }));
+            titleSprite.scale.set(5, 0.625, 1);
+            titleSprite.position.set(0, 4, 0);
+            group.add(titleSprite);
+
+            group.position.copy(chartData.position);
+            group.scale.set(0, 0, 0);
+
+            return group;
+        }
+
+        function animatePanelsEntry() {
+            const duration = 1500;
+            const startTime = performance.now();
+            const delay = 100; // delay entre cada painel
+
+            function animate() {
+                const elapsed = performance.now() - startTime;
+                
+                kpiPanels.forEach((panel, index) => {
+                    const panelStartTime = index * delay;
+                    const panelElapsed = Math.max(0, elapsed - panelStartTime);
+                    const progress = Math.min(panelElapsed / duration, 1);
+                    const eased = easeOutBack(progress);
+                    
+                    panel.scale.set(eased, eased, eased);
+                });
+
+                charts.forEach((chart, index) => {
+                    const chartStartTime = (kpiPanels.length + index) * delay;
+                    const chartElapsed = Math.max(0, elapsed - chartStartTime);
+                    const progress = Math.min(chartElapsed / duration, 1);
+                    const eased = easeOutBack(progress);
+                    
+                    chart.scale.set(eased, eased, eased);
+                });
+
+                if (elapsed < duration + (kpiPanels.length + charts.length) * delay) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function setupVRControllers() {
+            // Controller 1 (mão esquerda) - Pausar/Retomar tour
+            const controller1 = renderer.xr.getController(0);
+            controller1.addEventListener('selectstart', () => {
+                if (renderer.xr.isPresenting) {
+                    console.log('Controller 1: Toggle tour');
+                    toggleAutoTour();
+                }
+            });
+            scene.add(controller1);
+
+            // Controller 2 (mão direita) - Próxima métrica
+            const controller2 = renderer.xr.getController(1);
+            controller2.addEventListener('selectstart', () => {
+                if (renderer.xr.isPresenting && !autoTourActive) {
+                    console.log('Controller 2: Próxima métrica');
+                    const nextIndex = (currentTourIndex + 1) % kpiPanels.length;
+                    currentTourIndex = nextIndex;
+                    selectMetric(kpiPanels[nextIndex]);
+                }
+            });
+            scene.add(controller2);
+
+            // Adicionar raios visuais aos controles
+            const geometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, 0, -1)
+            ]);
+
+            const material = new THREE.LineBasicMaterial({
+                color: 0x3b82f6,
+                linewidth: 2
+            });
+
+            const line1 = new THREE.Line(geometry, material);
+            line1.scale.z = 5;
+            controller1.add(line1.clone());
+
+            const line2 = new THREE.Line(geometry, material.clone());
+            line2.scale.z = 5;
+            controller2.add(line2);
+        }
+
+        function setupVRListeners() {
+            // A detecção de entrada/saída do VR agora é feita no loop de animação
+            // usando renderer.xr.isPresenting que é mais confiável
+            
+            // Backup: Event listeners como fallback (podem não funcionar em todos os browsers)
+            renderer.xr.addEventListener('sessionstart', () => {
+                console.log('📢 Event: sessionstart disparado');
+            });
+
+            renderer.xr.addEventListener('sessionend', () => {
+                console.log('📢 Event: sessionend disparado');
+            });
+        }
+
+        function setupEventListeners() {
+            window.addEventListener('click', onPanelClick);
+            window.addEventListener('mousemove', onMouseMove);
+
+            document.getElementById('autoTourBtn').addEventListener('click', toggleAutoTour);
+            document.getElementById('animateBtn').addEventListener('click', animatePanelsEntry);
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                camera.position.set(0, 5, 18);
+                controls.target.set(0, 4, 0);
+                // Parar tour se estiver ativo
+                if (autoTourActive) {
+                    toggleAutoTour();
+                }
+            });
+
+            document.getElementById('autoRotateBtn').addEventListener('click', () => {
+                autoRotate = !autoRotate;
+                controls.autoRotate = autoRotate;
+                document.getElementById('autoRotateBtn').textContent = autoRotate ? '⏸️ Pausar Rotação' : '🔄 Auto-Rotate';
+            });
+
+            document.getElementById('periodSelect').addEventListener('change', (e) => {
+                console.log('Período alterado para:', e.target.value);
+                // Aqui você poderia recarregar dados diferentes
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Pausar tour ao clicar manualmente em um painel
+            window.addEventListener('click', () => {
+                if (autoTourActive) {
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(kpiPanels, true);
+                    if (intersects.length > 0) {
+                        // Usuário clicou manualmente, pausar tour
+                        toggleAutoTour();
+                    }
+                }
+            });
+
+            // Atalhos de teclado
+            document.addEventListener('keydown', (e) => {
+                // T = Toggle tour
+                if (e.key === 't' || e.key === 'T') {
+                    toggleAutoTour();
+                }
+                // Espaço = Pausar tour
+                if (e.key === ' ' && autoTourActive) {
+                    e.preventDefault();
+                    toggleAutoTour();
+                }
+                // Setas para navegar manualmente (pausa o tour)
+                if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && autoTourActive) {
+                    toggleAutoTour();
+                }
+                // Números 1-6 para ir direto para uma métrica
+                const num = parseInt(e.key);
+                if (num >= 1 && num <= kpiPanels.length) {
+                    if (autoTourActive) {
+                        toggleAutoTour();
+                    }
+                    selectMetric(kpiPanels[num - 1]);
+                }
+            });
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(kpiPanels, true);
+
+            kpiPanels.forEach(panel => {
+                if (panel.children[1]) {
+                    panel.children[1].material.emissiveIntensity = 0.5;
+                }
+            });
+
+            if (intersects.length > 0) {
+                const panel = intersects[0].object.parent;
+                if (panel.userData.isKPI) {
+                    panel.children[1].material.emissiveIntensity = 0.8;
+                    document.body.style.cursor = 'pointer';
+                }
+            } else {
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        function onPanelClick() {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(kpiPanels, true);
+
+            if (intersects.length > 0) {
+                const panel = intersects[0].object.parent;
+                if (panel.userData.isKPI) {
+                    selectMetric(panel);
+                }
+            }
+        }
+
+        function selectMetric(panel, autoHide = true) {
+            console.log('🎯 selectMetric() chamada');
+            console.log('   Panel:', panel);
+            console.log('   Panel.userData:', panel ? panel.userData : 'undefined');
+            console.log('   autoHide:', autoHide);
+            
+            if (!panel) {
+                console.error('❌ ERRO: Panel é null ou undefined!');
+                return;
+            }
+            
+            selectedMetric = panel;
+
+            // Resetar todos os painéis
+            console.log('🔄 Resetando todos os painéis...');
+            kpiPanels.forEach(p => {
+                if (p.children[1]) {
+                    p.children[1].material.emissiveIntensity = 0.5;
+                }
+                p.scale.set(1, 1, 1);
+            });
+
+            // Destacar painel selecionado
+            console.log('✨ Destacando painel:', panel.userData.title);
+            if (panel.children[1]) {
+                panel.children[1].material.emissiveIntensity = 1.0;
+            }
+            panel.scale.set(1.1, 1.1, 1.1);
+
+            // Mostrar informações
+            console.log('📝 Atualizando informações da UI...');
+            document.getElementById('metricTitle').textContent = panel.userData.title;
+            document.getElementById('metricValue').textContent = panel.userData.value;
+            document.getElementById('metricValue').style.color = '#' + panel.userData.color.toString(16).padStart(6, '0');
+            
+            const trendElement = document.getElementById('metricTrend');
+            const arrow = panel.userData.trendDirection === 'up' ? '↑' : '↓';
+            trendElement.textContent = arrow + ' ' + panel.userData.trend;
+            trendElement.className = 'trend ' + panel.userData.trendDirection;
+            
+            document.getElementById('metricDescription').textContent = panel.userData.description;
+            document.getElementById('metricInfo').classList.add('visible');
+
+            // Mostrar indicador grande no centro (especialmente útil em VR)
+            if (renderer.xr.isPresenting) {
+                console.log('🎯 Mostrando indicador grande em VR');
+                const indicator = document.getElementById('metric-indicator');
+                indicator.textContent = panel.userData.icon + ' ' + panel.userData.title;
+                
+                // Converter cor hexadecimal para RGB
+                const hexColor = panel.userData.color.toString(16).padStart(6, '0');
+                const r = parseInt(hexColor.substr(0, 2), 16);
+                const g = parseInt(hexColor.substr(2, 2), 16);
+                const b = parseInt(hexColor.substr(4, 2), 16);
+                indicator.style.background = `rgba(${r}, ${g}, ${b}, 0.95)`;
+                
+                indicator.classList.add('show');
+                console.log('✅ Indicador visível');
+                
+                // Esconder após 2 segundos
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                    console.log('🔽 Indicador escondido');
+                }, 2000);
+            }
+
+            // Animar câmera
+            console.log('📹 Animando câmera...');
+            const targetPos = panel.position.clone();
+            const offset = new THREE.Vector3(0, 0, 6);
+            offset.applyQuaternion(panel.quaternion);
+            const newCameraPos = targetPos.clone().add(offset);
+
+            animateCameraTo(newCameraPos, targetPos);
+            
+            console.log('✅ selectMetric() concluída!');
+
+            if (autoHide) {
+                setTimeout(() => {
+                    if (!autoTourActive) {
+                        document.getElementById('metricInfo').classList.remove('visible');
+                    }
+                }, 8000);
+            }
+        }
+
+        function toggleAutoTour() {
+            console.log('🔄 toggleAutoTour() chamada. Estado atual:', autoTourActive);
+            
+            autoTourActive = !autoTourActive;
+            
+            console.log('🔄 Novo estado do tour:', autoTourActive);
+            
+            const btn = document.getElementById('autoTourBtn');
+            const progressElement = document.getElementById('tour-progress');
+            
+            if (autoTourActive) {
+                console.log('▶️ Ativando tour automático...');
+                btn.textContent = '⏸️ Pausar Tour';
+                btn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                currentTourIndex = 0;
+                progressElement.classList.add('active');
+                document.getElementById('tour-total').textContent = kpiPanels.length;
+                console.log('📊 kpiPanels disponíveis:', kpiPanels.length);
+                console.log('🎬 Chamando startAutoTour()...');
+                startAutoTour();
+            } else {
+                console.log('⏸️ Pausando tour automático...');
+                btn.textContent = '🎯 Tour Automático';
+                btn.style.background = 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)';
+                progressElement.classList.remove('active');
+                stopAutoTour();
+            }
+        }
+
+        function startAutoTour() {
+            console.log('🚀 startAutoTour() iniciada');
+            console.log('   currentTourIndex:', currentTourIndex);
+            console.log('   kpiPanels.length:', kpiPanels.length);
+            console.log('   kpiPanels[0]:', kpiPanels[0]);
+            
+            // Focar na primeira métrica imediatamente
+            if (kpiPanels.length > 0) {
+                console.log('✨ Selecionando primeira métrica...');
+                selectMetric(kpiPanels[currentTourIndex], false);
+                console.log('📊 Atualizando progresso...');
+                updateTourProgress();
+                console.log('✅ Primeira métrica focada!');
+            } else {
+                console.error('❌ ERRO: kpiPanels está vazio!');
+            }
+
+            // Configurar intervalo para próximas métricas
+            console.log('⏰ Configurando intervalo de 4 segundos...');
+            autoTourInterval = setInterval(() => {
+                console.log('⏭️ Avançando para próxima métrica...');
+                currentTourIndex = (currentTourIndex + 1) % kpiPanels.length;
+                console.log('   Novo índice:', currentTourIndex);
+                selectMetric(kpiPanels[currentTourIndex], false);
+                updateTourProgress();
+            }, 4000); // 4 segundos
+            console.log('✅ Intervalo configurado. ID:', autoTourInterval);
+        }
+
+        function stopAutoTour() {
+            if (autoTourInterval) {
+                clearInterval(autoTourInterval);
+                autoTourInterval = null;
+            }
+            document.getElementById('metricInfo').classList.remove('visible');
+        }
+
+        function updateTourProgress() {
+            const current = currentTourIndex + 1;
+            const total = kpiPanels.length;
+            
+            document.getElementById('tour-current').textContent = current;
+            
+            // Animar barra de progresso de 100% a 0% em 4 segundos
+            const duration = 4000;
+            const startTime = performance.now();
+            const progressFill = document.getElementById('tour-progress-fill');
+            
+            // Cancelar animação anterior se existir
+            if (tourProgressAnimation) {
+                cancelAnimationFrame(tourProgressAnimation);
+            }
+            
+            function animateProgress() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const percentage = 100 - (progress * 100);
+                
+                progressFill.style.width = percentage + '%';
+                
+                if (progress < 1 && autoTourActive) {
+                    tourProgressAnimation = requestAnimationFrame(animateProgress);
+                }
+            }
+            
+            animateProgress();
+        }
+
+        function animateCameraTo(targetPosition, lookAtPosition) {
+            console.log('📹 animateCameraTo() iniciada');
+            console.log('   Target:', targetPosition);
+            console.log('   LookAt:', lookAtPosition);
+            
+            const startPos = camera.position.clone();
+            const startLookAt = controls.target.clone();
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function animate() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeInOutCubic(progress);
+
+                camera.position.lerpVectors(startPos, targetPosition, eased);
+                controls.target.lerpVectors(startLookAt, lookAtPosition, eased);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    console.log('✅ Animação de câmera concluída!');
+                }
+            }
+            animate();
+        }
+
+        function easeInOutCubic(x) {
+            return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        }
+
+        function easeOutBack(x) {
+            const c1 = 1.70158;
+            const c3 = c1 + 1;
+            return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+        }
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            // Desabilitar OrbitControls em VR para permitir animação de câmera
+            if (!renderer.xr.isPresenting) {
+                controls.update();
+            }
+
+            // Verificar estado VR e iniciar tour automaticamente
+            const isInVR = renderer.xr.isPresenting;
+            const vrStatus = document.getElementById('vr-status');
+            
+            // Atualizar status visual
+            if (isInVR) {
+                vrStatus.textContent = '🟢 VR: Conectado | Tour: ' + (autoTourActive ? 'Ativo' : 'Pausado');
+                vrStatus.classList.remove('inactive');
+            } else {
+                vrStatus.textContent = '🔴 VR: Desconectado';
+                vrStatus.classList.add('inactive');
+            }
+            
+            if (isInVR && !wasInVR) {
+                // Acabamos de entrar em VR
+                console.log('✅ Detectado entrada em VR via isPresenting');
+                console.log('📊 Painéis carregados:', kpiPanels.length);
+                console.log('🎬 Tour ativo:', autoTourActive);
+                wasInVR = true;
+                vrTourStarted = false;
+                
+                // Mostrar notificação
+                const notification = document.getElementById('vr-notification');
+                notification.classList.add('active');
+                
+                // Iniciar tour após 1 segundo
+                setTimeout(() => {
+                    console.log('⏰ Timer expirado. Verificando condições...');
+                    console.log('   isPresenting:', renderer.xr.isPresenting);
+                    console.log('   autoTourActive:', autoTourActive);
+                    console.log('   kpiPanels:', kpiPanels.length);
+                    
+                    if (renderer.xr.isPresenting && !autoTourActive && kpiPanels.length > 0) {
+                        console.log('🎯 INICIANDO tour automático em VR');
+                        toggleAutoTour();
+                        vrTourStarted = true;
+                    } else {
+                        console.log('⚠️ Condições não atendidas para iniciar tour');
+                    }
+                    // Remover notificação após 3 segundos
+                    setTimeout(() => {
+                        notification.classList.remove('active');
+                    }, 3000);
+                }, 1000);
+            } else if (!isInVR && wasInVR) {
+                // Saímos do VR
+                console.log('❌ Detectado saída de VR');
+                wasInVR = false;
+                vrTourStarted = false;
+                
+                // Parar tour se estiver ativo
+                if (autoTourActive) {
+                    console.log('⏸️ Parando tour automático');
+                    toggleAutoTour();
+                }
+                
+                // Esconder notificação
+                document.getElementById('vr-notification').classList.remove('active');
+            }
+
+            // Animar painéis (pulsar levemente)
+            kpiPanels.forEach((panel, index) => {
+                if (panel.children[2]) { // Luz
+                    panel.children[2].intensity = 0.5 + Math.sin(time * 2 + index * 0.5) * 0.2;
+                }
+            });
+
+            // Rotação suave dos gráficos
+            charts.forEach((chart, index) => {
+                if (chart.children.length > 0) {
+                    chart.rotation.y = Math.sin(time * 0.5 + index) * 0.1;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
