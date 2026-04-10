@@ -6,17 +6,7 @@
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <style>
     #playBtn {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 10;
-      padding: 15px 30px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
+      display: none;
     }
 
     #instructions {
@@ -31,24 +21,242 @@
       font-size: 1em;
       z-index: 10;
     }
+
+    /* === Goal Panel === */
+    #goalPanel {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      padding: 28px 32px;
+      border-radius: 16px;
+      z-index: 20;
+      text-align: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 340px;
+      width: 90%;
+    }
+
+    #goalPanel h2 {
+      font-size: 1.3em;
+      margin: 0 0 16px 0;
+      color: #a5b4fc;
+    }
+
+    #goalTypeRow {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .goalTypeBtn {
+      padding: 8px 16px;
+      border: 1px solid rgba(165, 180, 252, 0.4);
+      border-radius: 8px;
+      background: transparent;
+      color: #a5b4fc;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.2s;
+    }
+
+    .goalTypeBtn.active {
+      background: rgba(79, 70, 229, 0.6);
+      border-color: #4F46E5;
+      color: #fff;
+    }
+
+    #goalValueRow {
+      display: none;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .goalValueBtn {
+      padding: 6px 14px;
+      border: 1px solid rgba(165, 180, 252, 0.3);
+      border-radius: 20px;
+      background: transparent;
+      color: #c7d2fe;
+      cursor: pointer;
+      font-size: 0.85em;
+      transition: all 0.2s;
+    }
+
+    .goalValueBtn.active {
+      background: rgba(59, 130, 246, 0.5);
+      border-color: #3B82F6;
+      color: #fff;
+    }
+
+    #startSessionBtn {
+      padding: 14px 36px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+
+    #startSessionBtn:active {
+      opacity: 0.8;
+    }
+
+    /* === Session HUD === */
+    #sessionHud {
+      display: none;
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 15;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: right;
+    }
+
+    #timerDisplay {
+      background: rgba(0, 0, 0, 0.5);
+      color: #e0e7ff;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 1.4em;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    #counterDisplay {
+      background: rgba(79, 70, 229, 0.5);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 1em;
+    }
+
+    /* === Completion Overlay === */
+    #completionOverlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 25;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #completionOverlay .completion-box {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 32px 40px;
+      border-radius: 16px;
+      text-align: center;
+      color: #fff;
+      max-width: 360px;
+      width: 90%;
+    }
+
+    #completionOverlay .completion-box h2 {
+      font-size: 1.4em;
+      margin: 0 0 8px 0;
+      color: #a5b4fc;
+    }
+
+    #completionMsg {
+      color: #c7d2fe;
+      margin: 0 0 20px 0;
+      font-size: 0.95em;
+    }
+
+    .completion-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    #continueBtn {
+      padding: 10px 24px;
+      border: 1px solid rgba(165, 180, 252, 0.4);
+      border-radius: 8px;
+      background: transparent;
+      color: #a5b4fc;
+      cursor: pointer;
+      font-size: 0.95em;
+    }
+
+    #finishBtn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      color: white;
+      cursor: pointer;
+      font-size: 0.95em;
+      font-weight: 600;
+    }
   </style>
 </head>
 
 <body>
-  <button id="playBtn">Iniciar Meditação 360</button>
+  <button id="playBtn">Iniciar Meditacao 360</button>
   <div id="instructions" style="display:none;">
     Mova o mouse ou o celular para olhar ao redor.
   </div>
+
+  <!-- Goal Panel -->
+  <div id="goalPanel">
+    <h2>Configurar Sessao</h2>
+    <div id="goalTypeRow"></div>
+    <div id="goalValueRow"></div>
+    <button id="startSessionBtn">Iniciar Meditacao</button>
+  </div>
+
+  <!-- Session HUD -->
+  <div id="sessionHud">
+    <div id="timerDisplay">00:00</div>
+    <div id="counterDisplay">
+      <span id="counterLabel">Ciclos</span>: <span id="counterValue">0</span><span id="counterGoal"></span>
+    </div>
+  </div>
+
+  <!-- Completion Overlay -->
+  <div id="completionOverlay">
+    <div class="completion-box">
+      <div style="font-size: 2em; margin-bottom: 12px;">&#10024;</div>
+      <h2>Sessao Completa</h2>
+      <p id="completionMsg"></p>
+      <div class="completion-buttons">
+        <button id="continueBtn">Continuar</button>
+        <button id="finishBtn">Encerrar</button>
+      </div>
+    </div>
+  </div>
+
   <a-scene>
     <a-assets>
       <video id="video360" src="vimeo.mp4" crossorigin="anonymous" loop="true" playsinline webkit-playsinline></video>
     </a-assets>
     <a-videosphere src="#video360" rotation="0 -90 0"></a-videosphere>
 
-    <!-- Esfera para respiração guiada -->
+    <!-- Esfera para respiracao guiada -->
     <a-entity id="breathSphere" position="0 1.5 -3">
       <a-sphere color="#7fffd4" radius="0.7" opacity="0.6"></a-sphere>
-      <!-- Texto para instrução -->
+      <!-- Texto para instrucao -->
       <a-entity id="breathText" text="value: Inspire; align: center; color: #FFFFFF; width: 3"
         position="0 1 0"></a-entity>
     </a-entity>
@@ -66,16 +274,162 @@
       video.src = './videos/' + videoParam;
     }
 
-    // Parâmetros para animação de respiração
-    var inhaleDuration = 4000;   // Inspiração: 4s
-    var exhaleDuration = 4000;   // Expiração: 4s
+    // Parametros para animacao de respiracao
+    var inhaleDuration = 4000;   // Inspiracao: 4s
+    var exhaleDuration = 4000;   // Expiracao: 4s
     var minScale = 1;
     var maxScale = 2;
     var breathing = false;
 
-    // Função para animar esfera de respiração guiada
+    // === SESSION STATE ===
+    var sessionActive = false;
+    var sessionStartTime = 0;
+    var sessionTimerRAF = null;
+    var sessionGoalType = 'none';
+    var sessionGoalValue = 0;
+    var sessionCounter = 0;
+    var goalReached = false;
+
+    // === TIMER ===
+    function formatTime(seconds) {
+      var m = Math.floor(seconds / 60);
+      var s = Math.floor(seconds % 60);
+      return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function updateTimer() {
+      if (!sessionActive) return;
+      var elapsed = (Date.now() - sessionStartTime) / 1000;
+      document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+
+      if (!goalReached && sessionGoalType === 'duration' && elapsed >= sessionGoalValue) {
+        onGoalReached();
+      }
+
+      sessionTimerRAF = requestAnimationFrame(updateTimer);
+    }
+
+    function startSessionTimer() {
+      sessionActive = true;
+      sessionStartTime = Date.now();
+      sessionCounter = 0;
+      goalReached = false;
+      updateCounterDisplay();
+      document.getElementById('sessionHud').style.display = 'block';
+      document.getElementById('timerDisplay').textContent = '00:00';
+      updateTimer();
+    }
+
+    function stopSessionTimer() {
+      sessionActive = false;
+      if (sessionTimerRAF) cancelAnimationFrame(sessionTimerRAF);
+    }
+
+    // === COUNTER ===
+    function incrementCounter() {
+      sessionCounter++;
+      updateCounterDisplay();
+      if (!goalReached && sessionGoalType === 'cycles' && sessionCounter >= sessionGoalValue) {
+        onGoalReached();
+      }
+    }
+
+    function updateCounterDisplay() {
+      var el = document.getElementById('counterValue');
+      if (el) el.textContent = sessionCounter;
+      var goalEl = document.getElementById('counterGoal');
+      if (goalEl) {
+        goalEl.textContent = (sessionGoalType === 'cycles') ? ' / ' + sessionGoalValue : '';
+      }
+    }
+
+    // === GOAL COMPLETION ===
+    function onGoalReached() {
+      goalReached = true;
+      var elapsed = (Date.now() - sessionStartTime) / 1000;
+      var msg = '';
+      if (sessionGoalType === 'duration') {
+        msg = 'Voce meditou por ' + formatTime(elapsed) + '.';
+      } else if (sessionGoalType === 'cycles') {
+        msg = 'Voce completou ' + sessionCounter + ' ciclos em ' + formatTime(elapsed) + '.';
+      }
+      document.getElementById('completionMsg').textContent = msg;
+      var overlay = document.getElementById('completionOverlay');
+      overlay.style.display = 'flex';
+    }
+
+    // === GOAL PANEL ===
+    function setupGoalPanel(goalTypes, goalValues) {
+      var typeRow = document.getElementById('goalTypeRow');
+      var valueRow = document.getElementById('goalValueRow');
+
+      typeRow.innerHTML = '';
+      goalTypes.forEach(function (gt, i) {
+        var btn = document.createElement('button');
+        btn.className = 'goalTypeBtn' + (i === 0 ? ' active' : '');
+        btn.dataset.type = gt.key;
+        btn.textContent = gt.label;
+        btn.addEventListener('click', function () {
+          typeRow.querySelectorAll('.goalTypeBtn').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          sessionGoalType = gt.key;
+          renderGoalValues(gt.key, goalValues, valueRow);
+        });
+        typeRow.appendChild(btn);
+      });
+
+      sessionGoalType = 'none';
+      renderGoalValues('none', goalValues, valueRow);
+    }
+
+    function renderGoalValues(type, goalValues, container) {
+      container.innerHTML = '';
+      if (type === 'none' || !goalValues[type]) {
+        container.style.display = 'none';
+        sessionGoalValue = 0;
+        return;
+      }
+      container.style.display = 'flex';
+      var options = goalValues[type];
+      options.forEach(function (opt, i) {
+        var btn = document.createElement('button');
+        btn.className = 'goalValueBtn' + (i === 0 ? ' active' : '');
+        btn.textContent = opt.label;
+        btn.addEventListener('click', function () {
+          container.querySelectorAll('.goalValueBtn').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          sessionGoalValue = opt.value;
+        });
+        container.appendChild(btn);
+      });
+      sessionGoalValue = options[0].value;
+    }
+
+    // Initialize goal panel
+    setupGoalPanel(
+      [
+        { key: 'none', label: 'Livre' },
+        { key: 'cycles', label: 'Ciclos' },
+        { key: 'duration', label: 'Tempo' }
+      ],
+      {
+        cycles: [
+          { value: 5, label: '5' },
+          { value: 10, label: '10' },
+          { value: 15, label: '15' },
+          { value: 20, label: '20' }
+        ],
+        duration: [
+          { value: 180, label: '3min' },
+          { value: 300, label: '5min' },
+          { value: 600, label: '10min' }
+        ]
+      }
+    );
+
+    // Funcao para animar esfera de respiracao guiada
     function breathe(state) {
-      if (!breathing) return; // Interrompe caso a sessão acabe
+      if (!breathing) return;
 
       let nextState = state === "in" ? "out" : "in";
       let duration = state === "in" ? inhaleDuration : exhaleDuration;
@@ -85,7 +439,6 @@
 
       breathText.setAttribute('text', 'value', text);
 
-      // Animação de escala
       let start = null;
       function animate(now) {
         if (!start) start = now;
@@ -97,29 +450,48 @@
         if (progress < 1) {
           requestAnimationFrame(animate);
         } else {
-          // Alterna entre inspiração e expiração
+          if (state === "out") {
+            incrementCounter();
+          }
           setTimeout(() => breathe(nextState), 0);
         }
       }
       requestAnimationFrame(animate);
     }
 
-    // Inicia tudo ao clicar no botão
-    playBtn.addEventListener('click', function () {
+    // Start session button
+    document.getElementById('startSessionBtn').addEventListener('click', function () {
       video.play();
-      playBtn.style.display = 'none';
+      document.getElementById('goalPanel').style.display = 'none';
       instructions.style.display = 'block';
-      // Inicia respiração guiada
       breathing = true;
       breathe("in");
+      startSessionTimer();
     });
 
-    // Parar ao recarregar sessão
+    // Completion handlers
+    document.getElementById('continueBtn').addEventListener('click', function () {
+      document.getElementById('completionOverlay').style.display = 'none';
+    });
+
+    document.getElementById('finishBtn').addEventListener('click', function () {
+      document.getElementById('completionOverlay').style.display = 'none';
+      breathing = false;
+      video.pause();
+      stopSessionTimer();
+      document.getElementById('sessionHud').style.display = 'none';
+      document.getElementById('goalPanel').style.display = 'block';
+      // Reset counter display
+      document.getElementById('counterValue').textContent = '0';
+      document.getElementById('timerDisplay').textContent = '00:00';
+    });
+
+    // Parar ao recarregar sessao
     window.addEventListener('beforeunload', function () {
       breathing = false;
+      stopSessionTimer();
     });
 
-    // Opcional: esconder esfera após X minutos ou deixar enquanto o usuário desejar
     function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
