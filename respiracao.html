@@ -356,6 +356,12 @@
       document.getElementById('completionMsg').textContent = msg;
       var overlay = document.getElementById('completionOverlay');
       overlay.style.display = 'flex';
+
+      // Exit VR mode if active
+      var scene = document.querySelector('a-scene');
+      if (scene && scene.is('vr-mode')) {
+        scene.exitVR();
+      }
     }
 
     // === GOAL PANEL ===

@@ -324,6 +324,12 @@
       var elapsed = (Date.now() - sessionStartTime) / 1000;
       document.getElementById('completionMsg').textContent = 'Voce meditou por ' + formatTime(elapsed) + '.';
       document.getElementById('completionOverlay').style.display = 'flex';
+
+      // Exit VR mode if active
+      var scene = document.querySelector('a-scene');
+      if (scene && scene.is('vr-mode')) {
+        scene.exitVR();
+      }
     }
 
     // === GOAL PANEL ===
