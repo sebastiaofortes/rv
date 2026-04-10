@@ -410,10 +410,12 @@
       }
     );
 
-    // Show goal panel when video is ready (instead of play button)
+    // Show goal panel when video is ready (only if session not active)
     video.addEventListener('canplaythrough', function () {
       loader.style.display = 'none';
-      document.getElementById('goalPanel').style.display = 'block';
+      if (!sessionActive) {
+        document.getElementById('goalPanel').style.display = 'block';
+      }
     });
 
     // Error handling
