@@ -343,10 +343,27 @@
       }
     }
 
+    // === SESSION HISTORY ===
+    function saveSession(elapsed) {
+      try {
+        var history = JSON.parse(localStorage.getItem('zenvr_sessions') || '[]');
+        history.push({
+          type: 'respiracao',
+          duration: Math.round(elapsed),
+          cycles: sessionCounter,
+          date: new Date().toISOString()
+        });
+        // Keep last 200 sessions max
+        if (history.length > 200) history = history.slice(-200);
+        localStorage.setItem('zenvr_sessions', JSON.stringify(history));
+      } catch (e) { /* storage full or unavailable */ }
+    }
+
     // === GOAL COMPLETION ===
     function onGoalReached() {
       goalReached = true;
       var elapsed = (Date.now() - sessionStartTime) / 1000;
+      saveSession(elapsed);
       var msg = '';
       if (sessionGoalType === 'duration') {
         msg = 'Voce meditou por ' + formatTime(elapsed) + '.';
@@ -482,12 +499,13 @@
 
     document.getElementById('finishBtn').addEventListener('click', function () {
       document.getElementById('completionOverlay').style.display = 'none';
+      var elapsed = (Date.now() - sessionStartTime) / 1000;
+      if (!goalReached && elapsed >= 10) saveSession(elapsed);
       breathing = false;
       video.pause();
       stopSessionTimer();
       document.getElementById('sessionHud').style.display = 'none';
       document.getElementById('goalPanel').style.display = 'block';
-      // Reset counter display
       document.getElementById('counterValue').textContent = '0';
       document.getElementById('timerDisplay').textContent = '00:00';
     });

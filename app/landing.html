@@ -153,6 +153,70 @@
     .dropdown-backdrop.active {
       display: block;
     }
+
+    /* Session History Widget */
+    #historyWidget {
+      display: none;
+    }
+
+    .history-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .history-stat .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #4F46E5;
+    }
+
+    .history-stat .label {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .history-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: #e0e7ff;
+      overflow: hidden;
+    }
+
+    .history-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #4F46E5, #7C3AED);
+      transition: width 0.6s ease;
+    }
+
+    .history-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .history-day .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e0e7ff;
+    }
+
+    .history-day .dot.active {
+      background: #4F46E5;
+    }
+
+    .history-day .dot.today {
+      box-shadow: 0 0 0 2px #fff, 0 0 0 3px #4F46E5;
+    }
+
+    .history-day .day-label {
+      font-size: 0.6rem;
+      color: #9ca3af;
+    }
   </style>
 </head>
 
@@ -228,6 +292,35 @@
         <div class="text-2xl font-bold text-indigo-600 mb-1">3</div>
         <div class="text-xs text-gray-500">Técnicas</div>
       </div>
+    </div>
+  </section>
+
+  <!-- Session History Widget -->
+  <section id="historyWidget" class="px-6 pb-6">
+    <div class="bg-white rounded-2xl p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold text-gray-800">Sua jornada</h3>
+        <span id="historyStreak" class="text-xs text-indigo-600 font-medium"></span>
+      </div>
+
+      <!-- Stats row -->
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div class="history-stat">
+          <span class="value" id="histWeekSessions">0</span>
+          <span class="label">sessoes</span>
+        </div>
+        <div class="history-stat">
+          <span class="value" id="histWeekMinutes">0</span>
+          <span class="label">minutos</span>
+        </div>
+        <div class="history-stat">
+          <span class="value" id="histTotalSessions">0</span>
+          <span class="label">total</span>
+        </div>
+      </div>
+
+      <!-- 7-day activity dots -->
+      <div class="flex justify-between items-end px-2" id="historyDots"></div>
     </div>
   </section>
 
@@ -550,6 +643,111 @@
           });
       });
     }
+
+    // Request persistent storage (protects localStorage on mobile PWAs)
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().then(function(granted) {
+        if (granted) console.log('[App] Persistent storage granted');
+      });
+    }
+
+    // === SESSION HISTORY WIDGET ===
+    (function() {
+      try {
+        var sessions = JSON.parse(localStorage.getItem('zenvr_sessions') || '[]');
+        if (sessions.length === 0) return;
+
+        var widget = document.getElementById('historyWidget');
+        widget.style.display = 'block';
+
+        var now = new Date();
+        var todayStr = now.toISOString().slice(0, 10);
+
+        // Last 7 days date strings
+        var last7 = [];
+        for (var i = 6; i >= 0; i--) {
+          var d = new Date(now);
+          d.setDate(d.getDate() - i);
+          last7.push(d.toISOString().slice(0, 10));
+        }
+
+        // Week start (7 days ago)
+        var weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 6);
+        weekAgo.setHours(0, 0, 0, 0);
+
+        var weekSessions = 0;
+        var weekMinutes = 0;
+        var daysWithSessions = {};
+
+        sessions.forEach(function(s) {
+          var sDate = s.date.slice(0, 10);
+          var sTime = new Date(s.date);
+
+          if (sTime >= weekAgo) {
+            weekSessions++;
+            weekMinutes += (s.duration || 0);
+          }
+
+          // Track which days had sessions (for dots)
+          if (last7.indexOf(sDate) >= 0) {
+            daysWithSessions[sDate] = true;
+          }
+        });
+
+        weekMinutes = Math.round(weekMinutes / 60);
+
+        document.getElementById('histWeekSessions').textContent = weekSessions;
+        document.getElementById('histWeekMinutes').textContent = weekMinutes;
+        document.getElementById('histTotalSessions').textContent = sessions.length;
+
+        // Streak calculation
+        var streak = 0;
+        for (var j = 0; j < 30; j++) {
+          var checkDate = new Date(now);
+          checkDate.setDate(checkDate.getDate() - j);
+          var checkStr = checkDate.toISOString().slice(0, 10);
+          var found = sessions.some(function(s) { return s.date.slice(0, 10) === checkStr; });
+          if (found) {
+            streak++;
+          } else if (j > 0) {
+            break; // Allow today to not have a session yet
+          }
+        }
+
+        var streakEl = document.getElementById('historyStreak');
+        if (streak > 1) {
+          streakEl.textContent = streak + ' dias seguidos';
+        } else if (streak === 1) {
+          streakEl.textContent = 'Ativo hoje';
+        }
+
+        // 7-day dots
+        var dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+        var dotsContainer = document.getElementById('historyDots');
+        last7.forEach(function(dateStr) {
+          var div = document.createElement('div');
+          div.className = 'history-day';
+
+          var dot = document.createElement('div');
+          dot.className = 'dot';
+          if (daysWithSessions[dateStr]) dot.classList.add('active');
+          if (dateStr === todayStr) dot.classList.add('today');
+
+          var label = document.createElement('span');
+          label.className = 'day-label';
+          var dayIndex = new Date(dateStr + 'T12:00:00').getDay();
+          label.textContent = dayNames[dayIndex];
+
+          div.appendChild(dot);
+          div.appendChild(label);
+          dotsContainer.appendChild(div);
+        });
+
+      } catch (e) {
+        console.log('[App] History widget error:', e);
+      }
+    })();
   </script>
 
 </body>
