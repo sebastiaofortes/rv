@@ -258,7 +258,7 @@
     </div>
   </div>
 
-  <a-scene>
+  <a-scene session-tick>
     <a-assets>
       <video id="video360" src="./videos/default.mp4" crossorigin="anonymous" loop="true" playsinline webkit-playsinline></video>
     </a-assets>
@@ -287,7 +287,6 @@
     // === SESSION STATE ===
     var sessionActive = false;
     var sessionStartTime = 0;
-    var sessionTimerRAF = null;
     var sessionGoalType = 'none';
     var sessionGoalValue = 0;
     var goalReached = false;
@@ -299,36 +298,33 @@
       return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
     }
 
-    function updateTimer() {
-      if (!sessionActive) return;
-      var elapsed = (Date.now() - sessionStartTime) / 1000;
-      var timeStr = formatTime(elapsed);
-      document.getElementById('timerDisplay').textContent = timeStr;
-
-      // Sync VR HUD
-      var vrT = document.getElementById('vrTimer');
-      if (vrT) vrT.setAttribute('text', 'value', timeStr);
-
-      if (!goalReached && sessionGoalType === 'duration' && elapsed >= sessionGoalValue) {
-        onGoalReached();
-      }
-
-      sessionTimerRAF = requestAnimationFrame(updateTimer);
-    }
-
     function startSessionTimer() {
       sessionActive = true;
       sessionStartTime = Date.now();
       goalReached = false;
       document.getElementById('sessionHud').style.display = 'block';
       document.getElementById('timerDisplay').textContent = '00:00';
-      updateTimer();
     }
 
     function stopSessionTimer() {
       sessionActive = false;
-      if (sessionTimerRAF) cancelAnimationFrame(sessionTimerRAF);
     }
+
+    // A-Frame component: runs inside the XR render loop (works in VR)
+    AFRAME.registerComponent('session-tick', {
+      tick: function () {
+        if (!sessionActive) return;
+        var elapsed = (Date.now() - sessionStartTime) / 1000;
+        var timeStr = formatTime(elapsed);
+        document.getElementById('timerDisplay').textContent = timeStr;
+        var vrT = document.getElementById('vrTimer');
+        if (vrT) vrT.setAttribute('text', 'value', timeStr);
+
+        if (!goalReached && sessionGoalType === 'duration' && elapsed >= sessionGoalValue) {
+          onGoalReached();
+        }
+      }
+    });
 
     // === SESSION HISTORY ===
     function saveSession(elapsed) {

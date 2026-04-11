@@ -251,7 +251,7 @@
         </div>
     </div>
 
-    <a-scene background="color: #20355e">
+    <a-scene background="color: #20355e" session-tick>
         <a-assets>
             <video id="video360" src="vimeo.mp4" crossorigin="anonymous" loop="true" playsinline
                 webkit-playsinline></video>
@@ -292,7 +292,6 @@
         // === SESSION STATE ===
         var sessionActive = false;
         var sessionStartTime = 0;
-        var sessionTimerRAF = null;
         var sessionGoalType = 'none';
         var sessionGoalValue = 0;
         var sessionCounter = 0;
@@ -305,23 +304,6 @@
             return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
         }
 
-        function updateTimer() {
-            if (!sessionActive) return;
-            var elapsed = (Date.now() - sessionStartTime) / 1000;
-            var timeStr = formatTime(elapsed);
-            document.getElementById('timerDisplay').textContent = timeStr;
-
-            // Sync VR HUD
-            var vrT = document.getElementById('vrTimer');
-            if (vrT) vrT.setAttribute('text', 'value', timeStr);
-
-            if (!goalReached && sessionGoalType === 'duration' && elapsed >= sessionGoalValue) {
-                onGoalReached();
-            }
-
-            sessionTimerRAF = requestAnimationFrame(updateTimer);
-        }
-
         function startSessionTimer() {
             sessionActive = true;
             sessionStartTime = Date.now();
@@ -330,13 +312,27 @@
             updateCounterDisplay();
             document.getElementById('sessionHud').style.display = 'block';
             document.getElementById('timerDisplay').textContent = '00:00';
-            updateTimer();
         }
 
         function stopSessionTimer() {
             sessionActive = false;
-            if (sessionTimerRAF) cancelAnimationFrame(sessionTimerRAF);
         }
+
+        // A-Frame component: runs inside the XR render loop (works in VR)
+        AFRAME.registerComponent('session-tick', {
+            tick: function () {
+                if (!sessionActive) return;
+                var elapsed = (Date.now() - sessionStartTime) / 1000;
+                var timeStr = formatTime(elapsed);
+                document.getElementById('timerDisplay').textContent = timeStr;
+                var vrT = document.getElementById('vrTimer');
+                if (vrT) vrT.setAttribute('text', 'value', timeStr);
+
+                if (!goalReached && sessionGoalType === 'duration' && elapsed >= sessionGoalValue) {
+                    onGoalReached();
+                }
+            }
+        });
 
         // === COUNTER ===
         function incrementCounter() {
