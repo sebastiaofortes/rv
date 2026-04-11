@@ -260,6 +260,15 @@
       <a-entity id="breathText" text="value: Inspire; align: center; color: #FFFFFF; width: 3"
         position="0 1 0"></a-entity>
     </a-entity>
+
+    <!-- VR HUD (painel 3D visivel apenas no modo VR) -->
+    <a-entity id="vrHud" visible="false" position="-1.2 1.6 -1.5" rotation="0 30 0">
+      <a-plane width="0.7" height="0.4" color="#000" opacity="0.6" side="double"></a-plane>
+      <a-text id="vrTimer" value="00:00" position="0 0.08 0.01"
+        align="center" color="#e0e7ff" width="2.5"></a-text>
+      <a-text id="vrCounter" value="Ciclos: 0" position="0 -0.06 0.01"
+        align="center" color="#a5b4fc" width="2"></a-text>
+    </a-entity>
   </a-scene>
   <script>
     // Elementos
@@ -300,7 +309,12 @@
     function updateTimer() {
       if (!sessionActive) return;
       var elapsed = (Date.now() - sessionStartTime) / 1000;
-      document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+      var timeStr = formatTime(elapsed);
+      document.getElementById('timerDisplay').textContent = timeStr;
+
+      // Sync VR HUD
+      var vrT = document.getElementById('vrTimer');
+      if (vrT) vrT.setAttribute('text', 'value', timeStr);
 
       if (!goalReached && sessionGoalType === 'duration' && elapsed >= sessionGoalValue) {
         onGoalReached();
@@ -340,6 +354,14 @@
       var goalEl = document.getElementById('counterGoal');
       if (goalEl) {
         goalEl.textContent = (sessionGoalType === 'cycles') ? ' / ' + sessionGoalValue : '';
+      }
+
+      // Sync VR HUD
+      var vrC = document.getElementById('vrCounter');
+      if (vrC) {
+        var txt = 'Ciclos: ' + sessionCounter;
+        if (sessionGoalType === 'cycles') txt += ' / ' + sessionGoalValue;
+        vrC.setAttribute('text', 'value', txt);
       }
     }
 
@@ -515,6 +537,29 @@
       breathing = false;
       stopSessionTimer();
     });
+
+    // === VR DUAL RENDERING ===
+    var sceneEl = document.querySelector('a-scene');
+    if (sceneEl) {
+      sceneEl.addEventListener('enter-vr', function () {
+        document.getElementById('sessionHud').style.display = 'none';
+        document.getElementById('goalPanel').style.display = 'none';
+        document.getElementById('instructions').style.display = 'none';
+        var vrHud = document.getElementById('vrHud');
+        if (vrHud && sessionActive) vrHud.setAttribute('visible', true);
+      });
+
+      sceneEl.addEventListener('exit-vr', function () {
+        var vrHud = document.getElementById('vrHud');
+        if (vrHud) vrHud.setAttribute('visible', false);
+        if (sessionActive) {
+          document.getElementById('sessionHud').style.display = 'block';
+          document.getElementById('instructions').style.display = 'block';
+        } else {
+          document.getElementById('goalPanel').style.display = 'block';
+        }
+      });
+    }
 
     function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
