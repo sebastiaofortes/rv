@@ -465,13 +465,14 @@
             }
         );
 
-        // Use troika-text
+        // Use troika-text with A-Frame animation (works in VR mode)
         function criarNuvemPalavra() {
             incrementCounter();
             const palavra = palavras[Math.floor(Math.random() * palavras.length)];
             const x = (Math.random() - 0.5) * 2;
             const y = 1 + Math.random() * 0.5;
             const z = -2.4 - Math.random() * 0.3;
+            const dur = 5200 + Math.random() * 800;
 
             const entidade = document.createElement('a-troika-text');
             entidade.setAttribute('value', palavra);
@@ -479,30 +480,31 @@
             entidade.setAttribute('font-size', '0.5');
             entidade.setAttribute('max-width', '2.5');
             entidade.setAttribute('anchor', 'center');
-            entidade.setAttribute('position', `${x} ${y} ${z}`);
+            entidade.setAttribute('position', x + ' ' + y + ' ' + z);
             entidade.setAttribute('opacity', '1');
             entidade.setAttribute('side', 'double');
             entidade.setAttribute('font', 'https://cdn.jsdelivr.net/npm/@fontsource/roboto/files/roboto-latin-400-normal.woff');
 
+            // A-Frame animations: run inside the XR render loop
+            entidade.setAttribute('animation__pos', {
+                property: 'position',
+                to: x + ' ' + (y + 1.9) + ' ' + z,
+                dur: dur,
+                easing: 'linear'
+            });
+            entidade.setAttribute('animation__fade', {
+                property: 'opacity',
+                to: 0,
+                dur: dur,
+                easing: 'linear'
+            });
+
+            // Cleanup when fade animation completes
+            entidade.addEventListener('animationcomplete__fade', function () {
+                if (cloudWords.contains(entidade)) cloudWords.removeChild(entidade);
+            });
+
             cloudWords.appendChild(entidade);
-
-            let start = null;
-            const dur = 5200 + Math.random() * 800;
-            function animate(time) {
-                if (!start) start = time;
-                const elapsed = time - start;
-                const ny = y + (elapsed / dur) * 1.9;
-                entidade.setAttribute('position', `${x} ${ny} ${z}`);
-                const op = Math.max(1 - (elapsed / dur), 0);
-                entidade.setAttribute('opacity', op);
-
-                if (elapsed < dur) {
-                    requestAnimationFrame(animate);
-                } else {
-                    if (cloudWords.contains(entidade)) cloudWords.removeChild(entidade);
-                }
-            }
-            requestAnimationFrame(animate);
         }
 
         // Start session button
