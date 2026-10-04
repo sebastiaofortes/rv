@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.zenvr.app",
+    "sha256_cert_fingerprints": [
+      "5D:C9:87:FE:3D:01:22:9B:D9:FD:1E:F4:D9:01:BA:8A:71:86:B7:51:A8:22:42:5C:24:0D:87:36:94:AD:D9:4E"
+    ]
+  }
+}]
