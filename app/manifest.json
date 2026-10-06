@@ -36,7 +36,7 @@
       "name": "Mindfulness",
       "short_name": "Scenery",
       "description": "Start mindfulness meditation",
-      "url": "../cenarios.html?pagina=paisagem",
+      "url": "./cenarios.html?pagina=paisagem",
       "icons": [
         {
           "src": "./icon-192.png",
@@ -48,7 +48,7 @@
       "name": "Breathing",
       "short_name": "Breathe",
       "description": "Guided breathing exercise",
-      "url": "../cenarios.html?pagina=respiracao",
+      "url": "./cenarios.html?pagina=respiracao",
       "icons": [
         {
           "src": "./icon-192.png",
@@ -60,7 +60,7 @@
       "name": "Words",
       "short_name": "Reflect",
       "description": "Inspirational words and reflection",
-      "url": "../cenarios.html?pagina=palavras",
+      "url": "./cenarios.html?pagina=palavras",
       "icons": [
         {
           "src": "./icon-192.png",

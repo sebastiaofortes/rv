@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="color-scheme" content="light" />
   <meta name="theme-color" content="#4F46E5" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -53,6 +54,8 @@
   </script>
   <!-- i18n Module -->
   <script src="./i18n.js"></script>
+  <!-- Shared Bottom Navigation Web Component -->
+  <script type="module" src="./bottom-nav.js"></script>
   <style>
     * {
       -webkit-tap-highlight-color: transparent;
@@ -351,7 +354,7 @@
   <section class="px-6 pb-6">
     <h3 class="text-lg font-semibold text-gray-800 mb-4" data-i18n="landing.quickActions.title">Comece agora</h3>
     
-    <a href="../cenarios.html?pagina=paisagem" class="block mb-4 card-hover">
+    <a href="./cenarios.html?pagina=paisagem" class="block mb-4 card-hover">
       <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-3xl p-6 shadow-lg text-white relative overflow-hidden">
         <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
@@ -387,7 +390,7 @@
     </a>
 
     <div class="grid grid-cols-2 gap-4">
-      <a href="../cenarios.html?pagina=respiracao" class="block card-hover">
+      <a href="./cenarios.html?pagina=respiracao" class="block card-hover">
         <div class="bg-white rounded-3xl p-5 shadow-md h-full">
           <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mb-4">
             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -405,7 +408,7 @@
         </div>
       </a>
 
-      <a href="../cenarios.html?pagina=palavras" class="block card-hover">
+      <a href="./cenarios.html?pagina=palavras" class="block card-hover">
         <div class="bg-white rounded-3xl p-5 shadow-md h-full">
           <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mb-4">
             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,42 +512,14 @@
       </div>
       <h3 class="text-2xl font-bold mb-3" data-i18n="landing.cta.title">Pronto para começar?</h3>
       <p class="text-indigo-100 mb-6 text-sm" data-i18n="landing.cta.subtitle">Sua jornada de tranquilidade começa agora</p>
-      <a href="../cenarios.html?pagina=paisagem" class="inline-block bg-white text-indigo-700 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow" data-i18n="landing.cta.button">
+      <a href="./cenarios.html?pagina=paisagem" class="inline-block bg-white text-indigo-700 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow" data-i18n="landing.cta.button">
         Iniciar Primeira Sessão
       </a>
     </div>
   </section>
 
-  <!-- Bottom Navigation -->
-  <nav class="safe-bottom fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-    <div class="flex justify-around items-center px-4 py-3">
-      <a href="#" class="flex flex-col items-center space-y-1 text-indigo-600">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-        </svg>
-        <span class="text-xs font-medium" data-i18n="nav.home">Início</span>
-      </a>
-      <a href="../cenarios.html?pagina=paisagem" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-        <span class="text-xs font-medium" data-i18n="nav.mindfulness">Atenção</span>
-      </a>
-      <a href="../cenarios.html?pagina=respiracao" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-        </svg>
-        <span class="text-xs font-medium" data-i18n="nav.breathing">Respiração</span>
-      </a>
-      <a href="../cenarios.html?pagina=palavras" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-        </svg>
-        <span class="text-xs font-medium" data-i18n="nav.words">Palavras</span>
-      </a>
-    </div>
-  </nav>
+  <!-- Shared Bottom Navigation Web Component -->
+  <zen-bottom-nav active="home"></zen-bottom-nav>
 
   <!-- About Modal -->
   <div id="aboutModal" class="fixed inset-0 z-[100] hidden">

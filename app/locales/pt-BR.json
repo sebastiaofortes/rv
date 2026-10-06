@@ -91,6 +91,40 @@
     "breathing": "Respiração",
     "words": "Palavras"
   },
+  "scenes": {
+    "title": "Escolha seu Cenário",
+    "subtitle": "Selecione um ambiente para sua próxima meditação imersiva",
+    "back": "Voltar",
+    "enter": "Entrar",
+    "tagVr": "360° VR",
+    "practice": {
+      "paisagem": "Atenção Plena",
+      "respiracao": "Respiração",
+      "palavras": "Palavras"
+    },
+    "items": {
+      "praia": {
+        "title": "Praia",
+        "desc": "Ondas suaves e brisa relaxante à beira-mar"
+      },
+      "montanhas": {
+        "title": "Montanhas Serenas",
+        "desc": "Ar puro e tranquilidade no topo do mundo"
+      },
+      "praiaFlores": {
+        "title": "Praia com Flores",
+        "desc": "Cores vivas e serenidade à beira da água"
+      },
+      "floresta": {
+        "title": "Floresta",
+        "desc": "Sons relaxantes da natureza e copa verdejante"
+      },
+      "cachoeira": {
+        "title": "Cachoeira",
+        "desc": "Queda d'água revigorante e paz profunda"
+      }
+    }
+  },
   "about": {
     "title": "Sobre o App",
     "description": "ZenVR é uma plataforma de meditação em realidade virtual que oferece experiências imersivas para ajudar você a meditar e praticar mindfulness através de ambientes virtuais com exercícios de respiração guiada e reflexões profundas.",
