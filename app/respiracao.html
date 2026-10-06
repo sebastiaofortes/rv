@@ -258,7 +258,10 @@
     </div>
   </div>
 
-  <a-scene session-tick>
+  <a-scene 
+    session-tick 
+    background="color: #0b1120"
+    renderer="antialias: true; colorManagement: true; alpha: false">
     <a-assets>
       <video id="video360" src="./videos/default.mp4" crossorigin="anonymous" loop="true" playsinline webkit-playsinline></video>
     </a-assets>
@@ -558,12 +561,52 @@
         if (exitBtn) exitBtn.style.display = 'flex';
         var vrHud = document.getElementById('vrHud');
         if (vrHud) vrHud.setAttribute('visible', false);
+
         if (sessionActive) {
           document.getElementById('sessionHud').style.display = 'block';
-          document.getElementById('instructions').style.display = 'block';
+          var instructions = document.getElementById('instructions');
+          if (instructions) instructions.style.display = 'block';
         } else {
-          document.getElementById('goalPanel').style.display = 'block';
+          var goalPanel = document.getElementById('goalPanel');
+          if (goalPanel) goalPanel.style.display = 'block';
         }
+
+        // === RESTAURAÇÃO DO RENDERER E VIEWPORT APÓS WEBXR ===
+        setTimeout(function () {
+          try {
+            if (sceneEl.renderer) {
+              // 1. Restaura render target padrão do canvas 2D
+              sceneEl.renderer.setRenderTarget(null);
+              // 2. Força recálculo das dimensões do canvas
+              sceneEl.resize();
+            }
+
+            // 3. Atualiza matriz de projeção da câmera no DOM
+            if (sceneEl.camera) {
+              sceneEl.camera.updateProjectionMatrix();
+            }
+
+            // 4. Garante que a textura do vídeo continue atualizando
+            var video = document.querySelector('#video360');
+            if (video && video.paused) {
+              video.play().catch(function (err) {
+                console.warn('[ZenVR] Não foi possível retomar o vídeo automaticamente:', err);
+              });
+            }
+
+            // 5. Força atualização do material da esfera 360
+            var videosphere = document.querySelector('a-videosphere');
+            if (videosphere && videosphere.components && videosphere.components.material) {
+              var mat = videosphere.components.material.material;
+              if (mat) {
+                mat.needsUpdate = true;
+                if (mat.map) mat.map.needsUpdate = true;
+              }
+            }
+          } catch (e) {
+            console.error('[ZenVR] Erro ao restaurar cena pós-VR:', e);
+          }
+        }, 50); // Delay mínimo de 50ms para aguardar o teardown do WebXR no headset
       });
     }
 
