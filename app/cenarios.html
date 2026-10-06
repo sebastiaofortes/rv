@@ -121,7 +121,7 @@
   <header class="safe-top sticky top-0 z-40 glass-effect border-b border-gray-100">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <!-- Back button -->
-      <a href="./landing.html" class="w-10 h-10 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-50 active:scale-95 transition" aria-label="Voltar" data-i18n-attr="aria-label:scenes.back">
+      <a href="./landing.html" onclick="handleGoBack(event)" class="w-10 h-10 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-50 active:scale-95 transition" aria-label="Voltar" data-i18n-attr="aria-label:scenes.back">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -364,6 +364,15 @@
       });
 
       grid.innerHTML = html;
+    }
+
+    function handleGoBack(event) {
+      // Se o histórico possuir entradas anteriores e o referer pertencer ao mesmo domínio/origem
+      if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        if (event) event.preventDefault();
+        window.history.back();
+      }
+      // Caso contrário, deixa o comportamento padrão do href="./landing.html" acontecer
     }
 
     function toggleMenu() {
