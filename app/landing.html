@@ -5,20 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <!-- Verificação antecipada de Splash Screen (evita flash) -->
-  <script>
-    (function() {
-      try {
-        if (sessionStorage.getItem('zenvr_splash_shown')) {
-          document.documentElement.classList.add('no-splash');
-        } else {
-          sessionStorage.setItem('zenvr_splash_shown', '1');
-        }
-      } catch (e) {
-        // Caso cookies/storage estejam bloqueados
-      }
-    })();
-  </script>
   <meta name="color-scheme" content="light" />
   <meta name="theme-color" content="#4F46E5" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -102,27 +88,6 @@
       background-clip: text;
     }
 
-    .no-splash .splash-screen {
-      display: none !important;
-    }
-
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      animation: fadeOut 0.5s ease-in 2s forwards;
-    }
-
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        pointer-events: none;
-      }
-    }
 
     .safe-top {
       padding-top: env(safe-area-inset-top);
@@ -246,16 +211,6 @@
 
 <body class="bg-gradient-to-br from-indigo-50 via-white to-blue-50 text-gray-800 overflow-x-hidden">
 
-  <!-- Splash Screen -->
-  <div class="splash-screen">
-    <div class="text-center">
-      <div class="w-24 h-24 mx-auto mb-6 rounded-3xl shadow-2xl overflow-hidden floating">
-        <img src="./header-icon.png" alt="ZenVR Logo" data-i18n-attr="alt:common.logoAlt" class="w-full h-full object-cover" />
-      </div>
-      <h1 class="text-4xl font-bold text-white mb-2">ZenVR</h1>
-      <p class="text-white text-opacity-90" data-i18n="splash.subtitle">Meditação Imersiva</p>
-    </div>
-  </div>
 
   <!-- Dropdown Backdrop -->
   <div id="dropdownBackdrop" class="dropdown-backdrop" onclick="toggleMenu()"></div>
