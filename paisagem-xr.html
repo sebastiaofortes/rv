@@ -186,7 +186,7 @@
     <a-assets>
       <video 
         id="video360" 
-        src="./videos/default.mp4" 
+        src="./app/videos/default.mp4" 
         crossorigin="anonymous" 
         loop="true" 
         playsinline 
@@ -357,7 +357,7 @@
     // Get video from URL parameter
     const videoParam = getQueryParam('video');
     if (videoParam) {
-      video.src = './videos/' + videoParam;
+      video.src = './app/videos/' + videoParam;
     }
 
     // ========== VIDEO LOADING ==========

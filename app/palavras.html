@@ -299,12 +299,6 @@
             video.src = './videos/' + videoParam;
         }
 
-        video.addEventListener('error', function () {
-            if (video.src && video.src.indexOf('/app/videos/') !== -1) {
-                console.warn('[ZenVR] Tentando fallback para ../videos/');
-                video.src = video.src.replace('/app/videos/', '/videos/');
-            }
-        });
 
         // === SESSION STATE ===
         var sessionActive = false;

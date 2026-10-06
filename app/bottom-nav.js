@@ -144,7 +144,7 @@
 
       var nav = document.createElement('nav');
       nav.className = 'safe-bottom fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50';
-      nav.setAttribute('aria-label', 'Navegação principal');
+      nav.setAttribute('aria-label', getTranslation('nav.aria', 'Navegação principal'));
 
       var container = document.createElement('div');
       container.className = 'flex justify-around items-center px-4 py-3';
@@ -168,8 +168,13 @@
           '<svg class="w-6 h-6" ' + fillAttr + ' viewBox="' + item.svgViewBox + '" aria-hidden="true">',
           '  ' + item.svgPath,
           '</svg>',
-          '<span class="text-xs ' + (isActive ? 'font-semibold' : 'font-medium') + '" data-i18n="' + item.labelKey + '">' + label + '</span>'
+          '<span class="text-xs ' + (isActive ? 'font-semibold' : 'font-medium') + '" data-i18n="' + item.labelKey + '"></span>'
         ].join('\n');
+
+        var span = a.querySelector('span');
+        if (span) {
+          span.textContent = label;
+        }
 
         container.appendChild(a);
       });
@@ -180,6 +185,10 @@
     }
 
     updateLabels() {
+      var nav = this.querySelector('nav');
+      if (nav) {
+        nav.setAttribute('aria-label', getTranslation('nav.aria', 'Navegação principal'));
+      }
       var spans = this.querySelectorAll('[data-i18n]');
       spans.forEach(function (span) {
         var key = span.getAttribute('data-i18n');

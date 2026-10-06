@@ -86,6 +86,7 @@
     "total": "total"
   },
   "nav": {
+    "aria": "Navegación principal",
     "home": "Inicio",
     "mindfulness": "Atención",
     "breathing": "Respiración",

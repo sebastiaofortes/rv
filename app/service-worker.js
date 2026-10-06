@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zenvr-app-v5';
+const CACHE_NAME = 'zenvr-app-v6';
 const STATIC_ASSETS = [
   './landing.html',
   './cenarios.html',

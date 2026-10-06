@@ -38,23 +38,26 @@ Guarda backup do `zenvr-android/android.keystore` — sem ele não é possível 
 ### Dual Stack
 
 ```
-Web (qualquer browser)           Android XR (headsets)
-├── cenarios.html                ├── respiracao-xr-hands.html
-├── paisagem.html                ├── paisagem-xr.html
-├── respiracao.html              ├── palavras-xr.html
-└── palavras.html                └── video-xr.html
+Web PWA (/app/)                  Android XR (headsets)
+├── app/cenarios.html            ├── respiracao-xr-hands.html
+├── app/paisagem.html            ├── paisagem-xr.html
+├── app/respiracao.html          ├── palavras-xr.html
+└── app/palavras.html            └── video-xr.html
 ```
 
-As versões `-xr` usam **Three.js** (v0.160.0) + **WebXR API** diretamente. As versões legadas usam **A-Frame**. `xr-components.js` contém componentes A-Frame reutilizáveis para hand tracking e eye tracking.
+A pasta `app/` é a **fonte única da verdade** para a aplicação web PWA. As páginas correspondentes na raiz (`cenarios.html`, `paisagem.html`, `respiracao.html`, `palavras.html`) são redirecionamentos leves com `location.replace(...)` preservando parâmetros de busca e hash.
+
+As versões `-xr` usam **Three.js** (v0.160.0) + **WebXR API** diretamente e consomem vídeos em `app/videos/`. As versões do app usam **A-Frame**. `xr-components.js` contém componentes A-Frame reutilizáveis para hand tracking e eye tracking.
 
 ### Navigation Flow
 
 ```
-index.html  →  cenarios.html?pagina=<tipo>  →  <experiencia>.html
+index.html  →  app/cenarios.html?pagina=<tipo>  →  app/<experiencia>.html
+Raiz (cenarios.html, paisagem.html, etc.)  →  Redirects com location.replace para app/*
 app/index.html  →  app/landing.html  (mobile/PWA entry point)
 ```
 
-`cenarios.html` age como roteador: lê `?pagina=` e carrega o cenário correspondente com o vídeo 360° selecionado.
+`app/cenarios.html` age como roteador: lê `?pagina=` e carrega o cenário correspondente com o vídeo 360° selecionado.
 
 ### Interaction Fallback Chain
 
@@ -79,8 +82,8 @@ Botões e UI são objetos 3D posicionados no espaço (não overlays 2D). A inter
 
 ### Assets
 
-- `/cenarios/` — imagens panorâmicas (PNG)
-- `/videos/` — vídeos 360° (MP4/WebM, H.265 preferido): `forest`, `waterfall`, `mountain`, `beach`, `cidade`
+- `app/cenarios/` — imagens panorâmicas canônicas (PNG)
+- `app/videos/` — pasta física de vídeos 360° (MP4/WebM, H.265 preferido): `forest`, `waterfall`, `mountain`, `beach`, `cidade`
 - `/slides/` — apresentações VR independentes (Three.js)
 
 ## Key Conventions
@@ -91,7 +94,7 @@ Botões e UI são objetos 3D posicionados no espaço (não overlays 2D). A inter
   - Nenhuma string nova em `app/` deve ser adicionada hardcoded: use chaves nos arquivos de tradução e atributos `data-i18n`, `data-i18n-html` ou `data-i18n-attr`.
   - A preferência do usuário é persistida em `localStorage.zenvr_lang`.
   - Páginas estáticas de política de privacidade: `app/privacy-policy.html` (pt-BR), `app/privacy-policy.en.html` (en), `app/privacy-policy.es.html` (es).
-  - A raiz do projeto (`cenarios.html`, `paisagem*.html`, `respiracao*.html`, `palavras*.html`, etc.) e `slides/` permanecem exclusivamente em **pt-BR**.
+  - A raiz do projeto e `slides/` permanecem em **pt-BR**, com as páginas originais de experiências atuando como redirecionadores para suas versões canônicas em `app/`.
 - Sem framework de componentes — cada experiência é um arquivo HTML autocontido
 - Tailwind CSS via CDN (não instalado localmente)
 - Three.js carregado via CDN (`importmap` ou `<script type="module">`)
