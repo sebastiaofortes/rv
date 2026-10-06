@@ -82,6 +82,8 @@ function handleGoBack(event) {
 }
 ```
 
+
+
 ---
 
 ## 5. Critérios de Aceite e Testes
@@ -99,3 +101,16 @@ function handleGoBack(event) {
 4. **Fechamento de Aba / Nova Sessão**:
    - Fechar a aba e abrir novamente em nova aba/janela.
    - A Splash Screen deve aparecer apenas na primeira visualização da nova sessão.
+
+---
+
+## 6. Refinamento de Navegação: Resolução de Loop Hierárquico (Opção 1 + Opção 3)
+
+### 6.1. Problema Identificado
+Ao navegar da Home (`landing.html`) para a lista de cenários (`cenarios.html`), entrar em uma experiência imersiva e retornar para a lista de cenários, clicar no botão de voltar de `cenarios.html` fazia `history.back()` retornar para o cenário recém-fechado em vez da Home, prendendo o usuário em um looping.
+
+### 6.2. Solução Implementada
+1. **Hierarquia Pura em `cenarios.html` (Opção 1)**: O botão voltar da lista de cenários é estritamente hierárquico, apontando de forma determinística para `./landing.html`. Como a Home usa `sessionStorage`, a navegação é instantânea e livre de splash screen.
+2. **Desempilhamento nos Cenários (Opção 3)**: Nos botões `#exitExperienceBtn` das páginas de experiência (`paisagem.html`, `respiracao.html`, `palavras.html`), o clique executa `history.back()` quando há histórico da mesma origem, desempilhando a experiência e voltando para `cenarios.html`, com fallback para `href="./cenarios.html?pagina=..."`.
+
+

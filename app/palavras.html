@@ -222,7 +222,7 @@
 
 <body>
     <!-- Exit / Back Button -->
-    <a id="exitExperienceBtn" href="./cenarios.html?pagina=palavras" title="Voltar aos Cenários" aria-label="Voltar aos Cenários" data-i18n-attr="title:session.backAria,aria-label:session.backAria" style="position: fixed; top: 16px; left: 16px; z-index: 999; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s;">
+    <a id="exitExperienceBtn" href="./cenarios.html?pagina=palavras" onclick="if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.host) !== -1) { event.preventDefault(); window.history.back(); }" title="Voltar aos Cenários" aria-label="Voltar aos Cenários" data-i18n-attr="title:session.backAria,aria-label:session.backAria" style="position: fixed; top: 16px; left: 16px; z-index: 999; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M15 19l-7-7 7-7" />
         </svg>
