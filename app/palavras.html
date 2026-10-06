@@ -11,6 +11,7 @@
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <!-- Troika Text -->
     <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+    <script src="./i18n.js"></script>
     <style>
         #playBtn {
             display: none;
@@ -221,30 +222,30 @@
 
 <body>
     <!-- Exit / Back Button -->
-    <a id="exitExperienceBtn" href="./cenarios.html?pagina=palavras" title="Voltar aos Cenários" aria-label="Voltar aos Cenários" style="position: fixed; top: 16px; left: 16px; z-index: 999; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s;">
+    <a id="exitExperienceBtn" href="./cenarios.html?pagina=palavras" title="Voltar aos Cenários" aria-label="Voltar aos Cenários" data-i18n-attr="title:session.backAria,aria-label:session.backAria" style="position: fixed; top: 16px; left: 16px; z-index: 999; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M15 19l-7-7 7-7" />
         </svg>
     </a>
 
     <button id="playBtn">Ver Palavras como Nuvens</button>
-    <div id="instructions" style="display:none;">
-        Palavras vao passar diante de voce, como nuvens. Observe cada uma, e deixe-a ir...
+    <div id="instructions" style="display:none;" data-i18n="session.instructions">
+        Mova o mouse ou o celular para olhar ao redor.
     </div>
 
     <!-- Goal Panel -->
     <div id="goalPanel">
-        <h2>Configurar Sessao</h2>
+        <h2 data-i18n="session.goalTitle">Configurar Sessão</h2>
         <div id="goalTypeRow"></div>
         <div id="goalValueRow"></div>
-        <button id="startSessionBtn">Iniciar Meditacao</button>
+        <button id="startSessionBtn" data-i18n="session.startBtn">Iniciar Meditação</button>
     </div>
 
     <!-- Session HUD -->
     <div id="sessionHud">
         <div id="timerDisplay">00:00</div>
         <div id="counterDisplay">
-            <span id="counterLabel">Palavras</span>: <span id="counterValue">0</span><span id="counterGoal"></span>
+            <span id="counterLabel" data-i18n="session.labelWords">Palavras</span>: <span id="counterValue">0</span><span id="counterGoal"></span>
         </div>
     </div>
 
@@ -252,11 +253,11 @@
     <div id="completionOverlay">
         <div class="completion-box">
             <div style="font-size: 2em; margin-bottom: 12px;">&#10024;</div>
-            <h2>Sessao Completa</h2>
+            <h2 data-i18n="session.completedTitle">Sessão Completa</h2>
             <p id="completionMsg"></p>
             <div class="completion-buttons">
-                <button id="continueBtn">Continuar</button>
-                <button id="finishBtn">Encerrar</button>
+                <button id="continueBtn" data-i18n="session.continueBtn">Continuar</button>
+                <button id="finishBtn" data-i18n="session.finishBtn">Encerrar</button>
             </div>
         </div>
     </div>
@@ -283,14 +284,22 @@
     </a-scene>
     <script>
         // Lista de palavras com acentos
-        const palavras = [
-            "paz", "calma", "amor", "presenca", "aceitacao", "gratidao",
-            "alegria", "serenidade", "compaixao", "gentileza",
-            "acao", "emocao", "inspiracao", "razao", "licao",
-            "conexao", "coracao", "manha", "amanha", "uniao",
-            "tensao", "cancao", "perdao", "solidao", "percepcao",
-            "decisao", "admiracao", "atencao"
+        const palavrasFallback = [
+            "paz", "calma", "amor", "presença", "aceitação", "gratidão",
+            "alegria", "serenidade", "compaixão", "gentileza",
+            "ação", "emoção", "inspiração", "razão", "lição",
+            "conexão", "coração", "manhã", "amanhã", "união",
+            "tensão", "canção", "perdão", "solidão", "percepção",
+            "decisão", "admiração", "atenção"
         ];
+
+        function getPalavrasDoIdioma() {
+            if (window.ZenVR_i18n && typeof window.ZenVR_i18n.t === 'function') {
+                var lista = window.ZenVR_i18n.t('words.list');
+                if (Array.isArray(lista) && lista.length > 0) return lista;
+            }
+            return palavrasFallback;
+        }
         const videoParam = getQueryParam('video');
         var playBtn = document.getElementById('playBtn');
         var video = document.querySelector('#video360');
@@ -368,7 +377,8 @@
             // Sync VR HUD
             var vrC = document.getElementById('vrCounter');
             if (vrC) {
-                var txt = 'Palavras: ' + sessionCounter;
+                var wordsLabel = (window.t ? t('session.labelWords') : null) || 'Palavras';
+                var txt = wordsLabel + ': ' + sessionCounter;
                 if (sessionGoalType === 'words') txt += ' / ' + sessionGoalValue;
                 vrC.setAttribute('text', 'value', txt);
             }
@@ -396,9 +406,9 @@
             saveSession(elapsed);
             var msg = '';
             if (sessionGoalType === 'duration') {
-                msg = 'Voce meditou por ' + formatTime(elapsed) + '.';
+                msg = (window.t ? t('session.summaryDuration', { time: formatTime(elapsed) }) : null) || ('Você meditou por ' + formatTime(elapsed) + '.');
             } else if (sessionGoalType === 'words') {
-                msg = 'Voce contemplou ' + sessionCounter + ' palavras em ' + formatTime(elapsed) + '.';
+                msg = (window.t ? t('session.summaryWords', { count: sessionCounter, time: formatTime(elapsed) }) : null) || ('Você contemplou ' + sessionCounter + ' palavras em ' + formatTime(elapsed) + '.');
             }
             document.getElementById('completionMsg').textContent = msg;
             var overlay = document.getElementById('completionOverlay');
@@ -422,6 +432,7 @@
                 btn.className = 'goalTypeBtn' + (i === 0 ? ' active' : '');
                 btn.dataset.type = gt.key;
                 btn.textContent = gt.label;
+                if (gt.i18nKey) btn.setAttribute('data-i18n', gt.i18nKey);
                 btn.addEventListener('click', function () {
                     typeRow.querySelectorAll('.goalTypeBtn').forEach(function (b) { b.classList.remove('active'); });
                     btn.classList.add('active');
@@ -458,31 +469,42 @@
             sessionGoalValue = options[0].value;
         }
 
-        // Initialize goal panel
-        setupGoalPanel(
-            [
-                { key: 'none', label: 'Livre' },
-                { key: 'words', label: 'Palavras' },
-                { key: 'duration', label: 'Tempo' }
+        function getGoalTypes() {
+            return [
+                { key: 'none', label: (window.t ? t('session.typeNone') : null) || 'Livre', i18nKey: 'session.typeNone' },
+                { key: 'words', label: (window.t ? t('session.typeWords') : null) || 'Palavras', i18nKey: 'session.typeWords' },
+                { key: 'duration', label: (window.t ? t('session.typeDuration') : null) || 'Tempo', i18nKey: 'session.typeDuration' }
+            ];
+        }
+
+        var goalValuesConfig = {
+            words: [
+                { value: 20, label: '20' },
+                { value: 50, label: '50' },
+                { value: 100, label: '100' }
             ],
-            {
-                words: [
-                    { value: 20, label: '20' },
-                    { value: 50, label: '50' },
-                    { value: 100, label: '100' }
-                ],
-                duration: [
-                    { value: 180, label: '3min' },
-                    { value: 300, label: '5min' },
-                    { value: 600, label: '10min' }
-                ]
+            duration: [
+                { value: 180, label: '3min' },
+                { value: 300, label: '5min' },
+                { value: 600, label: '10min' }
+            ]
+        };
+
+        // Initialize goal panel
+        setupGoalPanel(getGoalTypes(), goalValuesConfig);
+
+        window.addEventListener('zenvr:langchange', function () {
+            if (window.ZenVR_i18n && typeof ZenVR_i18n.applyTranslations === 'function') {
+                ZenVR_i18n.applyTranslations();
             }
-        );
+            updateCounterDisplay();
+        });
 
         // Use troika-text with A-Frame animation (works in VR mode)
         function criarNuvemPalavra() {
             incrementCounter();
-            const palavra = palavras[Math.floor(Math.random() * palavras.length)];
+            const listaAtual = getPalavrasDoIdioma();
+            const palavra = listaAtual[Math.floor(Math.random() * listaAtual.length)];
             const x = (Math.random() - 0.5) * 2;
             const y = 1 + Math.random() * 0.5;
             const z = -2.4 - Math.random() * 0.3;

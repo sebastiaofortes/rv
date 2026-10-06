@@ -6,8 +6,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#4F46E5">
-  <title>ZenVR - Exercício de Respiração</title>
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <!-- Troika Text -->
+  <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+  <script src="./i18n.js"></script>
   <style>
     #playBtn {
       display: none;
@@ -218,30 +220,30 @@
 
 <body>
   <!-- Exit / Back Button -->
-  <a id="exitExperienceBtn" href="./cenarios.html?pagina=respiracao" title="Voltar aos Cenários" aria-label="Voltar aos Cenários" style="position: fixed; top: 16px; left: 16px; z-index: 999; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s;">
+  <a id="exitExperienceBtn" href="./cenarios.html?pagina=respiracao" title="Voltar aos Cenários" aria-label="Voltar aos Cenários" data-i18n-attr="title:session.backAria,aria-label:session.backAria" style="position: fixed; top: 16px; left: 16px; z-index: 999; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s;">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M15 19l-7-7 7-7" />
     </svg>
   </a>
 
   <button id="playBtn">Iniciar Meditacao 360</button>
-  <div id="instructions" style="display:none;">
+  <div id="instructions" style="display:none;" data-i18n="session.instructions">
     Mova o mouse ou o celular para olhar ao redor.
   </div>
 
   <!-- Goal Panel -->
   <div id="goalPanel">
-    <h2>Configurar Sessao</h2>
+    <h2 data-i18n="session.goalTitle">Configurar Sessão</h2>
     <div id="goalTypeRow"></div>
     <div id="goalValueRow"></div>
-    <button id="startSessionBtn">Iniciar Meditacao</button>
+    <button id="startSessionBtn" data-i18n="session.startBtn">Iniciar Meditação</button>
   </div>
 
   <!-- Session HUD -->
   <div id="sessionHud">
     <div id="timerDisplay">00:00</div>
     <div id="counterDisplay">
-      <span id="counterLabel">Ciclos</span>: <span id="counterValue">0</span><span id="counterGoal"></span>
+      <span id="counterLabel" data-i18n="session.labelCycles">Ciclos</span>: <span id="counterValue">0</span><span id="counterGoal"></span>
     </div>
   </div>
 
@@ -249,11 +251,11 @@
   <div id="completionOverlay">
     <div class="completion-box">
       <div style="font-size: 2em; margin-bottom: 12px;">&#10024;</div>
-      <h2>Sessao Completa</h2>
+      <h2 data-i18n="session.completedTitle">Sessão Completa</h2>
       <p id="completionMsg"></p>
       <div class="completion-buttons">
-        <button id="continueBtn">Continuar</button>
-        <button id="finishBtn">Encerrar</button>
+        <button id="continueBtn" data-i18n="session.continueBtn">Continuar</button>
+        <button id="finishBtn" data-i18n="session.finishBtn">Encerrar</button>
       </div>
     </div>
   </div>
@@ -271,8 +273,14 @@
     <a-entity id="breathSphere" position="0 1.5 -3">
       <a-sphere color="#7fffd4" radius="0.7" opacity="0.6"></a-sphere>
       <!-- Texto para instrucao -->
-      <a-entity id="breathText" text="value: Inspire; align: center; color: #FFFFFF; width: 3"
-        position="0 1 0"></a-entity>
+      <a-troika-text id="breathText" 
+        value="Inspire" 
+        align="center" 
+        color="#FFFFFF" 
+        font-size="0.6"
+        position="0 1 0"
+        font="https://cdn.jsdelivr.net/npm/@fontsource/roboto/files/roboto-latin-400-normal.woff">
+      </a-troika-text>
     </a-entity>
 
     <!-- VR HUD (painel 3D visivel apenas no modo VR) -->
@@ -367,7 +375,9 @@
               incrementCounter();
             }
             breathState = breathState === "in" ? "out" : "in";
-            breathText.setAttribute('text', 'value', breathState === "in" ? "Inspire" : "Expire");
+            var textIn = (window.t ? t('breath.in') : null) || 'Inspire';
+            var textOut = (window.t ? t('breath.out') : null) || 'Expire';
+            breathText.setAttribute('value', breathState === "in" ? textIn : textOut);
             breathStart = Date.now();
           }
         }
@@ -394,7 +404,8 @@
       // Sync VR HUD
       var vrC = document.getElementById('vrCounter');
       if (vrC) {
-        var txt = 'Ciclos: ' + sessionCounter;
+        var cycleLabel = (window.t ? t('session.labelCycles') : null) || 'Ciclos';
+        var txt = cycleLabel + ': ' + sessionCounter;
         if (sessionGoalType === 'cycles') txt += ' / ' + sessionGoalValue;
         vrC.setAttribute('text', 'value', txt);
       }
@@ -423,9 +434,9 @@
       saveSession(elapsed);
       var msg = '';
       if (sessionGoalType === 'duration') {
-        msg = 'Voce meditou por ' + formatTime(elapsed) + '.';
+        msg = (window.t ? t('session.summaryDuration', { time: formatTime(elapsed) }) : null) || ('Você meditou por ' + formatTime(elapsed) + '.');
       } else if (sessionGoalType === 'cycles') {
-        msg = 'Voce completou ' + sessionCounter + ' ciclos em ' + formatTime(elapsed) + '.';
+        msg = (window.t ? t('session.summaryCycles', { count: sessionCounter, time: formatTime(elapsed) }) : null) || ('Você completou ' + sessionCounter + ' ciclos de respiração em ' + formatTime(elapsed) + '.');
       }
       document.getElementById('completionMsg').textContent = msg;
       var overlay = document.getElementById('completionOverlay');
@@ -449,6 +460,7 @@
         btn.className = 'goalTypeBtn' + (i === 0 ? ' active' : '');
         btn.dataset.type = gt.key;
         btn.textContent = gt.label;
+        if (gt.i18nKey) btn.setAttribute('data-i18n', gt.i18nKey);
         btn.addEventListener('click', function () {
           typeRow.querySelectorAll('.goalTypeBtn').forEach(function (b) { b.classList.remove('active'); });
           btn.classList.add('active');
@@ -485,27 +497,42 @@
       sessionGoalValue = options[0].value;
     }
 
-    // Initialize goal panel
-    setupGoalPanel(
-      [
-        { key: 'none', label: 'Livre' },
-        { key: 'cycles', label: 'Ciclos' },
-        { key: 'duration', label: 'Tempo' }
+    function getGoalTypes() {
+      return [
+        { key: 'none', label: (window.t ? t('session.typeNone') : null) || 'Livre', i18nKey: 'session.typeNone' },
+        { key: 'cycles', label: (window.t ? t('session.typeCycles') : null) || 'Ciclos', i18nKey: 'session.typeCycles' },
+        { key: 'duration', label: (window.t ? t('session.typeDuration') : null) || 'Tempo', i18nKey: 'session.typeDuration' }
+      ];
+    }
+
+    var goalValuesConfig = {
+      cycles: [
+        { value: 5, label: '5' },
+        { value: 10, label: '10' },
+        { value: 15, label: '15' },
+        { value: 20, label: '20' }
       ],
-      {
-        cycles: [
-          { value: 5, label: '5' },
-          { value: 10, label: '10' },
-          { value: 15, label: '15' },
-          { value: 20, label: '20' }
-        ],
-        duration: [
-          { value: 180, label: '3min' },
-          { value: 300, label: '5min' },
-          { value: 600, label: '10min' }
-        ]
+      duration: [
+        { value: 180, label: '3min' },
+        { value: 300, label: '5min' },
+        { value: 600, label: '10min' }
+      ]
+    };
+
+    // Initialize goal panel
+    setupGoalPanel(getGoalTypes(), goalValuesConfig);
+
+    window.addEventListener('zenvr:langchange', function () {
+      if (window.ZenVR_i18n && typeof ZenVR_i18n.applyTranslations === 'function') {
+        ZenVR_i18n.applyTranslations();
       }
-    );
+      updateCounterDisplay();
+      if (breathText) {
+        var textIn = (window.t ? t('breath.in') : null) || 'Inspire';
+        var textOut = (window.t ? t('breath.out') : null) || 'Expire';
+        breathText.setAttribute('value', breathState === "in" ? textIn : textOut);
+      }
+    });
 
     // Start session button
     document.getElementById('startSessionBtn').addEventListener('click', function () {
@@ -515,7 +542,8 @@
       breathing = true;
       breathState = "in";
       breathStart = Date.now();
-      breathText.setAttribute('text', 'value', 'Inspire');
+      var textIn = (window.t ? t('breath.in') : null) || 'Inspire';
+      breathText.setAttribute('value', textIn);
       startSessionTimer();
     });
 

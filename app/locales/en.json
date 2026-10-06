@@ -136,5 +136,40 @@
     "feature4": "Compatible with any WebXR-supported device.",
     "contactTitle": "For more information, get in touch:",
     "close": "Close"
+  },
+  "session": {
+    "goalTitle": "Session Setup",
+    "startBtn": "Start Meditation",
+    "typeNone": "Open",
+    "typeDuration": "Time",
+    "typeCycles": "Cycles",
+    "typeWords": "Words",
+    "labelCycles": "Cycles",
+    "labelWords": "Words",
+    "instructions": "Move your mouse or phone to look around.",
+    "instructionsTouch": "Move your mouse or phone to look around. On mobile, use two fingers or double tap to control the camera.",
+    "completedTitle": "Session Completed",
+    "continueBtn": "Continue",
+    "finishBtn": "Finish",
+    "backAria": "Back to Sceneries",
+    "loader": "Loading video, please wait...",
+    "errorMsg": "Could not load the 360 video. Please try again later or check your connection.",
+    "summaryDuration": "You meditated for {time}.",
+    "summaryCycles": "You completed {count} breathing cycles in {time}.",
+    "summaryWords": "You contemplated {count} words in {time}."
+  },
+  "breath": {
+    "in": "Breathe in",
+    "out": "Breathe out"
+  },
+  "words": {
+    "list": [
+      "peace", "calm", "love", "presence", "acceptance", "gratitude",
+      "joy", "serenity", "compassion", "kindness",
+      "action", "emotion", "inspiration", "clarity", "learning",
+      "connection", "heart", "morning", "tomorrow", "harmony",
+      "release", "rhythm", "forgiveness", "solitude", "awareness",
+      "balance", "wonder", "mindfulness"
+    ]
   }
 }

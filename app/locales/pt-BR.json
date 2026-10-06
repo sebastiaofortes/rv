@@ -136,5 +136,40 @@
     "feature4": "Compatível com qualquer dispositivo com suporte a WebXR.",
     "contactTitle": "Para mais informações, entre em contato:",
     "close": "Fechar"
+  },
+  "session": {
+    "goalTitle": "Configurar Sessão",
+    "startBtn": "Iniciar Meditação",
+    "typeNone": "Livre",
+    "typeDuration": "Tempo",
+    "typeCycles": "Ciclos",
+    "typeWords": "Palavras",
+    "labelCycles": "Ciclos",
+    "labelWords": "Palavras",
+    "instructions": "Mova o mouse ou o celular para olhar ao redor.",
+    "instructionsTouch": "Mova o mouse ou o celular para olhar ao redor. Em celulares, use dois dedos para mover ou dê dois toques para controlar a câmera.",
+    "completedTitle": "Sessão Completa",
+    "continueBtn": "Continuar",
+    "finishBtn": "Encerrar",
+    "backAria": "Voltar aos Cenários",
+    "loader": "Carregando vídeo, por favor aguarde...",
+    "errorMsg": "Não foi possível carregar o vídeo 360. Tente novamente mais tarde ou verifique sua conexão.",
+    "summaryDuration": "Você meditou por {time}.",
+    "summaryCycles": "Você completou {count} ciclos de respiração em {time}.",
+    "summaryWords": "Você contemplou {count} palavras em {time}."
+  },
+  "breath": {
+    "in": "Inspire",
+    "out": "Expire"
+  },
+  "words": {
+    "list": [
+      "paz", "calma", "amor", "presença", "aceitação", "gratidão",
+      "alegria", "serenidade", "compaixão", "gentileza",
+      "ação", "emoção", "inspiração", "razão", "lição",
+      "conexão", "coração", "manhã", "amanhã", "união",
+      "tensão", "canção", "perdão", "solidão", "percepção",
+      "decisão", "admiração", "atenção"
+    ]
   }
 }

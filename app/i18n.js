@@ -121,7 +121,7 @@
       });
     }
 
-    return typeof val === 'string' ? val : key;
+    return val;
   }
 
   function applyTranslations(lang) {
@@ -164,7 +164,8 @@
     attrEls.forEach(function (el) {
       var mapping = el.getAttribute('data-i18n-attr');
       if (!mapping) return;
-      mapping.split(',').forEach(function (item) {
+      mapping.split(/[,;]/).forEach(function (item) {
+        if (!item.trim()) return;
         var parts = item.split(':');
         if (parts.length >= 2) {
           var attr = parts[0].trim();
