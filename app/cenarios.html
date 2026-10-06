@@ -242,27 +242,27 @@
     const cenarios = [
       {
         id: "praia",
-        imagem: "../cenarios/praia.png",
+        imagem: "./cenarios/praia.png",
         video: null
       },
       {
         id: "montanhas",
-        imagem: "../cenarios/montanhas.png",
+        imagem: "./cenarios/montanhas.png",
         video: "mountain.mp4"
       },
       {
         id: "praiaFlores",
-        imagem: "../cenarios/praia-flores.png",
+        imagem: "./cenarios/praia-flores.png",
         video: "praia-flores.mp4"
       },
       {
         id: "floresta",
-        imagem: "../cenarios/floresta.png",
+        imagem: "./cenarios/floresta.png",
         video: "floresta.mp4"
       },
       {
         id: "cachoeira",
-        imagem: "../cenarios/cachoeira.png",
+        imagem: "./cenarios/cachoeira.png",
         video: "cachoeira.mp4"
       }
     ];
@@ -319,7 +319,7 @@
 
       let html = '';
       cenarios.forEach(c => {
-        let link = '../' + encodeURIComponent(pagina) + '.html';
+        let link = './' + encodeURIComponent(pagina) + '.html';
         if (c.video) {
           link += '?video=' + encodeURIComponent(c.video);
         }

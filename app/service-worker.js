@@ -1,7 +1,10 @@
-const CACHE_NAME = 'zenvr-app-v4';
+const CACHE_NAME = 'zenvr-app-v5';
 const STATIC_ASSETS = [
   './landing.html',
   './cenarios.html',
+  './paisagem.html',
+  './respiracao.html',
+  './palavras.html',
   './bottom-nav.js',
   './index.html',
   './manifest.json',
@@ -17,12 +20,11 @@ const STATIC_ASSETS = [
   './favicon.png',
   './screenshot1.png',
   './screenshot2.png',
-  '../cenarios.html',
-  '../cenarios/praia.png',
-  '../cenarios/montanhas.png',
-  '../cenarios/praia-flores.png',
-  '../cenarios/floresta.png',
-  '../cenarios/cachoeira.png'
+  './cenarios/praia.png',
+  './cenarios/montanhas.png',
+  './cenarios/praia-flores.png',
+  './cenarios/floresta.png',
+  './cenarios/cachoeira.png'
 ];
 
 // Install event - cache static assets
@@ -71,10 +73,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip analytics and external resources
+  // Skip analytics, external resources, and large video streams (Range requests)
   if (event.request.url.includes('google-analytics') || 
       event.request.url.includes('googletagmanager') ||
-      event.request.url.includes('cdn.tailwindcss.com')) {
+      event.request.url.includes('cdn.tailwindcss.com') ||
+      event.request.url.match(/\.(mp4|webm)($|\?)/i) ||
+      event.request.headers.get('range')) {
     return event.respondWith(fetch(event.request));
   }
 
