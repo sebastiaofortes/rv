@@ -85,7 +85,13 @@ Botões e UI são objetos 3D posicionados no espaço (não overlays 2D). A inter
 
 ## Key Conventions
 
-- Idioma do projeto: **pt-BR** (interface e documentação)
+- **Internacionalização (i18n):**
+  - O app principal (`app/`) é multi-idioma com suporte a **pt-BR** (padrão), **en** e **es**.
+  - O runtime próprio (`app/i18n.js`) carrega os dicionários de `app/locales/{pt-BR,en,es}.json`.
+  - Nenhuma string nova em `app/` deve ser adicionada hardcoded: use chaves nos arquivos de tradução e atributos `data-i18n`, `data-i18n-html` ou `data-i18n-attr`.
+  - A preferência do usuário é persistida em `localStorage.zenvr_lang`.
+  - Páginas estáticas de política de privacidade: `app/privacy-policy.html` (pt-BR), `app/privacy-policy.en.html` (en), `app/privacy-policy.es.html` (es).
+  - A raiz do projeto (`cenarios.html`, `paisagem*.html`, `respiracao*.html`, `palavras*.html`, etc.) e `slides/` permanecem exclusivamente em **pt-BR**.
 - Sem framework de componentes — cada experiência é um arquivo HTML autocontido
 - Tailwind CSS via CDN (não instalado localmente)
 - Three.js carregado via CDN (`importmap` ou `<script type="module">`)

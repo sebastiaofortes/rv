@@ -51,6 +51,8 @@
       }
     }
   </script>
+  <!-- i18n Module -->
+  <script src="./i18n.js"></script>
   <style>
     * {
       -webkit-tap-highlight-color: transparent;
@@ -226,10 +228,10 @@
   <div class="splash-screen">
     <div class="text-center">
       <div class="w-24 h-24 mx-auto mb-6 rounded-3xl shadow-2xl overflow-hidden floating">
-        <img src="./header-icon.png" alt="ZenVR Logo" class="w-full h-full object-cover" />
+        <img src="./header-icon.png" alt="ZenVR Logo" data-i18n-attr="alt:common.logoAlt" class="w-full h-full object-cover" />
       </div>
       <h1 class="text-4xl font-bold text-white mb-2">ZenVR</h1>
-      <p class="text-white text-opacity-90">Meditação Imersiva</p>
+      <p class="text-white text-opacity-90" data-i18n="splash.subtitle">Meditação Imersiva</p>
     </div>
   </div>
 
@@ -241,26 +243,47 @@
     <div class="px-6 py-4 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg flex-shrink-0">
-          <img src="./header-icon.png" alt="ZenVR Logo" class="w-full h-full object-cover" />
+          <img src="./header-icon.png" alt="ZenVR Logo" data-i18n-attr="alt:common.logoAlt" class="w-full h-full object-cover" />
         </div>
         <div>
           <h1 class="text-lg font-bold text-gray-800">ZenVR</h1>
         </div>
       </div>
       <div class="relative">
-        <button id="menuButton" onclick="toggleMenu()" class="w-10 h-10 bg-white rounded-xl shadow flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Menu">
+        <button id="menuButton" onclick="toggleMenu()" class="w-10 h-10 bg-white rounded-xl shadow flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Menu" data-i18n-attr="aria-label:menu.buttonAria">
           <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
           </svg>
         </button>
         <!-- Dropdown Menu -->
-        <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50">
-          <a href="#sobre" onclick="toggleMenu(); showAbout();" class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 transition-colors">
-            <svg class="w-5 h-5 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="text-sm font-medium">Sobre o app</span>
-          </a>
+        <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 divide-y divide-gray-100">
+          <div>
+            <a href="#sobre" onclick="toggleMenu(); showAbout();" class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 transition-colors">
+              <svg class="w-5 h-5 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-sm font-medium" data-i18n="menu.about">Sobre o app</span>
+            </a>
+            <a id="menuPrivacyLink" href="privacy-policy.html" data-i18n-privacy class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 transition-colors">
+              <svg class="w-5 h-5 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span class="text-sm font-medium" data-i18n="menu.privacy">Política de Privacidade</span>
+            </a>
+          </div>
+          <div class="px-4 py-3">
+            <div class="flex items-center text-xs font-semibold text-gray-500 mb-2">
+              <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+              <span data-i18n="menu.language">Idioma</span>
+            </div>
+            <div class="flex items-center justify-between gap-1">
+              <button type="button" onclick="setLanguage('pt-BR')" data-lang-btn="pt-BR" class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors text-center bg-indigo-600 text-white shadow-sm" aria-pressed="true">PT</button>
+              <button type="button" onclick="setLanguage('en')" data-lang-btn="en" class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors text-center bg-gray-100 text-gray-600 hover:bg-gray-200" aria-pressed="false">EN</button>
+              <button type="button" onclick="setLanguage('es')" data-lang-btn="es" class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors text-center bg-gray-100 text-gray-600 hover:bg-gray-200" aria-pressed="false">ES</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -269,11 +292,11 @@
   <!-- Hero Section -->
   <section class="px-6 pt-8 pb-6">
     <div class="text-center mb-8 animate-slide-up">
-      <h2 class="text-3xl font-bold text-gray-800 mb-3">
+      <h2 class="text-3xl font-bold text-gray-800 mb-3" data-i18n-html="landing.hero.titleHtml">
         Encontre seu momento <br />
         <span class="gradient-text">de tranquilidade</span>
       </h2>
-      <p class="text-gray-600 text-sm leading-relaxed max-w-md mx-auto">
+      <p class="text-gray-600 text-sm leading-relaxed max-w-md mx-auto" data-i18n="landing.hero.subtitle">
         Experiências de meditação em realidade virtual para acalmar sua mente e conectar com o presente
       </p>
     </div>
@@ -282,15 +305,15 @@
     <div class="grid grid-cols-3 gap-3 mb-8">
       <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
         <div class="text-2xl font-bold text-indigo-600 mb-1">360°</div>
-        <div class="text-xs text-gray-500">Imersão</div>
+        <div class="text-xs text-gray-500" data-i18n="landing.hero.stats.immersion">Imersão</div>
       </div>
       <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
         <div class="text-2xl font-bold text-indigo-600 mb-1">5+</div>
-        <div class="text-xs text-gray-500">Cenários</div>
+        <div class="text-xs text-gray-500" data-i18n="landing.hero.stats.environments">Cenários</div>
       </div>
       <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
         <div class="text-2xl font-bold text-indigo-600 mb-1">3</div>
-        <div class="text-xs text-gray-500">Técnicas</div>
+        <div class="text-xs text-gray-500" data-i18n="landing.hero.stats.techniques">Técnicas</div>
       </div>
     </div>
   </section>
@@ -299,7 +322,7 @@
   <section id="historyWidget" class="px-6 pb-6">
     <div class="bg-white rounded-2xl p-5 shadow-sm">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-sm font-semibold text-gray-800">Sua jornada</h3>
+        <h3 class="text-sm font-semibold text-gray-800" data-i18n="history.title">Sua jornada</h3>
         <span id="historyStreak" class="text-xs text-indigo-600 font-medium"></span>
       </div>
 
@@ -307,15 +330,15 @@
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div class="history-stat">
           <span class="value" id="histWeekSessions">0</span>
-          <span class="label">sessoes</span>
+          <span class="label" data-i18n="history.sessions">sessões</span>
         </div>
         <div class="history-stat">
           <span class="value" id="histWeekMinutes">0</span>
-          <span class="label">minutos</span>
+          <span class="label" data-i18n="history.minutes">minutos</span>
         </div>
         <div class="history-stat">
           <span class="value" id="histTotalSessions">0</span>
-          <span class="label">total</span>
+          <span class="label" data-i18n="history.total">total</span>
         </div>
       </div>
 
@@ -326,7 +349,7 @@
 
   <!-- Quick Actions -->
   <section class="px-6 pb-6">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">Comece agora</h3>
+    <h3 class="text-lg font-semibold text-gray-800 mb-4" data-i18n="landing.quickActions.title">Comece agora</h3>
     
     <a href="../cenarios.html?pagina=paisagem" class="block mb-4 card-hover">
       <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-3xl p-6 shadow-lg text-white relative overflow-hidden">
@@ -335,9 +358,9 @@
         <div class="relative z-10">
           <div class="flex items-start justify-between mb-4">
             <div>
-              <div class="text-xs font-semibold uppercase tracking-wider text-indigo-200 mb-2">Recomendado</div>
-              <h4 class="text-2xl font-bold mb-2">Atenção Plena</h4>
-              <p class="text-sm text-indigo-100 leading-relaxed">Mergulhe em paisagens 360° e conecte-se com o momento presente</p>
+              <div class="text-xs font-semibold uppercase tracking-wider text-indigo-200 mb-2" data-i18n="landing.quickActions.mindfulness.badge">Recomendado</div>
+              <h4 class="text-2xl font-bold mb-2" data-i18n="landing.quickActions.mindfulness.title">Atenção Plena</h4>
+              <p class="text-sm text-indigo-100 leading-relaxed" data-i18n="landing.quickActions.mindfulness.desc">Mergulhe em paisagens 360° e conecte-se com o momento presente</p>
             </div>
             <div class="w-12 h-12 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center flex-shrink-0">
               <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,13 +373,13 @@
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              5-20 min
+              <span data-i18n="landing.quickActions.mindfulness.duration">5-20 min</span>
             </span>
             <span class="flex items-center">
               <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
-              Iniciante
+              <span data-i18n="landing.quickActions.mindfulness.level">Iniciante</span>
             </span>
           </div>
         </div>
@@ -371,10 +394,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </div>
-          <h4 class="font-bold text-gray-800 mb-2">Respiração</h4>
-          <p class="text-xs text-gray-500 mb-3">Exercícios guiados para acalmar</p>
+          <h4 class="font-bold text-gray-800 mb-2" data-i18n="landing.quickActions.breathing.title">Respiração</h4>
+          <p class="text-xs text-gray-500 mb-3" data-i18n="landing.quickActions.breathing.desc">Exercícios guiados para acalmar</p>
           <div class="flex items-center text-xs text-indigo-600 font-semibold">
-            Iniciar
+            <span data-i18n="landing.quickActions.breathing.action">Iniciar</span>
             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
@@ -389,10 +412,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
             </svg>
           </div>
-          <h4 class="font-bold text-gray-800 mb-2">Palavras</h4>
-          <p class="text-xs text-gray-500 mb-3">Visualização e reflexão</p>
+          <h4 class="font-bold text-gray-800 mb-2" data-i18n="landing.quickActions.words.title">Palavras</h4>
+          <p class="text-xs text-gray-500 mb-3" data-i18n="landing.quickActions.words.desc">Visualização e reflexão</p>
           <div class="flex items-center text-xs text-indigo-600 font-semibold">
-            Iniciar
+            <span data-i18n="landing.quickActions.words.action">Iniciar</span>
             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
@@ -404,7 +427,7 @@
 
   <!-- Features -->
   <section class="px-6 pb-6">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">Por que ZenVR?</h3>
+    <h3 class="text-lg font-semibold text-gray-800 mb-4" data-i18n="landing.features.title">Por que ZenVR?</h3>
     <div class="space-y-3">
       <div class="bg-white rounded-2xl p-4 shadow-sm flex items-start space-x-4">
         <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -414,8 +437,8 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-800 mb-1">Imersão Total</h4>
-          <p class="text-sm text-gray-600">Ambientes em realidade virtual que eliminam distrações externas</p>
+          <h4 class="font-semibold text-gray-800 mb-1" data-i18n="landing.features.immersion.title">Imersão Total</h4>
+          <p class="text-sm text-gray-600" data-i18n="landing.features.immersion.desc">Ambientes em realidade virtual que eliminam distrações externas</p>
         </div>
       </div>
 
@@ -426,8 +449,8 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-800 mb-1">Redução do Estresse</h4>
-          <p class="text-sm text-gray-600">Sons relaxantes que acalmam o sistema nervoso</p>
+          <h4 class="font-semibold text-gray-800 mb-1" data-i18n="landing.features.stress.title">Redução do Estresse</h4>
+          <p class="text-sm text-gray-600" data-i18n="landing.features.stress.desc">Sons relaxantes que acalmam o sistema nervoso</p>
         </div>
       </div>
 
@@ -438,8 +461,8 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-800 mb-1">Acesso em Qualquer Lugar</h4>
-          <p class="text-sm text-gray-600">Pratique em casa, no trabalho ou em viagem</p>
+          <h4 class="font-semibold text-gray-800 mb-1" data-i18n="landing.features.anywhere.title">Acesso em Qualquer Lugar</h4>
+          <p class="text-sm text-gray-600" data-i18n="landing.features.anywhere.desc">Pratique em casa, no trabalho ou em viagem</p>
         </div>
       </div>
     </div>
@@ -447,30 +470,30 @@
 
   <!-- How it Works -->
   <section class="px-6 pb-6">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">Como funciona</h3>
+    <h3 class="text-lg font-semibold text-gray-800 mb-4" data-i18n="landing.steps.title">Como funciona</h3>
     <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl p-6 space-y-4">
       <div class="flex items-start space-x-4">
         <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
         <div class="flex-1 pt-1">
-          <p class="text-sm text-gray-700"><span class="font-semibold">Acesse o app</span> - Abra este app em um dispositivo compatível com realidade virtual</p>
+          <p class="text-sm text-gray-700" data-i18n-html="landing.steps.step1Html"><span class="font-semibold">Acesse o app</span> - Abra este app em um dispositivo compatível com realidade virtual</p>
         </div>
       </div>
       <div class="flex items-start space-x-4">
         <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
         <div class="flex-1 pt-1">
-          <p class="text-sm text-gray-700"><span class="font-semibold">Escolha sua meditação</span> - Selecione o tipo de exercício e o ambiente virtual</p>
+          <p class="text-sm text-gray-700" data-i18n-html="landing.steps.step2Html"><span class="font-semibold">Escolha sua meditação</span> - Selecione o tipo de exercício e o ambiente virtual</p>
         </div>
       </div>
       <div class="flex items-start space-x-4">
         <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
         <div class="flex-1 pt-1">
-          <p class="text-sm text-gray-700"><span class="font-semibold">Use seu VR Box</span> - Ative o modo VR no app</p>
+          <p class="text-sm text-gray-700" data-i18n-html="landing.steps.step3Html"><span class="font-semibold">Use seu VR Box</span> - Ative o modo VR no app</p>
         </div>
       </div>
       <div class="flex items-start space-x-4">
         <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">4</div>
         <div class="flex-1 pt-1">
-          <p class="text-sm text-gray-700"><span class="font-semibold">Medite</span> - Relaxe e siga a experiência imersiva</p>
+          <p class="text-sm text-gray-700" data-i18n-html="landing.steps.step4Html"><span class="font-semibold">Medite</span> - Relaxe e siga a experiência imersiva</p>
         </div>
       </div>
     </div>
@@ -484,9 +507,9 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
         </svg>
       </div>
-      <h3 class="text-2xl font-bold mb-3">Pronto para começar?</h3>
-      <p class="text-indigo-100 mb-6 text-sm">Sua jornada de tranquilidade começa agora</p>
-      <a href="../cenarios.html?pagina=paisagem" class="inline-block bg-white text-indigo-700 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+      <h3 class="text-2xl font-bold mb-3" data-i18n="landing.cta.title">Pronto para começar?</h3>
+      <p class="text-indigo-100 mb-6 text-sm" data-i18n="landing.cta.subtitle">Sua jornada de tranquilidade começa agora</p>
+      <a href="../cenarios.html?pagina=paisagem" class="inline-block bg-white text-indigo-700 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow" data-i18n="landing.cta.button">
         Iniciar Primeira Sessão
       </a>
     </div>
@@ -499,26 +522,26 @@
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
         </svg>
-        <span class="text-xs font-medium">Início</span>
+        <span class="text-xs font-medium" data-i18n="nav.home">Início</span>
       </a>
       <a href="../cenarios.html?pagina=paisagem" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
         </svg>
-        <span class="text-xs font-medium">Atenção</span>
+        <span class="text-xs font-medium" data-i18n="nav.mindfulness">Atenção</span>
       </a>
       <a href="../cenarios.html?pagina=respiracao" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
-        <span class="text-xs font-medium">Respiração</span>
+        <span class="text-xs font-medium" data-i18n="nav.breathing">Respiração</span>
       </a>
       <a href="../cenarios.html?pagina=palavras" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-indigo-500 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
         </svg>
-        <span class="text-xs font-medium">Palavras</span>
+        <span class="text-xs font-medium" data-i18n="nav.words">Palavras</span>
       </a>
     </div>
   </nav>
@@ -530,52 +553,52 @@
       <div class="bg-white rounded-3xl shadow-2xl animate-slide-up max-h-full flex flex-col overflow-hidden">
         <div class="bg-gradient-to-br from-indigo-600 to-purple-700 px-6 py-6 text-center text-white flex-shrink-0">
           <div class="w-16 h-16 mx-auto mb-3 rounded-2xl overflow-hidden shadow-lg">
-            <img src="./header-icon.png" alt="ZenVR Logo" class="w-full h-full object-cover" />
+            <img src="./header-icon.png" alt="ZenVR Logo" data-i18n-attr="alt:common.logoAlt" class="w-full h-full object-cover" />
           </div>
           <h2 class="text-2xl font-bold mb-1">ZenVR</h2>
-          <p class="text-indigo-100 text-sm">Meditação Imersiva</p>
+          <p class="text-indigo-100 text-sm" data-i18n="splash.subtitle">Meditação Imersiva</p>
         </div>
         <div class="overflow-y-auto flex-1 modal-scroll" style="max-height: calc(85vh - 180px);">
           <div class="p-6 space-y-4">
             <div>
-              <h3 class="font-semibold text-gray-800 mb-2">Sobre o App</h3>
-              <p class="text-sm text-gray-600 leading-relaxed">
+              <h3 class="font-semibold text-gray-800 mb-2" data-i18n="about.title">Sobre o App</h3>
+              <p class="text-sm text-gray-600 leading-relaxed" data-i18n="about.description">
                 ZenVR é uma plataforma de meditação em realidade virtual que oferece experiências imersivas 
-                para ajudar você a meditar e prarticar mindfulness através de ambientes virtuais com 
+                para ajudar você a meditar e praticar mindfulness através de ambientes virtuais com 
                 exercícios de respiração guiada e reflexões profundas.
               </p>
             </div>
             <div>
-              <h4 class="font-semibold text-gray-800 mb-2 text-sm">Recursos</h4>
+              <h4 class="font-semibold text-gray-800 mb-2 text-sm" data-i18n="about.featuresTitle">Recursos</h4>
               <ul class="space-y-2 text-sm text-gray-600">
                 <li class="flex items-start">
                   <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                   </svg>
-                  Ambientes em realidade virtual imersivos
+                  <span data-i18n="about.feature1">Ambientes em realidade virtual imersivos</span>
                 </li>
                 <li class="flex items-start">
                   <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                   </svg>
-                  Exercícios de respiração guiada
+                  <span data-i18n="about.feature2">Exercícios de respiração guiada</span>
                 </li>
                 <li class="flex items-start">
                   <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                   </svg>
-                  Palavras de reflexão
+                  <span data-i18n="about.feature3">Palavras de reflexão</span>
                 </li>
                 <li class="flex items-start">
                   <svg class="w-5 h-5 text-indigo-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                   </svg>
-                  Compatível com qualquer dispositivo com suporte a WebXR.
+                  <span data-i18n="about.feature4">Compatível com qualquer dispositivo com suporte a WebXR.</span>
                 </li>
               </ul>
             </div>
             <div class="bg-indigo-50 rounded-2xl p-4">
-              <p class="text-xs text-gray-600 text-center mb-2">
+              <p class="text-xs text-gray-600 text-center mb-2" data-i18n="about.contactTitle">
                 Para mais informações, entre em contato:
               </p>
               <a href="mailto:sebastiaofortes4@gmail.com" class="flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors">
@@ -586,9 +609,14 @@
               </a>
             </div>
             <div class="pt-4">
-              <button onclick="closeAbout()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+              <button onclick="closeAbout()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow" data-i18n="about.close">
                 Fechar
               </button>
+            </div>
+            <div class="pt-2 text-center">
+              <a href="privacy-policy.html" data-i18n-privacy class="text-xs text-indigo-600 hover:underline" data-i18n="menu.privacy">
+                Política de Privacidade
+              </a>
             </div>
           </div>
         </div>
@@ -652,13 +680,13 @@
     }
 
     // === SESSION HISTORY WIDGET ===
-    (function() {
+    function renderHistoryWidget() {
       try {
         var sessions = JSON.parse(localStorage.getItem('zenvr_sessions') || '[]');
         if (sessions.length === 0) return;
 
         var widget = document.getElementById('historyWidget');
-        widget.style.display = 'block';
+        if (widget) widget.style.display = 'block';
 
         var now = new Date();
         var todayStr = now.toISOString().slice(0, 10);
@@ -697,9 +725,12 @@
 
         weekMinutes = Math.round(weekMinutes / 60);
 
-        document.getElementById('histWeekSessions').textContent = weekSessions;
-        document.getElementById('histWeekMinutes').textContent = weekMinutes;
-        document.getElementById('histTotalSessions').textContent = sessions.length;
+        var weekSessionsEl = document.getElementById('histWeekSessions');
+        if (weekSessionsEl) weekSessionsEl.textContent = weekSessions;
+        var weekMinutesEl = document.getElementById('histWeekMinutes');
+        if (weekMinutesEl) weekMinutesEl.textContent = weekMinutes;
+        var totalSessionsEl = document.getElementById('histTotalSessions');
+        if (totalSessionsEl) totalSessionsEl.textContent = sessions.length;
 
         // Streak calculation
         var streak = 0;
@@ -716,38 +747,58 @@
         }
 
         var streakEl = document.getElementById('historyStreak');
-        if (streak > 1) {
-          streakEl.textContent = streak + ' dias seguidos';
-        } else if (streak === 1) {
-          streakEl.textContent = 'Ativo hoje';
+        if (streakEl) {
+          if (streak > 1) {
+            streakEl.textContent = (typeof window.t === 'function') ? window.t('history.streak', { count: streak }) : (streak + ' dias seguidos');
+          } else if (streak === 1) {
+            streakEl.textContent = (typeof window.t === 'function') ? window.t('history.streak.activeToday') : 'Ativo hoje';
+          } else {
+            streakEl.textContent = '';
+          }
         }
 
-        // 7-day dots
-        var dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+        // 7-day dots with Intl day formatting
         var dotsContainer = document.getElementById('historyDots');
-        last7.forEach(function(dateStr) {
-          var div = document.createElement('div');
-          div.className = 'history-day';
+        if (dotsContainer) {
+          dotsContainer.innerHTML = '';
+          last7.forEach(function(dateStr) {
+            var div = document.createElement('div');
+            div.className = 'history-day';
 
-          var dot = document.createElement('div');
-          dot.className = 'dot';
-          if (daysWithSessions[dateStr]) dot.classList.add('active');
-          if (dateStr === todayStr) dot.classList.add('today');
+            var dot = document.createElement('div');
+            dot.className = 'dot';
+            if (daysWithSessions[dateStr]) dot.classList.add('active');
+            if (dateStr === todayStr) dot.classList.add('today');
 
-          var label = document.createElement('span');
-          label.className = 'day-label';
-          var dayIndex = new Date(dateStr + 'T12:00:00').getDay();
-          label.textContent = dayNames[dayIndex];
+            var label = document.createElement('span');
+            label.className = 'day-label';
 
-          div.appendChild(dot);
-          div.appendChild(label);
-          dotsContainer.appendChild(div);
-        });
+            var dayDate = new Date(dateStr + 'T12:00:00');
+            var dayLabelText = '';
+            if (window.ZenVR_i18n && typeof window.ZenVR_i18n.formatWeekday === 'function') {
+              dayLabelText = window.ZenVR_i18n.formatWeekday(dayDate, 'short');
+              if (dayLabelText) {
+                dayLabelText = dayLabelText.charAt(0).toUpperCase() + dayLabelText.slice(1).replace('.', '');
+              }
+            } else {
+              var dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+              dayLabelText = dayNames[dayDate.getDay()];
+            }
+            label.textContent = dayLabelText;
+
+            div.appendChild(dot);
+            div.appendChild(label);
+            dotsContainer.appendChild(div);
+          });
+        }
 
       } catch (e) {
         console.log('[App] History widget error:', e);
       }
-    })();
+    }
+
+    renderHistoryWidget();
+    window.addEventListener('zenvr:langchange', renderHistoryWidget);
   </script>
 
 </body>

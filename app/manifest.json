@@ -1,7 +1,7 @@
 {
-  "name": "ZenVR - Meditação Imersiva",
+  "name": "ZenVR - Immersive Meditation",
   "short_name": "ZenVR",
-  "description": "Experiências de meditação em realidade virtual para acalmar sua mente e conectar com o presente",
+  "description": "Virtual reality meditation experiences to calm your mind and connect with the present moment",
   "start_url": "./landing.html",
   "display": "standalone",
   "display_override": ["xr", "fullscreen", "standalone"],
@@ -9,7 +9,7 @@
   "theme_color": "#4F46E5",
   "orientation": "any",
   "scope": "./",
-  "lang": "pt-BR",
+  "lang": "en",
   "dir": "ltr",
   "categories": ["health", "lifestyle", "wellness", "vr"],
   "xr_capabilities": {
@@ -33,9 +33,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Atenção Plena",
-      "short_name": "Paisagem",
-      "description": "Iniciar meditação de atenção plena",
+      "name": "Mindfulness",
+      "short_name": "Scenery",
+      "description": "Start mindfulness meditation",
       "url": "../cenarios.html?pagina=paisagem",
       "icons": [
         {
@@ -45,9 +45,9 @@
       ]
     },
     {
-      "name": "Respiração",
-      "short_name": "Respirar",
-      "description": "Exercício de respiração guiada",
+      "name": "Breathing",
+      "short_name": "Breathe",
+      "description": "Guided breathing exercise",
       "url": "../cenarios.html?pagina=respiracao",
       "icons": [
         {
@@ -57,9 +57,9 @@
       ]
     },
     {
-      "name": "Palavras",
-      "short_name": "Visualizar",
-      "description": "Chuva de palavras motivacionais",
+      "name": "Words",
+      "short_name": "Reflect",
+      "description": "Inspirational words and reflection",
       "url": "../cenarios.html?pagina=palavras",
       "icons": [
         {
@@ -75,17 +75,16 @@
       "sizes": "540x720",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Tela inicial do ZenVR"
+      "label": "ZenVR home screen"
     },
     {
       "src": "./screenshot2.png",
       "sizes": "540x720",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Experiência de meditação 360°"
+      "label": "360° meditation experience"
     }
   ],
   "related_applications": [],
   "prefer_related_applications": false
 }
-

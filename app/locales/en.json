@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "title": "ZenVR - Immersive Meditation",
+    "description": "Virtual reality meditation experiences to calm your mind and connect with the present moment"
+  },
+  "splash": {
+    "title": "ZenVR",
+    "subtitle": "Immersive Meditation"
+  },
+  "common": {
+    "logoAlt": "ZenVR Logo"
+  },
+  "menu": {
+    "buttonAria": "Menu",
+    "about": "About the app",
+    "privacy": "Privacy Policy",
+    "language": "Language"
+  },
+  "landing": {
+    "hero": {
+      "titleHtml": "Find your moment <br /><span class=\"gradient-text\">of tranquility</span>",
+      "subtitle": "Virtual reality meditation experiences to calm your mind and connect with the present moment",
+      "stats": {
+        "immersion": "Immersion",
+        "environments": "Sceneries",
+        "techniques": "Techniques"
+      }
+    },
+    "quickActions": {
+      "title": "Start now",
+      "mindfulness": {
+        "badge": "Recommended",
+        "title": "Mindfulness",
+        "desc": "Immerse yourself in 360° landscapes and connect with the present moment",
+        "duration": "5-20 min",
+        "level": "Beginner"
+      },
+      "breathing": {
+        "title": "Breathing",
+        "desc": "Guided rhythm exercises to calm and unwind",
+        "action": "Start"
+      },
+      "words": {
+        "title": "Reflection",
+        "desc": "Inspirational words and peaceful visualization",
+        "action": "Start"
+      }
+    },
+    "features": {
+      "title": "Why ZenVR?",
+      "immersion": {
+        "title": "Full Immersion",
+        "desc": "Virtual reality environments that eliminate external distractions"
+      },
+      "stress": {
+        "title": "Stress Relief",
+        "desc": "Calming soundscapes that soothe the nervous system"
+      },
+      "anywhere": {
+        "title": "Anywhere, Anytime",
+        "desc": "Practice at home, at work, or while traveling"
+      }
+    },
+    "steps": {
+      "title": "How it works",
+      "step1Html": "<span class=\"font-semibold\">Open the app</span> - Launch this app on your VR-compatible device",
+      "step2Html": "<span class=\"font-semibold\">Choose your practice</span> - Select an exercise and immersive environment",
+      "step3Html": "<span class=\"font-semibold\">Put on your headset</span> - Activate VR mode inside the app",
+      "step4Html": "<span class=\"font-semibold\">Meditate</span> - Relax and let the immersive journey guide you"
+    },
+    "cta": {
+      "title": "Ready to begin?",
+      "subtitle": "Your journey to tranquility starts now",
+      "button": "Start First Session"
+    }
+  },
+  "history": {
+    "title": "Your journey",
+    "streak": {
+      "activeToday": "Active today",
+      "one": "{count}-day streak",
+      "other": "{count}-day streak"
+    },
+    "sessions": "sessions",
+    "minutes": "minutes",
+    "total": "total"
+  },
+  "nav": {
+    "home": "Home",
+    "mindfulness": "Mindfulness",
+    "breathing": "Breathing",
+    "words": "Words"
+  },
+  "about": {
+    "title": "About the App",
+    "description": "ZenVR is a virtual reality meditation platform that offers immersive experiences designed to help you meditate and practice mindfulness through peaceful 360° environments, rhythmic breathing, and deep reflection.",
+    "featuresTitle": "Features",
+    "feature1": "Immersive 360° virtual reality environments",
+    "feature2": "Calming guided breathing exercises",
+    "feature3": "Reflective and inspiring mindfulness words",
+    "feature4": "Compatible with any WebXR-supported device.",
+    "contactTitle": "For more information, get in touch:",
+    "close": "Close"
+  }
+}
